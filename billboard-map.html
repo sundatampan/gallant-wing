@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Billboard & LED Banner Live Map — Jakarta 2026</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0f1117;
+    color: #e0e0e0;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* Layout */
+  .app {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    grid-template-rows: auto 1fr;
+    height: 100vh;
+  }
+
+  /* Top Bar */
+  .topbar {
+    grid-column: 1 / -1;
+    background: #131520;
+    border-bottom: 1px solid #1e2035;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 1000;
+  }
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .topbar h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.3px;
+  }
+  .topbar h1 span { color: #f97316; }
+  .topbar-badge {
+    background: linear-gradient(135deg, #f97316, #ef4444);
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .topbar-badge .pulse-dot {
+    width: 8px; height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    animation: livePulse 1.5s ease infinite;
+  }
+  @keyframes livePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.7); }
+  }
+  .topbar-stats {
+    display: flex;
+    gap: 20px;
+  }
+  .topbar-stat {
+    text-align: center;
+  }
+  .topbar-stat .val {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .topbar-stat .lbl {
+    font-size: 10px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    background: #13152080;
+    backdrop-filter: blur(20px);
+    border-right: 1px solid #1e2035;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    z-index: 900;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: #2a2d3e; border-radius: 2px; }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+
+  /* Campaign Dropdown */
+  .campaign-select-wrapper {
+    position: relative;
+  }
+  .campaign-select {
+    width: 100%;
+    background: #1a1d2e;
+    border: 1px solid #2a2d3e;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 14px 16px;
+    cursor: pointer;
+    appearance: none;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .campaign-select:hover, .campaign-select:focus {
+    border-color: #f97316;
+  }
+  .campaign-select option {
+    background: #1a1d2e;
+    color: #fff;
+    padding: 8px;
+  }
+  .select-arrow {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #666;
+    font-size: 12px;
+  }
+
+  /* Campaign Info Card */
+  .campaign-info {
+    background: #1a1d2e;
+    border: 1px solid #2a2d3e;
+    border-radius: 14px;
+    padding: 18px;
+    display: none;
+  }
+  .campaign-info.show { display: block; }
+  .ci-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .ci-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .ci-badge {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .ci-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .ci-detail {
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .ci-detail .dl { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+  .ci-detail .dv { font-size: 14px; font-weight: 600; color: #fff; margin-top: 2px; }
+
+  /* Location List */
+  .location-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .location-card {
+    background: #1a1d2e;
+    border: 1px solid #2a2d3e;
+    border-radius: 12px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .location-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    transition: background 0.2s;
+  }
+  .location-card:hover {
+    border-color: #f97316;
+    transform: translateX(4px);
+  }
+  .location-card:hover::before { background: #f97316; }
+  .location-card.active {
+    border-color: #f97316;
+    background: rgba(249, 115, 22, 0.08);
+  }
+  .location-card.active::before { background: #f97316; }
+  .lc-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .lc-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.3;
+  }
+  .lc-type {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+  .lc-type.billboard { background: rgba(168,85,247,0.2); color: #a855f7; }
+  .lc-type.led { background: rgba(34,197,94,0.2); color: #22c55e; }
+  .lc-type.videotron { background: rgba(59,130,246,0.2); color: #3b82f6; }
+  .lc-type.neon { background: rgba(251,191,36,0.2); color: #fbbf24; }
+  .lc-address {
+    font-size: 11px;
+    color: #777;
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .lc-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 10px;
+    color: #555;
+  }
+  .lc-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Map */
+  .map-container {
+    position: relative;
+  }
+  #map {
+    width: 100%;
+    height: 100%;
+    background: #0f1117;
+  }
+
+  /* Custom map markers */
+  .custom-marker {
+    position: relative;
+    cursor: pointer;
+  }
+  .marker-pin {
+    width: 36px;
+    height: 36px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    border: 2px solid rgba(255,255,255,0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .marker-pin:hover {
+    transform: rotate(-45deg) scale(1.2);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+  }
+  .marker-pin .marker-icon {
+    transform: rotate(45deg);
+    font-size: 14px;
+  }
+  .marker-pin.billboard-pin { background: linear-gradient(135deg, #a855f7, #7c3aed); }
+  .marker-pin.led-pin { background: linear-gradient(135deg, #22c55e, #16a34a); }
+  .marker-pin.videotron-pin { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+  .marker-pin.neon-pin { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+
+  /* Map popup custom */
+  .leaflet-popup-content-wrapper {
+    background: #1a1d2e !important;
+    border: 1px solid #2a2d3e !important;
+    border-radius: 14px !important;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6) !important;
+    color: #e0e0e0 !important;
+    padding: 0 !important;
+    overflow: hidden;
+  }
+  .leaflet-popup-content {
+    margin: 0 !important;
+    min-width: 280px;
+  }
+  .leaflet-popup-tip {
+    background: #1a1d2e !important;
+    border: 1px solid #2a2d3e !important;
+  }
+  .leaflet-popup-close-button {
+    color: #666 !important;
+    font-size: 20px !important;
+    top: 8px !important;
+    right: 10px !important;
+    z-index: 10;
+  }
+  .leaflet-popup-close-button:hover { color: #fff !important; }
+
+  .popup-content {
+    padding: 0;
+  }
+  .popup-preview {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    display: block;
+    border-bottom: 1px solid #2a2d3e;
+  }
+  .popup-body {
+    padding: 16px;
+  }
+  .popup-type {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+  .popup-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .popup-address {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .popup-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .popup-stat {
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+  }
+  .popup-stat .ps-val {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .popup-stat .ps-lbl {
+    font-size: 10px;
+    color: #666;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .popup-campaign {
+    background: rgba(249, 115, 22, 0.1);
+    border: 1px solid rgba(249, 115, 22, 0.2);
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .popup-campaign .pc-label {
+    font-size: 10px;
+    color: #f97316;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .popup-campaign .pc-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .popup-campaign .pc-period {
+    font-size: 11px;
+    color: #888;
+    margin-top: 2px;
+  }
+
+  /* Map overlay controls */
+  .map-overlay {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 800;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .map-filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    background: #1a1d2e;
+    border: 1px solid #2a2d3e;
+    color: #888;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    backdrop-filter: blur(10px);
+  }
+  .map-filter-btn:hover { border-color: #555; color: #ccc; }
+  .map-filter-btn.active { border-color: #f97316; color: #fff; background: rgba(249,115,22,0.1); }
+  .map-filter-btn .mf-dot {
+    width: 10px; height: 10px;
+    border-radius: 3px;
+  }
+  .map-filter-btn .mf-count {
+    margin-left: auto;
+    background: rgba(255,255,255,0.08);
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-size: 10px;
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #555;
+  }
+  .empty-state .es-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+  }
+  .empty-state .es-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #888;
+    margin-bottom: 6px;
+  }
+  .empty-state .es-desc {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* Animations */
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .location-card {
+    animation: fadeSlideIn 0.25s ease forwards;
+  }
+
+  /* Map tile dark mode */
+  .leaflet-tile-pane { filter: brightness(0.7) contrast(1.1) saturate(0.3) hue-rotate(180deg) invert(1); }
+
+  .leaflet-control-zoom a {
+    background: #1a1d2e !important;
+    color: #fff !important;
+    border-color: #2a2d3e !important;
+  }
+  .leaflet-control-attribution {
+    background: rgba(15,17,23,0.8) !important;
+    color: #555 !important;
+    font-size: 9px !important;
+  }
+  .leaflet-control-attribution a { color: #666 !important; }
+
+  /* Marker cluster animation */
+  @keyframes markerBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  .marker-animate {
+    animation: markerBounce 0.4s ease;
+  }
+
+  /* Search */
+  .search-box {
+    background: #1a1d2e;
+    border: 1px solid #2a2d3e;
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .search-box input {
+    background: none;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 13px;
+    width: 100%;
+  }
+  .search-box input::placeholder { color: #555; }
+  .search-icon { color: #555; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Billboard <span>Live Map</span></h1>
+      <div class="topbar-badge"><div class="pulse-dot"></div> JAKARTA 2026</div>
+    </div>
+    <div class="topbar-stats">
+      <div class="topbar-stat">
+        <div class="val" id="statLocations">0</div>
+        <div class="lbl">Locations</div>
+      </div>
+      <div class="topbar-stat">
+        <div class="val" id="statBillboards">0</div>
+        <div class="lbl">Billboards</div>
+      </div>
+      <div class="topbar-stat">
+        <div class="val" id="statLED">0</div>
+        <div class="lbl">LED</div>
+      </div>
+      <div class="topbar-stat">
+        <div class="val" id="statImpressions">0</div>
+        <div class="lbl">Est. Daily Views</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div>
+      <div class="section-title">Select Campaign</div>
+      <div class="campaign-select-wrapper">
+        <select class="campaign-select" id="campaignSelect">
+          <option value="">— Choose a campaign —</option>
+        </select>
+        <div class="select-arrow">▾</div>
+      </div>
+    </div>
+
+    <div class="campaign-info" id="campaignInfo">
+      <div class="ci-header">
+        <div class="ci-name" id="ciName"></div>
+        <div class="ci-badge" id="ciBadge"></div>
+      </div>
+      <div class="ci-details">
+        <div class="ci-detail"><div class="dl">Period</div><div class="dv" id="ciPeriod"></div></div>
+        <div class="ci-detail"><div class="dl">Budget</div><div class="dv" id="ciBudget"></div></div>
+        <div class="ci-detail"><div class="dl">Locations</div><div class="dv" id="ciLocCount"></div></div>
+        <div class="ci-detail"><div class="dl">Category</div><div class="dv" id="ciCategory"></div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">Search Locations</div>
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search billboard location...">
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title" id="locListTitle">Locations</div>
+      <div class="location-list" id="locationList">
+        <div class="empty-state">
+          <div class="es-icon">📍</div>
+          <div class="es-title">No Campaign Selected</div>
+          <div class="es-desc">Select a campaign from the dropdown above to view billboard locations across Jakarta.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map -->
+  <div class="map-container">
+    <div id="map"></div>
+    <div class="map-overlay" id="mapOverlay"></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ============================
+// DATA: Jakarta Billboard Locations (randomized per campaign)
+// ============================
+
+const JAKARTA_LOCATIONS = [
+  { id: 1,  name: 'Bundaran HI LED Screen', address: 'Jl. MH Thamrin, Bundaran Hotel Indonesia, Central Jakarta', lat: -6.1950, lng: 106.8230, area: 'Central Jakarta', type: 'led', size: '20m x 10m', facing: 'North & South', traffic: '320K' },
+  { id: 2,  name: 'Sudirman Billboard Tower', address: 'Jl. Jend. Sudirman Kav. 52-53, SCBD Area', lat: -6.2240, lng: 106.8090, area: 'South Jakarta', type: 'billboard', size: '16m x 8m', facing: 'East', traffic: '280K' },
+  { id: 3,  name: 'Semanggi Flyover Videotron', address: 'Simpang Susun Semanggi, South Jakarta', lat: -6.2200, lng: 106.8130, area: 'South Jakarta', type: 'videotron', size: '24m x 12m', facing: 'All directions', traffic: '450K' },
+  { id: 4,  name: 'Gatot Subroto LED Panel', address: 'Jl. Gatot Subroto, Near Pancoran', lat: -6.2430, lng: 106.8420, area: 'South Jakarta', type: 'led', size: '18m x 9m', facing: 'West', traffic: '290K' },
+  { id: 5,  name: 'Kuningan Billboard', address: 'Jl. HR Rasuna Said, Kuningan, South Jakarta', lat: -6.2290, lng: 106.8340, area: 'South Jakarta', type: 'billboard', size: '14m x 7m', facing: 'North', traffic: '210K' },
+  { id: 6,  name: 'Monas Area Neon Sign', address: 'Jl. Medan Merdeka, Near National Monument', lat: -6.1754, lng: 106.8272, area: 'Central Jakarta', type: 'neon', size: '12m x 6m', facing: 'South', traffic: '180K' },
+  { id: 7,  name: 'Kelapa Gading LED Billboard', address: 'Jl. Boulevard Raya, Kelapa Gading, North Jakarta', lat: -6.1580, lng: 106.9080, area: 'North Jakarta', type: 'led', size: '16m x 8m', facing: 'East & West', traffic: '240K' },
+  { id: 8,  name: 'PIK Avenue Videotron', address: 'Jl. Pantai Indah Kapuk, North Jakarta', lat: -6.1110, lng: 106.7440, area: 'North Jakarta', type: 'videotron', size: '20m x 10m', facing: 'South', traffic: '190K' },
+  { id: 9,  name: 'Mangga Dua Billboard', address: 'Jl. Mangga Dua Raya, North Jakarta', lat: -6.1380, lng: 106.8310, area: 'North Jakarta', type: 'billboard', size: '12m x 6m', facing: 'West', traffic: '200K' },
+  { id: 10, name: 'Thamrin City LED Wall', address: 'Jl. Thamrin Boulevard, Central Jakarta', lat: -6.1920, lng: 106.8190, area: 'Central Jakarta', type: 'led', size: '22m x 11m', facing: 'North', traffic: '310K' },
+  { id: 11, name: 'Casablanca Billboard', address: 'Jl. Casablanca Raya, Tebet, South Jakarta', lat: -6.2320, lng: 106.8560, area: 'South Jakarta', type: 'billboard', size: '14m x 7m', facing: 'East', traffic: '220K' },
+  { id: 12, name: 'Warung Buncit LED', address: 'Jl. Warung Buncit Raya, South Jakarta', lat: -6.2600, lng: 106.8350, area: 'South Jakarta', type: 'led', size: '10m x 5m', facing: 'North', traffic: '160K' },
+  { id: 13, name: 'Slipi Flyover Billboard', address: 'Jl. S. Parman, Slipi, West Jakarta', lat: -6.1820, lng: 106.7940, area: 'West Jakarta', type: 'billboard', size: '18m x 9m', facing: 'East', traffic: '270K' },
+  { id: 14, name: 'Tomang Videotron', address: 'Jl. Tomang Raya, West Jakarta', lat: -6.1760, lng: 106.7850, area: 'West Jakarta', type: 'videotron', size: '16m x 8m', facing: 'South', traffic: '190K' },
+  { id: 15, name: 'Cawang Interchange LED', address: 'Simpang Cawang, East Jakarta', lat: -6.2490, lng: 106.8680, area: 'East Jakarta', type: 'led', size: '20m x 10m', facing: 'All directions', traffic: '380K' },
+  { id: 16, name: 'Daan Mogot Billboard', address: 'Jl. Daan Mogot KM 1, West Jakarta', lat: -6.1660, lng: 106.7870, area: 'West Jakarta', type: 'billboard', size: '14m x 7m', facing: 'West', traffic: '230K' },
+  { id: 17, name: 'Pondok Indah LED Screen', address: 'Jl. Metro Pondok Indah, South Jakarta', lat: -6.2810, lng: 106.7840, area: 'South Jakarta', type: 'led', size: '16m x 8m', facing: 'North', traffic: '200K' },
+  { id: 18, name: 'TB Simatupang Billboard', address: 'Jl. TB Simatupang, Cilandak, South Jakarta', lat: -6.2920, lng: 106.8110, area: 'South Jakarta', type: 'billboard', size: '12m x 6m', facing: 'East', traffic: '175K' },
+  { id: 19, name: 'Kemang Neon Billboard', address: 'Jl. Kemang Raya, South Jakarta', lat: -6.2610, lng: 106.8130, area: 'South Jakarta', type: 'neon', size: '10m x 5m', facing: 'South', traffic: '150K' },
+  { id: 20, name: 'Pluit Videotron', address: 'Jl. Pluit Selatan, North Jakarta', lat: -6.1250, lng: 106.7920, area: 'North Jakarta', type: 'videotron', size: '18m x 9m', facing: 'East', traffic: '210K' },
+  { id: 21, name: 'Tanah Abang LED', address: 'Jl. Tanah Abang, Central Jakarta', lat: -6.1860, lng: 106.8110, area: 'Central Jakarta', type: 'led', size: '14m x 7m', facing: 'West', traffic: '260K' },
+  { id: 22, name: 'Rawamangun Billboard', address: 'Jl. Pemuda, Rawamangun, East Jakarta', lat: -6.1900, lng: 106.8780, area: 'East Jakarta', type: 'billboard', size: '12m x 6m', facing: 'North', traffic: '170K' },
+  { id: 23, name: 'Bekasi Timur LED', address: 'Jl. Raya Bekasi Timur, East Jakarta border', lat: -6.2270, lng: 106.9320, area: 'East Jakarta', type: 'led', size: '16m x 8m', facing: 'South', traffic: '250K' },
+  { id: 24, name: 'Ancol Bay Videotron', address: 'Jl. Lodan Timur, Ancol, North Jakarta', lat: -6.1250, lng: 106.8450, area: 'North Jakarta', type: 'videotron', size: '20m x 10m', facing: 'West', traffic: '160K' },
+  { id: 25, name: 'Senayan Billboard', address: 'Jl. Asia Afrika, Senayan, Central Jakarta', lat: -6.2180, lng: 106.8020, area: 'Central Jakarta', type: 'billboard', size: '18m x 9m', facing: 'North', traffic: '300K' },
+  { id: 26, name: 'Fatmawati LED Panel', address: 'Jl. RS Fatmawati, South Jakarta', lat: -6.2720, lng: 106.7970, area: 'South Jakarta', type: 'led', size: '14m x 7m', facing: 'East', traffic: '195K' },
+  { id: 27, name: 'Cempaka Putih Billboard', address: 'Jl. Cempaka Putih, Central Jakarta', lat: -6.1730, lng: 106.8640, area: 'Central Jakarta', type: 'billboard', size: '12m x 6m', facing: 'South', traffic: '180K' },
+  { id: 28, name: 'Halim LED Screen', address: 'Jl. Halim Perdanakusuma, East Jakarta', lat: -6.2650, lng: 106.8900, area: 'East Jakarta', type: 'led', size: '18m x 9m', facing: 'West', traffic: '220K' },
+  { id: 29, name: 'Tanjung Priok Neon', address: 'Jl. Yos Sudarso, Tanjung Priok, North Jakarta', lat: -6.1150, lng: 106.8680, area: 'North Jakarta', type: 'neon', size: '10m x 5m', facing: 'North', traffic: '140K' },
+  { id: 30, name: 'Puri Indah Videotron', address: 'Jl. Puri Indah Raya, West Jakarta', lat: -6.1890, lng: 106.7370, area: 'West Jakarta', type: 'videotron', size: '22m x 11m', facing: 'South', traffic: '230K' },
+];
+
+// Billboard creative previews (SVG data URIs as placeholders)
+function generatePreviewSVG(campaignName, type, color1, color2) {
+  const encoded = encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" width="400" height="200">
+      <defs>
+        <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:${color1}"/>
+          <stop offset="100%" style="stop-color:${color2}"/>
+        </linearGradient>
+      </defs>
+      <rect width="400" height="200" fill="url(#g)"/>
+      <text x="200" y="80" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold" fill="white" opacity="0.9">${type.toUpperCase()} DISPLAY</text>
+      <text x="200" y="115" text-anchor="middle" font-family="Arial" font-size="22" font-weight="bold" fill="white">${campaignName}</text>
+      <text x="200" y="150" text-anchor="middle" font-family="Arial" font-size="12" fill="white" opacity="0.7">Jakarta 2026 Campaign</text>
+      <rect x="150" y="168" width="100" height="3" rx="1.5" fill="white" opacity="0.4"/>
+    </svg>
+  `);
+  return `data:image/svg+xml,${encoded}`;
+}
+
+// ============================
+// CAMPAIGNS DATA (2026 e-commerce)
+// ============================
+const CAMPAIGNS = [
+  {
+    id: 'cny2026',
+    name: 'Chinese New Year Sale',
+    period: 'Jan 15 — Feb 5, 2026',
+    startMonth: 'Jan', endMonth: 'Feb',
+    budget: 'Rp 2.8B',
+    category: 'Seasonal Sale',
+    status: 'completed',
+    statusColor: '#22c55e',
+    color1: '#dc2626', color2: '#f59e0b',
+    locationIds: [1, 3, 5, 7, 9, 10, 13, 15, 20, 21, 24, 25],
+  },
+  {
+    id: 'ramadan2026',
+    name: 'Ramadan Mega Sale',
+    period: 'Feb 18 — Mar 20, 2026',
+    startMonth: 'Feb', endMonth: 'Mar',
+    budget: 'Rp 4.5B',
+    category: 'Religious Event',
+    status: 'active',
+    statusColor: '#f97316',
+    color1: '#059669', color2: '#10b981',
+    locationIds: [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 13, 15, 17, 20, 21, 23, 25, 27],
+  },
+  {
+    id: 'eid2026',
+    name: 'Eid Mubarak Festive',
+    period: 'Mar 21 — Apr 10, 2026',
+    startMonth: 'Mar', endMonth: 'Apr',
+    budget: 'Rp 3.2B',
+    category: 'Religious Event',
+    status: 'upcoming',
+    statusColor: '#6366f1',
+    color1: '#7c3aed', color2: '#a855f7',
+    locationIds: [1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26],
+  },
+  {
+    id: 'mid2026',
+    name: 'Mid-Year Super Sale',
+    period: 'Jun 1 — Jun 21, 2026',
+    startMonth: 'Jun', endMonth: 'Jun',
+    budget: 'Rp 2.1B',
+    category: 'Flash Sale',
+    status: 'upcoming',
+    statusColor: '#6366f1',
+    color1: '#2563eb', color2: '#3b82f6',
+    locationIds: [1, 3, 5, 7, 11, 13, 15, 17, 22, 25, 30],
+  },
+  {
+    id: 'independence2026',
+    name: 'Merdeka Independence Day',
+    period: 'Aug 1 — Aug 20, 2026',
+    startMonth: 'Aug', endMonth: 'Aug',
+    budget: 'Rp 3.8B',
+    category: 'National Event',
+    status: 'upcoming',
+    statusColor: '#6366f1',
+    color1: '#dc2626', color2: '#fff',
+    locationIds: [1, 2, 3, 6, 7, 9, 10, 13, 15, 20, 21, 24, 25, 27, 28],
+  },
+  {
+    id: 'nine2026',
+    name: '9.9 Super Shopping Day',
+    period: 'Sep 1 — Sep 12, 2026',
+    startMonth: 'Sep', endMonth: 'Sep',
+    budget: 'Rp 1.9B',
+    category: 'Flash Sale',
+    status: 'upcoming',
+    statusColor: '#6366f1',
+    color1: '#f97316', color2: '#ef4444',
+    locationIds: [1, 3, 7, 10, 13, 15, 21, 23, 25],
+  },
+  {
+    id: 'ten2026',
+    name: '10.10 Brands Festival',
+    period: 'Oct 1 — Oct 12, 2026',
+    startMonth: 'Oct', endMonth: 'Oct',
+    budget: 'Rp 2.3B',
+    category: 'Brand Campaign',
+    status: 'upcoming',
+    statusColor: '#6366f1',
+    color1: '#0891b2', color2: '#06b6d4',
+    locationIds: [2, 4, 5, 8, 11, 14, 17, 19, 22, 26, 29],
+  },
+  {
+    id: 'eleven2026',
+    name: '11.11 Singles Day Sale',
+    period: 'Nov 1 — Nov 14, 2026',
+    startMonth: 'Nov', endMonth: 'Nov',
+    budget: 'Rp 5.2B',
+    category: 'Mega Sale',
+    status: 'upcoming',
+    statusColor: '#6366f1',
+    color1: '#e11d48', color2: '#f43f5e',
+    locationIds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 20, 21, 23, 24, 25, 27, 30],
+  },
+  {
+    id: 'twelve2026',
+    name: '12.12 Year End Sale',
+    period: 'Dec 1 — Dec 15, 2026',
+    startMonth: 'Dec', endMonth: 'Dec',
+    budget: 'Rp 4.8B',
+    category: 'Mega Sale',
+    status: 'upcoming',
+    statusColor: '#6366f1',
+    color1: '#7c3aed', color2: '#ec4899',
+    locationIds: [1, 2, 3, 5, 7, 8, 10, 11, 13, 14, 15, 17, 19, 20, 21, 23, 25, 28, 30],
+  },
+  {
+    id: 'xmas2026',
+    name: 'Christmas & New Year Blowout',
+    period: 'Dec 18 — Jan 2, 2027',
+    startMonth: 'Dec', endMonth: 'Jan',
+    budget: 'Rp 3.5B',
+    category: 'Seasonal Sale',
+    status: 'upcoming',
+    statusColor: '#6366f1',
+    color1: '#16a34a', color2: '#dc2626',
+    locationIds: [1, 3, 6, 7, 8, 10, 12, 15, 17, 20, 24, 25, 26, 30],
+  },
+];
+
+// ============================
+// MAP INITIALIZATION
+// ============================
+const map = L.map('map', {
+  center: [-6.2088, 106.8456],
+  zoom: 12,
+  zoomControl: true,
+  attributionControl: true,
+});
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors',
+  maxZoom: 18,
+}).addTo(map);
+
+// Store current markers
+let currentMarkers = [];
+let selectedCampaign = null;
+let typeFilter = null;
+
+// ============================
+// POPULATE CAMPAIGN DROPDOWN
+// ============================
+const campaignSelect = document.getElementById('campaignSelect');
+CAMPAIGNS.forEach(c => {
+  const opt = document.createElement('option');
+  opt.value = c.id;
+  const statusEmoji = c.status === 'active' ? '🟢' : c.status === 'completed' ? '✅' : '📅';
+  opt.textContent = `${statusEmoji} ${c.name} (${c.period})`;
+  campaignSelect.appendChild(opt);
+});
+
+// ============================
+// RENDER FUNCTIONS
+// ============================
+
+function getTypeConfig(type) {
+  const configs = {
+    billboard:  { label: 'Billboard', cssClass: 'billboard', pinClass: 'billboard-pin', icon: '🪧', color: '#a855f7' },
+    led:        { label: 'LED',       cssClass: 'led',       pinClass: 'led-pin',       icon: '💡', color: '#22c55e' },
+    videotron:  { label: 'Videotron', cssClass: 'videotron', pinClass: 'videotron-pin', icon: '📺', color: '#3b82f6' },
+    neon:       { label: 'Neon Sign', cssClass: 'neon',      pinClass: 'neon-pin',      icon: '✨', color: '#fbbf24' },
+  };
+  return configs[type] || configs.billboard;
+}
+
+function clearMarkers() {
+  currentMarkers.forEach(m => map.removeLayer(m));
+  currentMarkers = [];
+}
+
+function updateStats(locations) {
+  document.getElementById('statLocations').textContent = locations.length;
+  document.getElementById('statBillboards').textContent = locations.filter(l => l.type === 'billboard').length;
+  document.getElementById('statLED').textContent = locations.filter(l => l.type === 'led' || l.type === 'videotron').length;
+  const totalImpressions = locations.reduce((sum, l) => sum + parseInt(l.traffic.replace('K','')) * 1000, 0);
+  document.getElementById('statImpressions').textContent = (totalImpressions / 1000000).toFixed(1) + 'M';
+}
+
+function renderCampaignInfo(campaign) {
+  const info = document.getElementById('campaignInfo');
+  document.getElementById('ciName').textContent = campaign.name;
+  const badge = document.getElementById('ciBadge');
+  badge.textContent = campaign.status.toUpperCase();
+  badge.style.background = campaign.statusColor + '22';
+  badge.style.color = campaign.statusColor;
+  document.getElementById('ciPeriod').textContent = campaign.period;
+  document.getElementById('ciBudget').textContent = campaign.budget;
+  document.getElementById('ciLocCount').textContent = campaign.locationIds.length + ' spots';
+  document.getElementById('ciCategory').textContent = campaign.category;
+  info.classList.add('show');
+}
+
+function renderLocations(campaign) {
+  const locations = campaign.locationIds.map(id => JAKARTA_LOCATIONS.find(l => l.id === id)).filter(Boolean);
+  const filtered = typeFilter ? locations.filter(l => l.type === typeFilter) : locations;
+
+  // Update stats
+  updateStats(filtered);
+
+  // Clear
+  clearMarkers();
+
+  // Update location list title
+  document.getElementById('locListTitle').textContent = `Locations (${filtered.length})`;
+
+  // Build location list
+  const list = document.getElementById('locationList');
+  list.innerHTML = '';
+
+  filtered.forEach((loc, i) => {
+    const tc = getTypeConfig(loc.type);
+
+    // Sidebar card
+    const card = document.createElement('div');
+    card.className = 'location-card';
+    card.style.animationDelay = `${i * 0.04}s`;
+    card.innerHTML = `
+      <div class="lc-top">
+        <div class="lc-name">${loc.name}</div>
+        <div class="lc-type ${tc.cssClass}">${tc.icon} ${tc.label}</div>
+      </div>
+      <div class="lc-address">${loc.address}</div>
+      <div class="lc-meta">
+        <span>📐 ${loc.size}</span>
+        <span>🧭 ${loc.facing}</span>
+        <span>👁 ${loc.traffic}/day</span>
+      </div>
+    `;
+
+    // Map marker
+    const markerIcon = L.divIcon({
+      className: 'custom-marker',
+      html: `<div class="marker-pin ${tc.pinClass}"><span class="marker-icon">${tc.icon}</span></div>`,
+      iconSize: [36, 36],
+      iconAnchor: [18, 36],
+      popupAnchor: [0, -36],
+    });
+
+    const marker = L.marker([loc.lat, loc.lng], { icon: markerIcon }).addTo(map);
+
+    // Popup content
+    const previewSVG = generatePreviewSVG(campaign.name, loc.type, campaign.color1, campaign.color2);
+    const popupHTML = `
+      <div class="popup-content">
+        <img class="popup-preview" src="${previewSVG}" alt="Billboard preview">
+        <div class="popup-body">
+          <div class="popup-type" style="background:${tc.color}22; color:${tc.color}">${tc.icon} ${tc.label}</div>
+          <div class="popup-name">${loc.name}</div>
+          <div class="popup-address">${loc.address}</div>
+          <div class="popup-grid">
+            <div class="popup-stat"><div class="ps-val">${loc.size}</div><div class="ps-lbl">Size</div></div>
+            <div class="popup-stat"><div class="ps-val">${loc.facing}</div><div class="ps-lbl">Facing</div></div>
+            <div class="popup-stat"><div class="ps-val">${loc.traffic}</div><div class="ps-lbl">Daily Views</div></div>
+            <div class="popup-stat"><div class="ps-val">${loc.area}</div><div class="ps-lbl">Area</div></div>
+          </div>
+          <div class="popup-campaign">
+            <div class="pc-label">Active Campaign</div>
+            <div class="pc-name">${campaign.name}</div>
+            <div class="pc-period">${campaign.period}</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    marker.bindPopup(popupHTML, { maxWidth: 320, offset: [0, -5] });
+
+    // Card click => fly to marker
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.location-card.active').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      map.flyTo([loc.lat, loc.lng], 15, { duration: 0.8 });
+      marker.openPopup();
+    });
+
+    // Marker click => highlight card
+    marker.on('click', () => {
+      document.querySelectorAll('.location-card.active').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+
+    // Card hover => bounce marker
+    card.addEventListener('mouseenter', () => {
+      const el = marker.getElement();
+      if (el) {
+        el.querySelector('.marker-pin').classList.add('marker-animate');
+        setTimeout(() => el.querySelector('.marker-pin').classList.remove('marker-animate'), 400);
+      }
+    });
+
+    list.appendChild(card);
+    currentMarkers.push(marker);
+  });
+
+  // Fit map bounds
+  if (filtered.length > 0) {
+    const group = L.featureGroup(currentMarkers);
+    map.fitBounds(group.getBounds().pad(0.15), { duration: 0.8 });
+  }
+
+  // Render map overlay type filters
+  renderMapFilters(locations);
+}
+
+function renderMapFilters(locations) {
+  const overlay = document.getElementById('mapOverlay');
+  overlay.innerHTML = '';
+
+  const types = ['billboard', 'led', 'videotron', 'neon'];
+  types.forEach(type => {
+    const tc = getTypeConfig(type);
+    const count = locations.filter(l => l.type === type).length;
+    if (count === 0) return;
+
+    const btn = document.createElement('div');
+    btn.className = 'map-filter-btn' + (typeFilter === type ? ' active' : '') + (typeFilter === null ? ' active' : '');
+    btn.innerHTML = `
+      <span class="mf-dot" style="background:${tc.color}"></span>
+      ${tc.label}
+      <span class="mf-count">${count}</span>
+    `;
+    btn.addEventListener('click', () => {
+      typeFilter = typeFilter === type ? null : type;
+      renderLocations(selectedCampaign);
+    });
+    overlay.appendChild(btn);
+  });
+}
+
+// ============================
+// EVENT LISTENERS
+// ============================
+
+campaignSelect.addEventListener('change', (e) => {
+  const id = e.target.value;
+  typeFilter = null;
+  if (!id) {
+    selectedCampaign = null;
+    clearMarkers();
+    document.getElementById('campaignInfo').classList.remove('show');
+    document.getElementById('locationList').innerHTML = `
+      <div class="empty-state">
+        <div class="es-icon">📍</div>
+        <div class="es-title">No Campaign Selected</div>
+        <div class="es-desc">Select a campaign from the dropdown above to view billboard locations across Jakarta.</div>
+      </div>
+    `;
+    document.getElementById('locListTitle').textContent = 'Locations';
+    document.getElementById('mapOverlay').innerHTML = '';
+    updateStats([]);
+    map.flyTo([-6.2088, 106.8456], 12, { duration: 0.8 });
+    return;
+  }
+
+  selectedCampaign = CAMPAIGNS.find(c => c.id === id);
+  renderCampaignInfo(selectedCampaign);
+  renderLocations(selectedCampaign);
+});
+
+// Search filter
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  const query = e.target.value.toLowerCase();
+  const cards = document.querySelectorAll('.location-card');
+  cards.forEach(card => {
+    const name = card.querySelector('.lc-name').textContent.toLowerCase();
+    const address = card.querySelector('.lc-address').textContent.toLowerCase();
+    card.style.display = (name.includes(query) || address.includes(query)) ? '' : 'none';
+  });
+});
+
+// ============================
+// INIT — auto-select active campaign
+// ============================
+const activeCampaign = CAMPAIGNS.find(c => c.status === 'active');
+if (activeCampaign) {
+  campaignSelect.value = activeCampaign.id;
+  campaignSelect.dispatchEvent(new Event('change'));
+}
+</script>
+
+</body>
+</html>

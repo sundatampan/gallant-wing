@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blibli Ramadhan 2026 — Campaign Performance Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0b0d13;
+    --card: #12141f;
+    --card-border: #1c1f30;
+    --card-hover: #181b2a;
+    --text: #e0e0e0;
+    --text-muted: #6b7280;
+    --text-dim: #3d4155;
+    --accent: #f97316;
+    --accent2: #6366f1;
+    --green: #22c55e;
+    --green-bg: rgba(34,197,94,0.1);
+    --red: #ef4444;
+    --red-bg: rgba(239,68,68,0.1);
+    --yellow: #fbbf24;
+    --yellow-bg: rgba(251,191,36,0.1);
+    --blue: #3b82f6;
+  }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== TOP NAV ===== */
+  .topnav {
+    background: #0e1019;
+    border-bottom: 1px solid var(--card-border);
+    padding: 0 32px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  .topnav-left { display: flex; align-items: center; gap: 16px; }
+  .topnav-logo {
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .topnav-logo span { color: var(--accent); }
+  .topnav-sep { width: 1px; height: 24px; background: var(--card-border); }
+  .topnav-campaign {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .topnav-campaign-name { font-size: 14px; font-weight: 600; color: #fff; }
+  .topnav-badge {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge-active { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .topnav-right { display: flex; align-items: center; gap: 16px; }
+  .topnav-period {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .last-updated {
+    font-size: 11px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .live-dot {
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: blink 1.5s ease infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* ===== MAIN LAYOUT ===== */
+  .dashboard {
+    padding: 24px 32px 48px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  /* ===== HERO SECTION ===== */
+  .hero {
+    background: linear-gradient(135deg, rgba(249,115,22,0.08) 0%, rgba(99,102,241,0.08) 100%);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .hero-left h2 {
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .hero-left p { font-size: 13px; color: var(--text-muted); }
+  .hero-kpis {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .hero-kpi {
+    text-align: center;
+    min-width: 100px;
+  }
+  .hero-kpi .hk-val {
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+  }
+  .hero-kpi .hk-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+  .hero-kpi .hk-achieve {
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 4px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    display: inline-block;
+  }
+
+  /* ===== PROGRESS TIMELINE ===== */
+  .timeline-bar {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+  .timeline-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .timeline-header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .timeline-days {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .timeline-track {
+    display: grid;
+    grid-template-columns: repeat(18, 1fr);
+    gap: 3px;
+    margin-bottom: 10px;
+  }
+  .timeline-day {
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: default;
+    transition: transform 0.15s;
+    position: relative;
+  }
+  .timeline-day:hover { transform: scaleY(1.15); z-index: 2; }
+  .timeline-day.past {
+    background: linear-gradient(135deg, var(--accent), #ea580c);
+    color: #fff;
+  }
+  .timeline-day.today {
+    background: linear-gradient(135deg, var(--accent2), #818cf8);
+    color: #fff;
+    box-shadow: 0 0 12px rgba(99,102,241,0.4);
+  }
+  .timeline-day.future {
+    background: #1a1d2e;
+    color: var(--text-dim);
+    border: 1px solid var(--card-border);
+  }
+  .timeline-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  /* ===== SECTION HEADERS ===== */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    margin-top: 8px;
+  }
+  .section-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .section-header .sh-line {
+    flex: 1;
+    height: 1px;
+    background: var(--card-border);
+  }
+  .section-header .sh-badge {
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 10px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  /* ===== KPI CARDS GRID ===== */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    transition: border-color 0.2s, transform 0.15s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 14px 14px 0 0;
+  }
+  .kpi-card:hover {
+    border-color: #2a2d45;
+    transform: translateY(-2px);
+  }
+  .kpi-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .kpi-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .kpi-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .kpi-values {
+    margin-bottom: 12px;
+  }
+  .kpi-actual {
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+  }
+  .kpi-target {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+  .kpi-target span { color: var(--text-muted); }
+  .kpi-progress {
+    margin-bottom: 8px;
+  }
+  .kpi-progress-bar {
+    height: 6px;
+    background: #1a1d2e;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+  .kpi-progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1s ease;
+    position: relative;
+  }
+  .kpi-progress-fill.over { box-shadow: 0 0 8px rgba(34,197,94,0.4); }
+  .kpi-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .kpi-achieve {
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .kpi-achieve.hit { color: var(--green); }
+  .kpi-achieve.miss { color: var(--red); }
+  .kpi-achieve.warning { color: var(--yellow); }
+  .kpi-delta {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  .delta-up { background: var(--green-bg); color: var(--green); }
+  .delta-down { background: var(--red-bg); color: var(--red); }
+  .delta-warn { background: var(--yellow-bg); color: var(--yellow); }
+
+  /* ===== CHARTS ROW ===== */
+  .charts-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 20px 24px;
+  }
+  .chart-card h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .chart-card h4 .cc-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .chart-wrapper {
+    position: relative;
+    height: 260px;
+  }
+
+  /* ===== DAILY TABLE ===== */
+  .table-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    overflow-x: auto;
+  }
+  .table-card h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 16px;
+  }
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .data-table thead th {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--card-border);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    background: var(--card);
+  }
+  .data-table thead th:first-child { padding-left: 0; }
+  .data-table tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #13152008;
+    color: #ccc;
+    white-space: nowrap;
+  }
+  .data-table tbody td:first-child { padding-left: 0; font-weight: 600; color: #fff; }
+  .data-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
+  .data-table tbody tr:last-child td { border-bottom: none; }
+  .data-table .tbl-badge {
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .tbl-hit { background: var(--green-bg); color: var(--green); }
+  .tbl-miss { background: var(--red-bg); color: var(--red); }
+  .tbl-warn { background: var(--yellow-bg); color: var(--yellow); }
+  .tbl-date-today {
+    background: rgba(99,102,241,0.1);
+  }
+  .tbl-date-today td { color: #fff !important; }
+
+  /* ===== BOTTOM INSIGHTS ===== */
+  .insights-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .insight-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .insight-card h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .funnel-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #1a1d2e;
+  }
+  .funnel-step:last-child { border-bottom: none; }
+  .funnel-bar-track {
+    flex: 1;
+    height: 8px;
+    background: #1a1d2e;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .funnel-bar {
+    height: 100%;
+    border-radius: 4px;
+  }
+  .funnel-label {
+    font-size: 11px;
+    color: #ccc;
+    min-width: 80px;
+  }
+  .funnel-val {
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    min-width: 56px;
+    text-align: right;
+  }
+  .alert-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #1a1d2e;
+  }
+  .alert-item:last-child { border-bottom: none; }
+  .alert-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+  .alert-text {
+    font-size: 12px;
+    color: #ccc;
+    line-height: 1.5;
+  }
+  .alert-text strong { color: #fff; }
+
+  .target-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #1a1d2e;
+  }
+  .target-item:last-child { border-bottom: none; }
+  .target-name { font-size: 12px; color: #ccc; }
+  .target-status {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 10px;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 1400px) {
+    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 1100px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .charts-row { grid-template-columns: 1fr; }
+    .insights-row { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    .dashboard { padding: 16px; }
+    .kpi-grid { grid-template-columns: 1fr; }
+    .hero { flex-direction: column; align-items: flex-start; }
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .kpi-card, .chart-card, .insight-card, .table-card {
+    animation: fadeUp 0.4s ease forwards;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<div class="topnav">
+  <div class="topnav-left">
+    <div class="topnav-logo">Blibli<span>Dashboard</span></div>
+    <div class="topnav-sep"></div>
+    <div class="topnav-campaign">
+      <div class="topnav-campaign-name">Ramadhan 2026</div>
+      <div class="topnav-badge badge-active"><span class="live-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:4px;"></span>Active</div>
+    </div>
+  </div>
+  <div class="topnav-right">
+    <div class="topnav-period">📅 2 — 19 March 2026 (18 days)</div>
+    <div class="topnav-sep"></div>
+    <div class="last-updated"><div class="live-dot"></div> Live data · Updated 2 min ago</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard">
+
+  <!-- HERO -->
+  <div class="hero" id="hero"></div>
+
+  <!-- TIMELINE -->
+  <div class="timeline-bar" id="timelineBar"></div>
+
+  <!-- PRIMARY KPIs -->
+  <div class="section-header">
+    <h3>Primary KPIs</h3>
+    <div class="sh-line"></div>
+    <div class="sh-badge">Revenue & Customers</div>
+  </div>
+  <div class="kpi-grid" id="primaryKPIs"></div>
+
+  <!-- CONVERSION KPIs -->
+  <div class="section-header">
+    <h3>Conversion & Efficiency</h3>
+    <div class="sh-line"></div>
+    <div class="sh-badge">Rates & Ratios</div>
+  </div>
+  <div class="kpi-grid" id="conversionKPIs"></div>
+
+  <!-- CHARTS -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <h4>Daily TPV Trend <span class="cc-sub">Target vs Actual (in Billion Rp)</span></h4>
+      <div class="chart-wrapper"><canvas id="tpvChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h4>KPI Achievement <span class="cc-sub">% of Target</span></h4>
+      <div class="chart-wrapper"><canvas id="radarChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <h4>Orders & UV Trend <span class="cc-sub">Daily volume</span></h4>
+      <div class="chart-wrapper"><canvas id="ordersChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h4>Customer Breakdown <span class="cc-sub">New vs Returning</span></h4>
+      <div class="chart-wrapper"><canvas id="customerChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- DAILY BREAKDOWN TABLE -->
+  <div class="table-card">
+    <h4>📋 Daily Performance Breakdown</h4>
+    <div style="max-height:400px; overflow-y:auto;">
+      <table class="data-table" id="dailyTable"></table>
+    </div>
+  </div>
+
+  <!-- BOTTOM INSIGHTS -->
+  <div class="insights-row">
+    <div class="insight-card">
+      <h4>🔽 Conversion Funnel</h4>
+      <div id="funnelContent"></div>
+    </div>
+    <div class="insight-card">
+      <h4>🎯 Target Status</h4>
+      <div id="targetStatus"></div>
+    </div>
+    <div class="insight-card">
+      <h4>⚡ Alerts & Insights</h4>
+      <div id="alertsContent"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// =============================================
+// CAMPAIGN CONFIG & SIMULATED DATA
+// =============================================
+const CAMPAIGN = {
+  name: 'Blibli Ramadhan 2026',
+  start: 2, end: 19, month: 'March', year: 2026,
+  totalDays: 18,
+};
+
+// Simulate "today" = March 11, 2026 (day 10 of campaign)
+const SIM_TODAY = 11;
+const ELAPSED_DAYS = SIM_TODAY - CAMPAIGN.start + 1; // 10 days elapsed
+const PROGRESS_PCT = (ELAPSED_DAYS / CAMPAIGN.totalDays * 100);
+
+// Target values (full campaign)
+const TARGETS = {
+  tpv:            { label: 'TPV',                    target: 850000000000,    unit: '', format: 'currency',  icon: '💰', color: '#f97316', group: 'primary' },
+  customer:       { label: 'Customer',               target: 420000,          unit: '',  format: 'number',   icon: '👥', color: '#6366f1', group: 'primary' },
+  txnUserCR:      { label: 'Transaction User CR',    target: 4.2,             unit: '%', format: 'percent',  icon: '🔄', color: '#14b8a6', group: 'primary' },
+  uv:             { label: 'User Visitor (UV)',       target: 18000000,        unit: '',  format: 'number',   icon: '👁', color: '#3b82f6', group: 'primary' },
+  pdpUV:          { label: 'PDP UV',                  target: 8500000,         unit: '',  format: 'number',   icon: '📄', color: '#a855f7', group: 'primary' },
+  pdpUVRate:      { label: 'PDP UV Rate',             target: 47.2,            unit: '%', format: 'percent',  icon: '📊', color: '#ec4899', group: 'conversion' },
+  orders:         { label: 'Orders',                  target: 1250000,         unit: '',  format: 'number',   icon: '🛒', color: '#22c55e', group: 'conversion' },
+  unitSold:       { label: 'Unit Sold',               target: 3200000,         unit: '',  format: 'number',   icon: '📦', color: '#0891b2', group: 'conversion' },
+  aov:            { label: 'AOV (TPV/Orders)',        target: 680000,          unit: '',  format: 'currency_k', icon: '💳', color: '#f59e0b', group: 'conversion' },
+  asp:            { label: 'ASP (TPV/Unit)',          target: 265625,          unit: '',  format: 'currency_k', icon: '🏷', color: '#8b5cf6', group: 'conversion' },
+  uvCVR:          { label: 'UV CVR',                  target: 6.94,            unit: '%', format: 'percent',  icon: '🎯', color: '#ef4444', group: 'conversion' },
+  basketSize:     { label: 'Basket Size',             target: 2.56,            unit: '',  format: 'decimal',  icon: '🧺', color: '#10b981', group: 'conversion' },
+  purchaseRate:   { label: 'Purchase Rate',           target: 2.33,            unit: '%', format: 'percent',  icon: '🛍', color: '#6366f1', group: 'conversion' },
+  newCustomer:    { label: 'New Customer',            target: 165000,          unit: '',  format: 'number',   icon: '🆕', color: '#f43f5e', group: 'primary' },
+  arpu:           { label: 'ARPU (TPV/Cust)',        target: 2023810,         unit: '',  format: 'currency_k', icon: '📈', color: '#d946ef', group: 'conversion' },
+};
+
+// Generate daily data up to SIM_TODAY
+function generateDailyData() {
+  const days = [];
+  let cumulTPV = 0, cumulOrders = 0, cumulUnits = 0, cumulCustomers = 0, cumulNewCust = 0, cumulUV = 0, cumulPDP = 0;
+
+  for (let d = CAMPAIGN.start; d <= CAMPAIGN.end; d++) {
+    const dayNum = d - CAMPAIGN.start + 1;
+    const isElapsed = d <= SIM_TODAY;
+
+    // Simulate a realistic ramadan curve: builds up, peaks mid-campaign, slight dip weekends
+    const peakFactor = 1 + 0.6 * Math.sin((dayNum / CAMPAIGN.totalDays) * Math.PI);
+    const weekendDip = ([0, 6].includes((6 + d - 1) % 7)) ? 0.85 : 1;
+    const randomness = 0.9 + Math.random() * 0.2;
+    const dayFactor = peakFactor * weekendDip * randomness;
+
+    const dailyTPV  = isElapsed ? Math.round(850000000000 / CAMPAIGN.totalDays * dayFactor) : null;
+    const dailyUV   = isElapsed ? Math.round(18000000 / CAMPAIGN.totalDays * dayFactor) : null;
+    const dailyPDP  = isElapsed ? Math.round(dailyUV * (0.44 + Math.random() * 0.08)) : null;
+    const dailyOrders = isElapsed ? Math.round(1250000 / CAMPAIGN.totalDays * dayFactor) : null;
+    const dailyUnits  = isElapsed ? Math.round(dailyOrders * (2.3 + Math.random() * 0.5)) : null;
+    const dailyCust   = isElapsed ? Math.round(420000 / CAMPAIGN.totalDays * dayFactor) : null;
+    const dailyNew    = isElapsed ? Math.round(dailyCust * (0.35 + Math.random() * 0.1)) : null;
+
+    if (isElapsed) {
+      cumulTPV += dailyTPV;
+      cumulOrders += dailyOrders;
+      cumulUnits += dailyUnits;
+      cumulCustomers += dailyCust;
+      cumulNewCust += dailyNew;
+      cumulUV += dailyUV;
+      cumulPDP += dailyPDP;
+    }
+
+    days.push({
+      day: d,
+      dayNum,
+      isElapsed,
+      isToday: d === SIM_TODAY,
+      daily: {
+        tpv: dailyTPV,
+        uv: dailyUV,
+        pdpUV: dailyPDP,
+        orders: dailyOrders,
+        unitSold: dailyUnits,
+        customer: dailyCust,
+        newCustomer: dailyNew,
+      },
+      cumul: isElapsed ? {
+        tpv: cumulTPV,
+        uv: cumulUV,
+        pdpUV: cumulPDP,
+        orders: cumulOrders,
+        unitSold: cumulUnits,
+        customer: cumulCustomers,
+        newCustomer: cumulNewCust,
+      } : null,
+    });
+  }
+  return days;
+}
+
+const DAILY_DATA = generateDailyData();
+const latestCumul = DAILY_DATA.filter(d => d.isElapsed).slice(-1)[0].cumul;
+
+// Compute current actuals
+const ACTUALS = {
+  tpv:          latestCumul.tpv,
+  customer:     latestCumul.customer,
+  txnUserCR:    parseFloat((latestCumul.customer / latestCumul.uv * 100).toFixed(2)),
+  uv:           latestCumul.uv,
+  pdpUV:        latestCumul.pdpUV,
+  pdpUVRate:    parseFloat((latestCumul.pdpUV / latestCumul.uv * 100).toFixed(1)),
+  orders:       latestCumul.orders,
+  unitSold:     latestCumul.unitSold,
+  aov:          Math.round(latestCumul.tpv / latestCumul.orders),
+  asp:          Math.round(latestCumul.tpv / latestCumul.unitSold),
+  uvCVR:        parseFloat((latestCumul.unitSold / latestCumul.uv * 100).toFixed(2)),
+  basketSize:   parseFloat((latestCumul.unitSold / latestCumul.orders).toFixed(2)),
+  purchaseRate: parseFloat((latestCumul.customer / latestCumul.uv * 100).toFixed(2)),
+  newCustomer:  latestCumul.newCustomer,
+  arpu:         Math.round(latestCumul.tpv / latestCumul.customer),
+};
+
+// =============================================
+// FORMAT HELPERS
+// =============================================
+function fmtNumber(n) {
+  if (n >= 1e12) return (n/1e12).toFixed(2) + 'T';
+  if (n >= 1e9) return (n/1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+  return n.toLocaleString();
+}
+function fmtCurrency(n) { return 'Rp ' + fmtNumber(n); }
+function fmtCurrencyK(n) { return 'Rp ' + n.toLocaleString('id-ID'); }
+function fmtPercent(n) { return n.toFixed(2) + '%'; }
+function fmtDecimal(n) { return n.toFixed(2); }
+function fmtValue(val, format) {
+  switch(format) {
+    case 'currency': return fmtCurrency(val);
+    case 'currency_k': return fmtCurrencyK(val);
+    case 'number': return fmtNumber(val);
+    case 'percent': return fmtPercent(val);
+    case 'decimal': return fmtDecimal(val);
+    default: return val;
+  }
+}
+
+function getAchievement(actual, target, isRatio) {
+  if (isRatio) {
+    // For ratios, compare directly
+    return (actual / target * 100);
+  }
+  return (actual / target * 100);
+}
+
+function getProrated(target, isRatio) {
+  if (isRatio) return target; // ratios aren't prorated
+  return target * (ELAPSED_DAYS / CAMPAIGN.totalDays);
+}
+
+function achieveClass(pct) {
+  if (pct >= 95) return 'hit';
+  if (pct >= 80) return 'warning';
+  return 'miss';
+}
+function achieveIcon(pct) {
+  if (pct >= 95) return '✓';
+  if (pct >= 80) return '⚠';
+  return '✗';
+}
+function deltaClass(pct) {
+  if (pct >= 95) return 'delta-up';
+  if (pct >= 80) return 'delta-warn';
+  return 'delta-down';
+}
+
+// =============================================
+// RENDER: HERO
+// =============================================
+function renderHero() {
+  const hero = document.getElementById('hero');
+  const tpvAch = (ACTUALS.tpv / TARGETS.tpv.target * 100).toFixed(1);
+  const custAch = (ACTUALS.customer / TARGETS.customer.target * 100).toFixed(1);
+  const orderAch = (ACTUALS.orders / TARGETS.orders.target * 100).toFixed(1);
+
+  hero.innerHTML = `
+    <div class="hero-left">
+      <h2>🌙 ${CAMPAIGN.name}</h2>
+      <p>${CAMPAIGN.month} ${CAMPAIGN.start}–${CAMPAIGN.end}, ${CAMPAIGN.year} · Day ${ELAPSED_DAYS} of ${CAMPAIGN.totalDays} · ${PROGRESS_PCT.toFixed(0)}% elapsed</p>
+    </div>
+    <div class="hero-kpis">
+      <div class="hero-kpi">
+        <div class="hk-val">${fmtCurrency(ACTUALS.tpv)}</div>
+        <div class="hk-label">Total TPV</div>
+        <div class="hk-achieve ${achieveClass(tpvAch / PROGRESS_PCT * 100)}" style="background:${parseFloat(tpvAch) >= PROGRESS_PCT ? 'var(--green-bg)' : 'var(--red-bg)'}; color:${parseFloat(tpvAch) >= PROGRESS_PCT ? 'var(--green)' : 'var(--red)'};">${tpvAch}% of target</div>
+      </div>
+      <div class="hero-kpi">
+        <div class="hk-val">${fmtNumber(ACTUALS.customer)}</div>
+        <div class="hk-label">Customers</div>
+        <div class="hk-achieve" style="background:${parseFloat(custAch) >= PROGRESS_PCT ? 'var(--green-bg)' : 'var(--red-bg)'}; color:${parseFloat(custAch) >= PROGRESS_PCT ? 'var(--green)' : 'var(--red)'};">${custAch}% of target</div>
+      </div>
+      <div class="hero-kpi">
+        <div class="hk-val">${fmtNumber(ACTUALS.orders)}</div>
+        <div class="hk-label">Orders</div>
+        <div class="hk-achieve" style="background:${parseFloat(orderAch) >= PROGRESS_PCT ? 'var(--green-bg)' : 'var(--red-bg)'}; color:${parseFloat(orderAch) >= PROGRESS_PCT ? 'var(--green)' : 'var(--red)'};">${orderAch}% of target</div>
+      </div>
+      <div class="hero-kpi">
+        <div class="hk-val">${fmtNumber(ACTUALS.uv)}</div>
+        <div class="hk-label">Unique Visitors</div>
+        <div class="hk-achieve" style="background:${(ACTUALS.uv / TARGETS.uv.target * 100) >= PROGRESS_PCT ? 'var(--green-bg)' : 'var(--red-bg)'}; color:${(ACTUALS.uv / TARGETS.uv.target * 100) >= PROGRESS_PCT ? 'var(--green)' : 'var(--red)'};">${(ACTUALS.uv / TARGETS.uv.target * 100).toFixed(1)}% of target</div>
+      </div>
+    </div>
+  `;
+}
+
+// =============================================
+// RENDER: TIMELINE
+// =============================================
+function renderTimeline() {
+  const bar = document.getElementById('timelineBar');
+  let trackHTML = '';
+  for (let d = CAMPAIGN.start; d <= CAMPAIGN.end; d++) {
+    const cls = d < SIM_TODAY ? 'past' : d === SIM_TODAY ? 'today' : 'future';
+    trackHTML += `<div class="timeline-day ${cls}" title="Mar ${d}">${d}</div>`;
+  }
+  bar.innerHTML = `
+    <div class="timeline-header">
+      <h3>📅 Campaign Progress</h3>
+      <div class="timeline-days">Day <strong style="color:#fff">${ELAPSED_DAYS}</strong> of ${CAMPAIGN.totalDays} · <strong style="color:var(--accent)">${PROGRESS_PCT.toFixed(0)}%</strong> complete</div>
+    </div>
+    <div class="timeline-track">${trackHTML}</div>
+    <div class="timeline-labels">
+      <span>Mar ${CAMPAIGN.start} (Start)</span>
+      <span style="color:var(--accent2);font-weight:600;">Mar ${SIM_TODAY} (Today)</span>
+      <span>Mar ${CAMPAIGN.end} (End)</span>
+    </div>
+  `;
+}
+
+// =============================================
+// RENDER: KPI CARDS
+// =============================================
+function renderKPICards() {
+  const primaryGrid = document.getElementById('primaryKPIs');
+  const conversionGrid = document.getElementById('conversionKPIs');
+
+  const isRatioKey = (key) => ['txnUserCR','pdpUVRate','uvCVR','purchaseRate'].includes(key);
+  const isAbsoluteRatio = (key) => ['aov','asp','basketSize','arpu'].includes(key);
+
+  Object.entries(TARGETS).forEach(([key, cfg]) => {
+    const actual = ACTUALS[key];
+    const target = cfg.target;
+    const isRatio = isRatioKey(key) || isAbsoluteRatio(key);
+    const prorated = isRatio ? target : getProrated(target, false);
+
+    const achFull = (actual / target * 100);
+    const achProrated = isRatio ? achFull : (actual / prorated * 100);
+
+    const card = document.createElement('div');
+    card.className = 'kpi-card';
+    card.style.animationDelay = `${Object.keys(TARGETS).indexOf(key) * 0.04}s`;
+
+    const progressPct = Math.min(achFull, 120);
+    const fillColor = achProrated >= 95 ? 'var(--green)' : achProrated >= 80 ? 'var(--yellow)' : 'var(--red)';
+
+    card.innerHTML = `
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;background:${cfg.color};opacity:0.6;"></div>
+      <div class="kpi-top">
+        <div class="kpi-label">${cfg.label}</div>
+        <div class="kpi-icon" style="background:${cfg.color}22; color:${cfg.color}">${cfg.icon}</div>
+      </div>
+      <div class="kpi-values">
+        <div class="kpi-actual">${fmtValue(actual, cfg.format)}</div>
+        <div class="kpi-target">Target: <span>${fmtValue(target, cfg.format)}</span>${!isRatio ? ` · Prorated: <span>${fmtValue(Math.round(prorated), cfg.format)}</span>` : ''}</div>
+      </div>
+      <div class="kpi-progress">
+        <div class="kpi-progress-bar">
+          <div class="kpi-progress-fill ${achFull >= 100 ? 'over' : ''}" style="width:${Math.min(progressPct, 100)}%; background:${fillColor};"></div>
+        </div>
+      </div>
+      <div class="kpi-bottom">
+        <div class="kpi-achieve ${achieveClass(achProrated)}">
+          ${achieveIcon(achProrated)} ${achFull.toFixed(1)}% of target
+        </div>
+        <div class="kpi-delta ${deltaClass(achProrated)}">
+          ${achProrated >= 100 ? '+' : ''}${(achProrated - 100).toFixed(1)}% vs pace
+        </div>
+      </div>
+    `;
+
+    if (cfg.group === 'primary') primaryGrid.appendChild(card);
+    else conversionGrid.appendChild(card);
+  });
+}
+
+// =============================================
+// RENDER: CHARTS
+// =============================================
+function renderCharts() {
+  const elapsed = DAILY_DATA.filter(d => d.isElapsed);
+  const labels = elapsed.map(d => 'Mar ' + d.day);
+
+  // Daily target line (flat per day)
+  const dailyTPVTarget = TARGETS.tpv.target / CAMPAIGN.totalDays;
+
+  // --- TPV CHART ---
+  new Chart(document.getElementById('tpvChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Daily TPV',
+          data: elapsed.map(d => d.daily.tpv / 1e9),
+          backgroundColor: 'rgba(249,115,22,0.7)',
+          borderRadius: 4,
+          borderSkipped: false,
+          barPercentage: 0.7,
+        },
+        {
+          label: 'Daily Target',
+          data: elapsed.map(() => dailyTPVTarget / 1e9),
+          type: 'line',
+          borderColor: '#ef4444',
+          borderDash: [6, 4],
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: false,
+        },
+        {
+          label: 'Cumulative TPV',
+          data: elapsed.map(d => d.cumul.tpv / 1e9),
+          type: 'line',
+          borderColor: '#6366f1',
+          borderWidth: 2.5,
+          pointRadius: 3,
+          pointBackgroundColor: '#6366f1',
+          fill: false,
+          yAxisID: 'y1',
+        },
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { labels: { color: '#888', font: { size: 11 } } },
+        tooltip: {
+          backgroundColor: '#1a1d2e',
+          titleColor: '#fff',
+          bodyColor: '#ccc',
+          borderColor: '#2a2d3e',
+          borderWidth: 1,
+          callbacks: {
+            label: ctx => `${ctx.dataset.label}: Rp ${ctx.parsed.y.toFixed(1)}B`
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: '#1a1d2e' }, ticks: { color: '#555', font: { size: 10 } } },
+        y: { grid: { color: '#1a1d2e' }, ticks: { color: '#555', font: { size: 10 }, callback: v => v + 'B' }, title: { display: true, text: 'Daily (B Rp)', color: '#555', font: { size: 10 } } },
+        y1: { position: 'right', grid: { display: false }, ticks: { color: '#6366f1', font: { size: 10 }, callback: v => v + 'B' }, title: { display: true, text: 'Cumulative (B Rp)', color: '#6366f1', font: { size: 10 } } },
+      },
+    }
+  });
+
+  // --- RADAR CHART ---
+  const radarKeys = ['tpv','customer','uv','orders','unitSold','pdpUV','newCustomer'];
+  const radarLabels = radarKeys.map(k => TARGETS[k].label);
+  const radarData = radarKeys.map(k => Math.min((ACTUALS[k] / TARGETS[k].target * 100), 120));
+
+  new Chart(document.getElementById('radarChart'), {
+    type: 'radar',
+    data: {
+      labels: radarLabels,
+      datasets: [
+        {
+          label: 'Achievement %',
+          data: radarData,
+          backgroundColor: 'rgba(249,115,22,0.15)',
+          borderColor: '#f97316',
+          borderWidth: 2,
+          pointBackgroundColor: '#f97316',
+          pointRadius: 4,
+        },
+        {
+          label: 'Prorated Pace',
+          data: radarKeys.map(() => PROGRESS_PCT),
+          backgroundColor: 'rgba(99,102,241,0.08)',
+          borderColor: '#6366f1',
+          borderDash: [4, 4],
+          borderWidth: 1.5,
+          pointRadius: 0,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#888', font: { size: 11 } } },
+      },
+      scales: {
+        r: {
+          grid: { color: '#1a1d2e' },
+          angleLines: { color: '#1a1d2e' },
+          ticks: { color: '#555', backdropColor: 'transparent', font: { size: 9 }, stepSize: 20 },
+          pointLabels: { color: '#aaa', font: { size: 10 } },
+          min: 0, max: 120,
+        }
+      }
+    }
+  });
+
+  // --- ORDERS & UV CHART ---
+  new Chart(document.getElementById('ordersChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Orders',
+          data: elapsed.map(d => d.daily.orders),
+          borderColor: '#22c55e',
+          backgroundColor: 'rgba(34,197,94,0.1)',
+          borderWidth: 2.5,
+          fill: true,
+          tension: 0.3,
+          pointRadius: 3,
+        },
+        {
+          label: 'UV (÷100)',
+          data: elapsed.map(d => d.daily.uv / 100),
+          borderColor: '#3b82f6',
+          borderWidth: 2,
+          borderDash: [4,4],
+          fill: false,
+          tension: 0.3,
+          pointRadius: 2,
+          yAxisID: 'y1',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: { legend: { labels: { color: '#888', font: { size: 11 } } } },
+      scales: {
+        x: { grid: { color: '#1a1d2e' }, ticks: { color: '#555', font: { size: 10 } } },
+        y: { grid: { color: '#1a1d2e' }, ticks: { color: '#22c55e', font: { size: 10 }, callback: v => fmtNumber(v) }, title: { display: true, text: 'Orders', color: '#22c55e', font: { size: 10 } } },
+        y1: { position: 'right', grid: { display: false }, ticks: { color: '#3b82f6', font: { size: 10 }, callback: v => fmtNumber(v*100) }, title: { display: true, text: 'UV', color: '#3b82f6', font: { size: 10 } } },
+      }
+    }
+  });
+
+  // --- CUSTOMER CHART (Stacked Bar) ---
+  new Chart(document.getElementById('customerChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'New Customer',
+          data: elapsed.map(d => d.daily.newCustomer),
+          backgroundColor: '#f43f5e',
+          borderRadius: 4,
+          barPercentage: 0.6,
+        },
+        {
+          label: 'Returning',
+          data: elapsed.map(d => d.daily.customer - d.daily.newCustomer),
+          backgroundColor: '#6366f1',
+          borderRadius: 4,
+          barPercentage: 0.6,
+        },
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#888', font: { size: 11 } } } },
+      scales: {
+        x: { stacked: true, grid: { color: '#1a1d2e' }, ticks: { color: '#555', font: { size: 10 } } },
+        y: { stacked: true, grid: { color: '#1a1d2e' }, ticks: { color: '#555', font: { size: 10 }, callback: v => fmtNumber(v) } },
+      }
+    }
+  });
+}
+
+// =============================================
+// RENDER: DAILY TABLE
+// =============================================
+function renderDailyTable() {
+  const table = document.getElementById('dailyTable');
+  const headers = ['Date','TPV','UV','PDP UV','Orders','Units','Customers','New Cust','AOV','UV CVR','Status'];
+
+  let html = '<thead><tr>';
+  headers.forEach(h => html += `<th>${h}</th>`);
+  html += '</tr></thead><tbody>';
+
+  const elapsed = DAILY_DATA.filter(d => d.isElapsed).reverse();
+  elapsed.forEach(d => {
+    const aov = Math.round(d.daily.tpv / d.daily.orders);
+    const uvCVR = (d.daily.unitSold / d.daily.uv * 100).toFixed(2);
+    const dailyTPVTarget = TARGETS.tpv.target / CAMPAIGN.totalDays;
+    const pacing = (d.daily.tpv / dailyTPVTarget * 100).toFixed(0);
+    const statusCls = pacing >= 95 ? 'tbl-hit' : pacing >= 80 ? 'tbl-warn' : 'tbl-miss';
+    const statusText = pacing >= 95 ? 'On Track' : pacing >= 80 ? 'Warning' : 'Below';
+    const rowCls = d.isToday ? 'tbl-date-today' : '';
+
+    html += `<tr class="${rowCls}">
+      <td>Mar ${d.day}${d.isToday ? ' (Today)' : ''}</td>
+      <td>${fmtCurrency(d.daily.tpv)}</td>
+      <td>${fmtNumber(d.daily.uv)}</td>
+      <td>${fmtNumber(d.daily.pdpUV)}</td>
+      <td>${fmtNumber(d.daily.orders)}</td>
+      <td>${fmtNumber(d.daily.unitSold)}</td>
+      <td>${fmtNumber(d.daily.customer)}</td>
+      <td>${fmtNumber(d.daily.newCustomer)}</td>
+      <td>${fmtCurrencyK(aov)}</td>
+      <td>${uvCVR}%</td>
+      <td><span class="tbl-badge ${statusCls}">${pacing}% · ${statusText}</span></td>
+    </tr>`;
+  });
+
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+// =============================================
+// RENDER: FUNNEL
+// =============================================
+function renderFunnel() {
+  const container = document.getElementById('funnelContent');
+  const steps = [
+    { label: 'UV',          val: ACTUALS.uv,         pct: 100 },
+    { label: 'PDP UV',      val: ACTUALS.pdpUV,      pct: (ACTUALS.pdpUV / ACTUALS.uv * 100) },
+    { label: 'Orders',      val: ACTUALS.orders,      pct: (ACTUALS.orders / ACTUALS.uv * 100) },
+    { label: 'Unit Sold',   val: ACTUALS.unitSold,    pct: (ACTUALS.unitSold / ACTUALS.uv * 100) },
+    { label: 'Customer',    val: ACTUALS.customer,    pct: (ACTUALS.customer / ACTUALS.uv * 100) },
+    { label: 'New Cust',    val: ACTUALS.newCustomer, pct: (ACTUALS.newCustomer / ACTUALS.uv * 100) },
+  ];
+
+  const colors = ['#3b82f6','#6366f1','#a855f7','#ec4899','#f43f5e','#f97316'];
+  container.innerHTML = steps.map((s, i) => `
+    <div class="funnel-step">
+      <div class="funnel-label">${s.label}</div>
+      <div class="funnel-bar-track">
+        <div class="funnel-bar" style="width:${s.pct}%; background:${colors[i]};"></div>
+      </div>
+      <div class="funnel-val">${fmtNumber(s.val)}</div>
+    </div>
+  `).join('');
+}
+
+// =============================================
+// RENDER: TARGET STATUS
+// =============================================
+function renderTargetStatus() {
+  const container = document.getElementById('targetStatus');
+  const keys = ['tpv','customer','orders','unitSold','uv','pdpUV','newCustomer','aov','uvCVR','basketSize','purchaseRate','arpu'];
+
+  container.innerHTML = keys.map(key => {
+    const cfg = TARGETS[key];
+    const actual = ACTUALS[key];
+    const isRatio = ['txnUserCR','pdpUVRate','uvCVR','purchaseRate','aov','asp','basketSize','arpu'].includes(key);
+    const prorated = isRatio ? cfg.target : getProrated(cfg.target, false);
+    const achProrated = (actual / prorated * 100);
+    const cls = achProrated >= 95 ? 'tbl-hit' : achProrated >= 80 ? 'tbl-warn' : 'tbl-miss';
+    const text = achProrated >= 100 ? 'On Track' : achProrated >= 90 ? 'Near' : 'Behind';
+
+    return `<div class="target-item">
+      <div class="target-name">${cfg.icon} ${cfg.label}</div>
+      <div class="target-status ${cls}">${achProrated.toFixed(0)}% · ${text}</div>
+    </div>`;
+  }).join('');
+}
+
+// =============================================
+// RENDER: ALERTS
+// =============================================
+function renderAlerts() {
+  const container = document.getElementById('alertsContent');
+  const alerts = [];
+
+  // Check each KPI vs prorated target
+  const tpvPace = ACTUALS.tpv / getProrated(TARGETS.tpv.target) * 100;
+  const orderPace = ACTUALS.orders / getProrated(TARGETS.orders.target) * 100;
+  const uvPace = ACTUALS.uv / getProrated(TARGETS.uv.target) * 100;
+  const newCustPace = ACTUALS.newCustomer / getProrated(TARGETS.newCustomer.target) * 100;
+
+  if (tpvPace >= 100) alerts.push({ color: 'var(--green)', text: `<strong>TPV</strong> is pacing at <strong>${tpvPace.toFixed(0)}%</strong> vs prorated target. On track to exceed campaign goal.` });
+  else if (tpvPace >= 90) alerts.push({ color: 'var(--yellow)', text: `<strong>TPV</strong> is at <strong>${tpvPace.toFixed(0)}%</strong> of pace. Slight push needed in remaining ${CAMPAIGN.totalDays - ELAPSED_DAYS} days.` });
+  else alerts.push({ color: 'var(--red)', text: `<strong>TPV</strong> is <strong>${(100 - tpvPace).toFixed(0)}%</strong> behind pace. Needs Rp ${fmtCurrency(TARGETS.tpv.target - ACTUALS.tpv)} more to hit target.` });
+
+  if (orderPace < 95) alerts.push({ color: 'var(--red)', text: `<strong>Orders</strong> at ${orderPace.toFixed(0)}% of pace. ${fmtNumber(TARGETS.orders.target - ACTUALS.orders)} more orders needed.` });
+  else alerts.push({ color: 'var(--green)', text: `<strong>Orders</strong> running strong at ${orderPace.toFixed(0)}% of pace.` });
+
+  if (ACTUALS.uvCVR < TARGETS.uvCVR.target) alerts.push({ color: 'var(--yellow)', text: `<strong>UV CVR</strong> is ${ACTUALS.uvCVR}% vs ${TARGETS.uvCVR.target}% target. Consider improving checkout conversion.` });
+  else alerts.push({ color: 'var(--green)', text: `<strong>UV CVR</strong> exceeding target at ${ACTUALS.uvCVR}%.` });
+
+  if (newCustPace < 90) alerts.push({ color: 'var(--red)', text: `<strong>New Customer</strong> acquisition at ${newCustPace.toFixed(0)}% of pace. Boost acquisition campaigns.` });
+  else alerts.push({ color: 'var(--green)', text: `<strong>New Customer</strong> on track at ${newCustPace.toFixed(0)}% of pace.` });
+
+  alerts.push({ color: 'var(--accent2)', text: `<strong>${CAMPAIGN.totalDays - ELAPSED_DAYS} days</strong> remaining. Daily run-rate needs: <strong>${fmtCurrency(Math.round((TARGETS.tpv.target - ACTUALS.tpv) / (CAMPAIGN.totalDays - ELAPSED_DAYS)))}/day</strong> to hit TPV target.` });
+
+  container.innerHTML = alerts.map(a => `
+    <div class="alert-item">
+      <div class="alert-dot" style="background:${a.color}"></div>
+      <div class="alert-text">${a.text}</div>
+    </div>
+  `).join('');
+}
+
+// =============================================
+// INIT
+// =============================================
+renderHero();
+renderTimeline();
+renderKPICards();
+renderCharts();
+renderDailyTable();
+renderFunnel();
+renderTargetStatus();
+renderAlerts();
+</script>
+
+</body>
+</html>

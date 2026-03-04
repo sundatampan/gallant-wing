@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campaign Submission — Management</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0b0d13;
+    color: #e0e0e0;
+    min-height: 100vh;
+    padding: 32px 40px;
+  }
+
+  /* ===== HEADER ===== */
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .page-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .page-header h1 span { color: #6c7aff; }
+  .page-subtitle {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 28px;
+  }
+
+  /* ===== STAT CARDS ===== */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: #12141f;
+    border: 1px solid #1e2132;
+    border-radius: 12px;
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.15s;
+    cursor: pointer;
+  }
+  .stat-card:hover {
+    border-color: #3a3f5c;
+    transform: translateY(-2px);
+  }
+  .stat-card .sc-accent {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: 12px 12px 0 0;
+  }
+  .stat-card .sc-label {
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+  .stat-card .sc-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.1;
+  }
+  .stat-card .sc-icon {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 28px;
+    opacity: 0.15;
+  }
+
+  /* ===== TOOLBAR ===== */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+  }
+  .search-box {
+    position: relative;
+    flex: 1;
+    max-width: 420px;
+  }
+  .search-box input {
+    width: 100%;
+    background: #12141f;
+    border: 1px solid #1e2132;
+    border-radius: 10px;
+    padding: 10px 14px 10px 40px;
+    color: #e0e0e0;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-box input::placeholder { color: #555; }
+  .search-box input:focus { border-color: #6c7aff; }
+  .search-box .search-icon {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #555;
+    font-size: 15px;
+    pointer-events: none;
+  }
+
+  .filter-select {
+    background: #12141f;
+    border: 1px solid #1e2132;
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: #e0e0e0;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+    min-width: 160px;
+    transition: border-color 0.2s;
+  }
+  .filter-select:focus { border-color: #6c7aff; }
+
+  .btn-submit {
+    background: linear-gradient(135deg, #6c7aff 0%, #a855f7 100%);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 22px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.15s, box-shadow 0.2s;
+    white-space: nowrap;
+  }
+  .btn-submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(108, 122, 255, 0.3);
+  }
+  .btn-submit .plus-icon {
+    font-size: 18px;
+    font-weight: 300;
+    line-height: 1;
+  }
+
+  /* ===== TABLE ===== */
+  .table-wrapper {
+    background: #12141f;
+    border: 1px solid #1e2132;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  thead th {
+    background: #161829;
+    padding: 14px 18px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #888;
+    text-align: left;
+    border-bottom: 1px solid #1e2132;
+    white-space: nowrap;
+    user-select: none;
+    cursor: pointer;
+    transition: color 0.15s;
+    position: relative;
+  }
+  thead th:hover { color: #bbb; }
+  thead th .sort-arrow {
+    margin-left: 4px;
+    font-size: 10px;
+    opacity: 0.4;
+  }
+  thead th.sorted .sort-arrow { opacity: 1; color: #6c7aff; }
+  tbody tr {
+    border-bottom: 1px solid #1a1d2e;
+    transition: background 0.15s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #181b2a; }
+  tbody td {
+    padding: 14px 18px;
+    font-size: 13.5px;
+    vertical-align: middle;
+  }
+
+  /* campaign name col */
+  .camp-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .camp-avatar {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .camp-name-text {
+    font-weight: 600;
+    color: #fff;
+    font-size: 13.5px;
+  }
+  .camp-name-sub {
+    font-size: 11px;
+    color: #666;
+    margin-top: 1px;
+  }
+
+  /* date col */
+  .date-main { color: #ccc; font-size: 13px; }
+  .date-sub { color: #666; font-size: 11px; margin-top: 1px; }
+
+  /* category col */
+  .cat-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background: rgba(108, 122, 255, 0.08);
+    border: 1px solid rgba(108, 122, 255, 0.15);
+    color: #a5b0ff;
+  }
+
+  /* exclusivity */
+  .excl-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .excl-badge.exclusive {
+    background: rgba(168, 85, 247, 0.12);
+    color: #c084fc;
+    border: 1px solid rgba(168, 85, 247, 0.2);
+  }
+  .excl-badge.non-exclusive {
+    background: rgba(100, 116, 139, 0.12);
+    color: #94a3b8;
+    border: 1px solid rgba(100, 116, 139, 0.2);
+  }
+
+  /* owner */
+  .owner-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .owner-avatar {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .owner-name { color: #ccc; font-size: 13px; }
+
+  /* status badges */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .status-badge .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-badge.waiting {
+    background: rgba(251, 191, 36, 0.1);
+    color: #fbbf24;
+    border: 1px solid rgba(251, 191, 36, 0.15);
+  }
+  .status-badge.waiting .dot { background: #fbbf24; }
+
+  .status-badge.rejected {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.15);
+  }
+  .status-badge.rejected .dot { background: #ef4444; }
+
+  .status-badge.in-progress {
+    background: rgba(59, 130, 246, 0.1);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.15);
+  }
+  .status-badge.in-progress .dot { background: #3b82f6; }
+
+  .status-badge.running {
+    background: rgba(34, 197, 94, 0.1);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.15);
+  }
+  .status-badge.running .dot { background: #22c55e; animation: pulse-dot 1.5s ease infinite; }
+
+  .status-badge.ended {
+    background: rgba(100, 116, 139, 0.1);
+    color: #94a3b8;
+    border: 1px solid rgba(100, 116, 139, 0.15);
+  }
+  .status-badge.ended .dot { background: #64748b; }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* actions */
+  .actions-cell {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+  }
+  .action-btn {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #666;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: background 0.15s, color 0.15s;
+    position: relative;
+  }
+  .action-btn:hover {
+    background: #1e2132;
+    color: #e0e0e0;
+  }
+  .action-btn[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2a2d40;
+    color: #fff;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    z-index: 100;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .action-more {
+    position: relative;
+  }
+
+  /* dropdown */
+  .action-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    background: #1a1d2e;
+    border: 1px solid #2a2d3e;
+    border-radius: 10px;
+    padding: 6px 0;
+    min-width: 190px;
+    z-index: 200;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    animation: dropIn 0.15s ease;
+  }
+  .action-dropdown.show { display: block; }
+  @keyframes dropIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .action-dropdown .dd-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    font-size: 13px;
+    color: #ccc;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+  .action-dropdown .dd-item:hover {
+    background: #242740;
+    color: #fff;
+  }
+  .action-dropdown .dd-item .dd-icon {
+    font-size: 14px;
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .action-dropdown .dd-divider {
+    height: 1px;
+    background: #2a2d3e;
+    margin: 4px 0;
+  }
+
+  /* ===== PAGINATION ===== */
+  .table-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-top: 1px solid #1e2132;
+    background: #12141f;
+  }
+  .table-info {
+    font-size: 13px;
+    color: #666;
+  }
+  .table-info span { color: #aaa; font-weight: 600; }
+  .pagination {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .page-btn {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    border: 1px solid #1e2132;
+    background: transparent;
+    color: #888;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .page-btn:hover:not(:disabled):not(.active) {
+    border-color: #3a3f5c;
+    color: #e0e0e0;
+    background: #1a1d2e;
+  }
+  .page-btn.active {
+    background: linear-gradient(135deg, #6c7aff 0%, #a855f7 100%);
+    border-color: transparent;
+    color: #fff;
+  }
+  .page-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  .page-btn.nav-btn {
+    font-size: 15px;
+  }
+  .rows-select {
+    background: #12141f;
+    border: 1px solid #1e2132;
+    border-radius: 8px;
+    padding: 6px 10px;
+    color: #aaa;
+    font-size: 12px;
+    outline: none;
+    cursor: pointer;
+    margin-left: 12px;
+  }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.show {
+    display: flex;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .modal-box {
+    background: #12141f;
+    border: 1px solid #2a2d3e;
+    border-radius: 16px;
+    width: 700px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 28px 32px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: modalUp 0.25s ease;
+  }
+  @keyframes modalUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .modal-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .modal-close {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: 1px solid #2a2d3e;
+    background: transparent;
+    color: #888;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .modal-close:hover {
+    background: #1e2132;
+    color: #fff;
+  }
+  .form-group {
+    margin-bottom: 18px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    background: #0b0d13;
+    border: 1px solid #1e2132;
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: #e0e0e0;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { border-color: #6c7aff; }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  /* ===== KPI METRICS SECTION ===== */
+  .form-section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #2a2d3e 20%, #6c7aff30 50%, #2a2d3e 80%, transparent);
+    margin: 26px 0 20px;
+  }
+  .form-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .form-section-header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #e0e0e0;
+    letter-spacing: -0.3px;
+    margin: 0;
+  }
+  .form-section-header .section-icon {
+    font-size: 16px;
+  }
+  .form-section-header .section-required {
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.18);
+    color: #f87171;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-left: auto;
+  }
+  .form-group .req-star {
+    color: #f87171;
+    margin-left: 3px;
+    font-weight: 700;
+  }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .kpi-expand-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 11px;
+    margin-top: 6px;
+    border: 1px dashed #2a2d3e;
+    border-radius: 10px;
+    background: transparent;
+    color: #6c7aff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-family: inherit;
+  }
+  .kpi-expand-btn:hover {
+    background: rgba(108, 122, 255, 0.04);
+    border-color: #6c7aff40;
+  }
+  .kpi-expand-btn .chevron-icon {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 10px;
+  }
+  .kpi-expand-btn.expanded .chevron-icon {
+    transform: rotate(180deg);
+  }
+  .kpi-expandable {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    opacity: 0;
+  }
+  .kpi-expandable.show {
+    max-height: 900px;
+    opacity: 1;
+  }
+  .kpi-formula-hint {
+    font-size: 10px;
+    color: #4a4d5e;
+    margin-top: 4px;
+    font-style: italic;
+    padding-left: 2px;
+  }
+  .form-group.kpi-auto input {
+    background: #090b10;
+    border-style: dashed;
+    border-color: #1a1d2e;
+    color: #8b96ff;
+  }
+  .form-group.kpi-auto label .auto-tag {
+    font-size: 9px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: rgba(108, 122, 255, 0.08);
+    border: 1px solid rgba(108, 122, 255, 0.12);
+    color: #7b88f0;
+    font-weight: 600;
+    margin-left: 6px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .microsite-input {
+    position: relative;
+  }
+  .microsite-input input {
+    padding-left: 36px !important;
+  }
+  .microsite-input .url-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: #555;
+    pointer-events: none;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid #1e2132;
+  }
+  .btn-cancel {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 1px solid #2a2d3e;
+    background: transparent;
+    color: #aaa;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-cancel:hover { background: #1a1d2e; color: #fff; }
+  .btn-primary {
+    padding: 10px 24px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, #6c7aff 0%, #a855f7 100%);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s;
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(108, 122, 255, 0.3);
+  }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: #1a1d2e;
+    border: 1px solid #2a2d3e;
+    border-radius: 12px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13.5px;
+    color: #e0e0e0;
+    z-index: 600;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s ease;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast .toast-icon { font-size: 18px; }
+
+  /* ===== DETAIL DRAWER ===== */
+  .drawer-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 400;
+  }
+  .drawer-overlay.show { display: block; animation: fadeIn 0.2s ease; }
+  .drawer-panel {
+    position: fixed;
+    top: 0;
+    right: -520px;
+    width: 520px;
+    max-width: 95vw;
+    height: 100vh;
+    background: #12141f;
+    border-left: 1px solid #1e2132;
+    z-index: 450;
+    overflow-y: auto;
+    padding: 28px 32px;
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.4);
+  }
+  .drawer-panel.show { right: 0; }
+  .drawer-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .drawer-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .drawer-subtitle {
+    font-size: 12px;
+    color: #666;
+  }
+  .drawer-section {
+    margin-bottom: 24px;
+  }
+  .drawer-section h3 {
+    font-size: 12px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #1e2132;
+  }
+  .drawer-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .drawer-info-item .dii-label {
+    font-size: 11px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+  }
+  .drawer-info-item .dii-value {
+    font-size: 14px;
+    color: #e0e0e0;
+    font-weight: 600;
+  }
+  .drawer-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .drawer-kpi-card {
+    background: #0b0d13;
+    border: 1px solid #1e2132;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .drawer-kpi-card .dkc-label {
+    font-size: 10px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .drawer-kpi-card .dkc-value {
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+  }
+  .drawer-channels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .drawer-channel-tag {
+    padding: 4px 12px;
+    border-radius: 6px;
+    background: rgba(108, 122, 255, 0.08);
+    border: 1px solid rgba(108, 122, 255, 0.15);
+    color: #a5b0ff;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 1200px) {
+    .stat-row { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 900px) {
+    body { padding: 20px; }
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+    .toolbar { flex-direction: column; align-items: stretch; }
+    .toolbar-left { flex-direction: column; }
+    .search-box { max-width: 100%; }
+  }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .stat-card, .table-wrapper { animation: fadeUp 0.5s ease both; }
+  .stat-card:nth-child(2) { animation-delay: 0.05s; }
+  .stat-card:nth-child(3) { animation-delay: 0.1s; }
+  .stat-card:nth-child(4) { animation-delay: 0.15s; }
+  .stat-card:nth-child(5) { animation-delay: 0.2s; }
+  .table-wrapper { animation-delay: 0.25s; }
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+  }
+  .empty-state .es-icon { font-size: 48px; margin-bottom: 14px; opacity: 0.3; }
+  .empty-state .es-text { font-size: 14px; color: #666; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="page-header">
+  <h1>Campaign <span>Submission</span></h1>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span style="font-size:13px;color:#666;">Last updated: 25 Feb 2026, 14:32</span>
+  </div>
+</div>
+<div class="page-subtitle">Manage, track and submit campaigns for approval and deployment.</div>
+
+<!-- STAT CARDS -->
+<div class="stat-row" id="statRow"></div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search campaigns by name, pic, category…">
+    </div>
+    <select class="filter-select" id="statusFilter">
+      <option value="all">All Statuses</option>
+      <option value="waiting">Waiting for Approval</option>
+      <option value="rejected">Rejected</option>
+      <option value="in-progress">In Progress</option>
+      <option value="running">Running</option>
+      <option value="ended">Ended</option>
+    </select>
+    <select class="filter-select" id="exclFilter">
+      <option value="all">All Exclusivity</option>
+      <option value="exclusive">Exclusive</option>
+      <option value="non-exclusive">Non-Exclusive</option>
+    </select>
+    <select class="filter-select" id="catFilter">
+      <option value="all">All Categories</option>
+      <option value="HTA">HTA</option>
+      <option value="KGA">KGA</option>
+      <option value="PEL">PEL</option>
+      <option value="KAM">KAM</option>
+      <option value="HOM">HOM</option>
+      <option value="BLM">BLM</option>
+      <option value="KKE">KKE</option>
+      <option value="IAN">IAN</option>
+      <option value="MBS">MBS</option>
+      <option value="FPR">FPR</option>
+      <option value="FWA">FWA</option>
+      <option value="TIVO">TIVO</option>
+      <option value="OTO">OTO</option>
+      <option value="TRAV">TRAV</option>
+      <option value="OTHERS">OTHERS</option>
+    </select>
+  </div>
+  <button class="btn-submit" onclick="openModal()">
+    <span class="plus-icon">＋</span>
+    Submit New Campaign
+  </button>
+</div>
+
+<!-- TABLE -->
+<div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th data-sort="name">Campaign Name <span class="sort-arrow">↕</span></th>
+        <th data-sort="category">Category <span class="sort-arrow">↕</span></th>
+        <th data-sort="created">Created Time <span class="sort-arrow">↕</span></th>
+        <th data-sort="excl">Exclusivity <span class="sort-arrow">↕</span></th>
+        <th data-sort="owner">PIC <span class="sort-arrow">↕</span></th>
+        <th data-sort="status">Status <span class="sort-arrow">↕</span></th>
+        <th style="text-align:center;">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  <div class="table-footer" id="tableFooter"></div>
+</div>
+
+<!-- SUBMIT MODAL -->
+<div class="modal-overlay" id="submitModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>Submit New Campaign</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Campaign Name</label>
+      <input type="text" id="fCampName" placeholder="e.g. Blibli Anniversary Sale 2026">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Period Start</label>
+        <input type="date" id="fPeriodStart">
+      </div>
+      <div class="form-group">
+        <label>Period End</label>
+        <input type="date" id="fPeriodEnd">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Exclusivity</label>
+        <select id="fExclusivity">
+          <option value="Exclusive">Exclusive</option>
+          <option value="Non-Exclusive">Non-Exclusive</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tier</label>
+        <select id="fTier">
+          <option value="1">Tier 1</option>
+          <option value="2">Tier 2</option>
+          <option value="3">Tier 3</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Category</label>
+        <select id="fCampCategory">
+          <option value="">Select Category</option>
+          <option value="HTA">HTA</option>
+          <option value="KGA">KGA</option>
+          <option value="PEL">PEL</option>
+          <option value="KAM">KAM</option>
+          <option value="HOM">HOM</option>
+          <option value="BLM">BLM</option>
+          <option value="KKE">KKE</option>
+          <option value="IAN">IAN</option>
+          <option value="MBS">MBS</option>
+          <option value="FPR">FPR</option>
+          <option value="FWA">FWA</option>
+          <option value="TIVO">TIVO</option>
+          <option value="OTO">OTO</option>
+          <option value="TRAV">TRAV</option>
+          <option value="OTHERS">OTHERS</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>PIC</label>
+        <input type="text" id="fOwner" placeholder="e.g. Wawan Maulana">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Sub-Categories</label>
+        <input type="text" id="fCategory" placeholder="e.g. Fashion, Electronics">
+      </div>
+      <div class="form-group">
+        <label>&nbsp;</label>
+        <div style="font-size:11px;color:#555;padding-top:6px;">Comma-separated list of sub-categories</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="fNotes" placeholder="Additional campaign notes or requirements…"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Microsite URL</label>
+      <div class="microsite-input">
+        <span class="url-icon">🔗</span>
+        <input type="url" id="fMicrositeUrl" placeholder="https://www.blibli.com/campaign/...">
+      </div>
+    </div>
+
+    <!-- KPI Metrics Section -->
+    <div class="form-section-divider"></div>
+    <div class="form-section-header">
+      <span class="section-icon">📊</span>
+      <h3>Target KPI Metrics</h3>
+      <span class="section-required">* Required</span>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="form-group">
+        <label>TPV<span class="req-star">*</span></label>
+        <input type="number" id="fKpiTpv" placeholder="e.g. 500000000000" oninput="recalcKpi()">
+        <div class="kpi-formula-hint">Total Product Value (Rp)</div>
+      </div>
+      <div class="form-group">
+        <label>Transaction User / Customer<span class="req-star">*</span></label>
+        <input type="number" id="fKpiCustomer" placeholder="e.g. 100000" oninput="recalcKpi()">
+      </div>
+    </div>
+
+    <button type="button" class="kpi-expand-btn" id="kpiExpandBtn" onclick="toggleMoreKpi()">
+      <span>More KPI Metrics (12)</span>
+      <span class="chevron-icon">▼</span>
+    </button>
+
+    <div class="kpi-expandable" id="kpiExpandable">
+      <div style="padding-top:14px;">
+        <div class="kpi-grid">
+          <div class="form-group">
+            <label>Transaction User CR</label>
+            <input type="number" id="fKpiTxnCR" placeholder="e.g. 5.2" step="0.01">
+            <div class="kpi-formula-hint">Conversion rate (%)</div>
+          </div>
+          <div class="form-group">
+            <label>User Visitor (UV)</label>
+            <input type="number" id="fKpiUV" placeholder="e.g. 2500000" oninput="recalcKpi()">
+          </div>
+          <div class="form-group">
+            <label>PDP UV</label>
+            <input type="number" id="fKpiPdpUV" placeholder="e.g. 1000000">
+          </div>
+          <div class="form-group">
+            <label>PDP UV Rate</label>
+            <input type="number" id="fKpiPdpUVRate" placeholder="e.g. 40" step="0.01">
+            <div class="kpi-formula-hint">PDP UV ÷ UV (%)</div>
+          </div>
+          <div class="form-group">
+            <label>Orders</label>
+            <input type="number" id="fKpiOrders" placeholder="e.g. 250000" oninput="recalcKpi()">
+          </div>
+          <div class="form-group">
+            <label>Unit Sold</label>
+            <input type="number" id="fKpiUnitSold" placeholder="e.g. 500000" oninput="recalcKpi()">
+          </div>
+          <div class="form-group kpi-auto">
+            <label>AOV <span class="auto-tag">Auto</span></label>
+            <input type="text" id="fKpiAOV" placeholder="TPV ÷ Orders" readonly>
+            <div class="kpi-formula-hint">TPV ÷ Orders</div>
+          </div>
+          <div class="form-group kpi-auto">
+            <label>ASP <span class="auto-tag">Auto</span></label>
+            <input type="text" id="fKpiASP" placeholder="TPV ÷ Unit Sold" readonly>
+            <div class="kpi-formula-hint">TPV ÷ Unit Sold</div>
+          </div>
+          <div class="form-group kpi-auto">
+            <label>UV CVR <span class="auto-tag">Auto</span></label>
+            <input type="text" id="fKpiUVCVR" placeholder="Unit Sold ÷ UV" readonly>
+            <div class="kpi-formula-hint">Unit Sold ÷ UV (%)</div>
+          </div>
+          <div class="form-group kpi-auto">
+            <label>Basket Size <span class="auto-tag">Auto</span></label>
+            <input type="text" id="fKpiBasketSize" placeholder="Unit Sold ÷ Orders" readonly>
+            <div class="kpi-formula-hint">Unit Sold ÷ Orders</div>
+          </div>
+          <div class="form-group kpi-auto">
+            <label>Purchase Rate <span class="auto-tag">Auto</span></label>
+            <input type="text" id="fKpiPurchaseRate" placeholder="Customer ÷ UV" readonly>
+            <div class="kpi-formula-hint">Customer ÷ UV (%)</div>
+          </div>
+          <div class="form-group">
+            <label>New Customer</label>
+            <input type="number" id="fKpiNewCustomer" placeholder="e.g. 50000">
+          </div>
+          <div class="form-group kpi-auto">
+            <label>ARPU <span class="auto-tag">Auto</span></label>
+            <input type="text" id="fKpiARPU" placeholder="TPV ÷ Customer" readonly>
+            <div class="kpi-formula-hint">TPV ÷ Customer</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitCampaign()">Submit Campaign</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer-panel" id="drawerPanel"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toastEl">
+  <span class="toast-icon">✅</span>
+  <span id="toastMsg">Campaign submitted successfully</span>
+</div>
+
+<script>
+// ===================== DATA =====================
+const OWNERS = [
+  { name: 'Wawan', color: '#6c7aff' },
+  { name: 'Wilson', color: '#a855f7' },
+  { name: 'Deni', color: '#f97316' },
+];
+
+const STATUSES = ['waiting', 'rejected', 'in-progress', 'running', 'ended'];
+const STATUS_LABELS = {
+  'waiting': 'Waiting for Approval',
+  'rejected': 'Rejected',
+  'in-progress': 'In Progress',
+  'running': 'Running',
+  'ended': 'Ended'
+};
+
+const CATEGORIES = [
+  'Fashion Muslim', 'Groceries', 'Electronics', 'Home & Living', 'Beauty & Health',
+  'Gadgets', 'Automotive', 'Sports & Outdoor', 'Books & Media', 'Baby & Kids',
+  'Travel & Experience', 'Food & Beverages'
+];
+
+const CAMP_CATEGORIES = [
+  'HTA', 'KGA', 'PEL', 'KAM', 'HOM', 'BLM', 'KKE', 'IAN', 'MBS',
+  'FPR', 'FWA', 'TIVO', 'OTO', 'TRAV', 'OTHERS'
+];
+
+const CAT_COLORS = {
+  'HTA': '#f97316', 'KGA': '#22c55e', 'PEL': '#3b82f6', 'KAM': '#a855f7',
+  'HOM': '#ec4899', 'BLM': '#06b6d4', 'KKE': '#eab308', 'IAN': '#14b8a6',
+  'MBS': '#f43f5e', 'FPR': '#8b5cf6', 'FWA': '#10b981', 'TIVO': '#6366f1',
+  'OTO': '#ef4444', 'TRAV': '#0ea5e9', 'OTHERS': '#64748b'
+};
+
+const CAMPAIGN_ICONS = ['🎯','🛒','🏷️','🎁','🌙','💫','🔥','✨','🎉','📦','💎','🚀','🎊','🌟','⚡','💰','🎪','🧧','🎋','🏮'];
+
+// Generate campaign data
+function seededRand(seed) {
+  let s = seed;
+  return function() {
+    s = (s * 16807 + 0) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
+
+const rng = seededRand(2026);
+const pick = (arr) => arr[Math.floor(rng() * arr.length)];
+const randInt = (min, max) => Math.floor(rng() * (max - min + 1)) + min;
+
+const CAMPAIGNS = [];
+const campNames = [
+  'Blibli Ramadhan 2026', 'Blibli Anniversary 15th', 'Harbolnas 3.3 Mega Sale',
+  'Super Electronics Day', 'Fashion Week Special', 'Back to School 2026',
+  'Mid-Year Clearance', 'Valentine\'s Love Sale', 'Chinese New Year Promo',
+  'Blibli Pay Day Sale Feb', 'Women\'s Day Special', 'Grocery Super Saver',
+  'Gadget Flash Sale Q1', 'Home Makeover Festival', 'Beauty Awards 2026',
+  'Blibli x BCA Card Promo', 'Free Shipping Festival', 'Member Exclusive Deals',
+  'Bundle Bonanza March', 'Weekend Mega Deals', 'Travel Fair 2026',
+  'Baby & Kids Fair', 'Sports Season Kickoff', 'Blibli Pay Day Sale Mar',
+  'Automotive Fest 2026', 'Books & Media Week', 'Health & Wellness Promo',
+  'Blibli Fresh Deals', 'Smart Living Expo', 'Gaming Fest 2026'
+];
+
+campNames.forEach((name, i) => {
+  const startMonth = randInt(1, 4);
+  const startDay = randInt(1, 25);
+  const dur = randInt(3, 21);
+  const sd = new Date(2026, startMonth - 1, startDay);
+  const ed = new Date(sd);
+  ed.setDate(ed.getDate() + dur);
+
+  const createdOffset = randInt(5, 40);
+  const cd = new Date(sd);
+  cd.setDate(cd.getDate() - createdOffset);
+
+  const owner = pick(OWNERS);
+  const status = pick(STATUSES);
+  const excl = rng() > 0.5 ? 'Exclusive' : 'Non-Exclusive';
+  const cats = [];
+  const numCats = randInt(1, 3);
+  for (let c = 0; c < numCats; c++) {
+    const cat = pick(CATEGORIES);
+    if (!cats.includes(cat)) cats.push(cat);
+  }
+
+  const campCat = pick(CAMP_CATEGORIES);
+
+  CAMPAIGNS.push({
+    id: i + 1,
+    name,
+    icon: CAMPAIGN_ICONS[i % CAMPAIGN_ICONS.length],
+    iconColor: owner.color,
+    created: cd,
+    periodStart: sd,
+    periodEnd: ed,
+    exclusivity: excl,
+    owner: owner.name,
+    ownerColor: owner.color,
+    status,
+    category: campCat,
+    categories: cats,
+    tier: randInt(1, 3),
+    channels: (() => {
+      const all = ['Mass Media','Social Media','Platform','CRM','SEO','Public Relation','Bli-Iklan','Performance Ads'];
+      const n = randInt(3, 8);
+      const shuffled = all.sort(() => rng() - 0.5);
+      return shuffled.slice(0, n);
+    })(),
+    micrositeUrl: `https://www.blibli.com/campaign/${name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`,
+    tpv: randInt(50, 900) * 1e9,
+    orders: randInt(10000, 500000),
+    customers: randInt(5000, 200000),
+    uv: randInt(500000, 5000000),
+    txnCR: (rng() * 8 + 2).toFixed(2),
+    pdpUV: randInt(200000, 2000000),
+    pdpUVRate: (rng() * 30 + 20).toFixed(2),
+    unitSold: randInt(20000, 800000),
+    newCustomer: randInt(2000, 80000),
+  });
+});
+
+// Sort by created desc
+CAMPAIGNS.sort((a, b) => b.created - a.created);
+
+// ===================== STATE =====================
+let currentPage = 1;
+let rowsPerPage = 10;
+let sortCol = 'created';
+let sortDir = 'desc';
+let searchTerm = '';
+let statusFilterVal = 'all';
+let exclFilterVal = 'all';
+let catFilterVal = 'all';
+let activeDropdown = null;
+
+// ===================== HELPERS =====================
+function fmtDate(d) {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+function fmtTime(d) {
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+function fmtCurrency(v) {
+  if (v >= 1e12) return `Rp ${(v/1e12).toFixed(1)}T`;
+  if (v >= 1e9) return `Rp ${(v/1e9).toFixed(0)}B`;
+  if (v >= 1e6) return `Rp ${(v/1e6).toFixed(0)}M`;
+  return `Rp ${v.toLocaleString()}`;
+}
+function fmtNum(v) {
+  if (v >= 1e6) return `${(v/1e6).toFixed(1)}M`;
+  if (v >= 1e3) return `${(v/1e3).toFixed(1)}K`;
+  return v.toLocaleString();
+}
+function initials(name) {
+  return name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+}
+function relativeTime(d) {
+  const now = new Date(2026, 1, 25, 14, 32);
+  const diff = now - d;
+  const days = Math.floor(diff / 86400000);
+  if (days === 0) return 'Today';
+  if (days === 1) return 'Yesterday';
+  if (days < 7) return `${days} days ago`;
+  if (days < 30) return `${Math.floor(days/7)} weeks ago`;
+  return `${Math.floor(days/30)} months ago`;
+}
+
+// ===================== RENDER STATS =====================
+function renderStats() {
+  const counts = { total: CAMPAIGNS.length, waiting: 0, 'in-progress': 0, running: 0, rejected: 0, ended: 0 };
+  CAMPAIGNS.forEach(c => counts[c.status]++);
+
+  const cards = [
+    { label: 'Total Campaigns', value: counts.total, color: '#6c7aff', icon: '📋' },
+    { label: 'Waiting Approval', value: counts.waiting, color: '#fbbf24', icon: '⏳' },
+    { label: 'In Progress', value: counts['in-progress'], color: '#3b82f6', icon: '🔧' },
+    { label: 'Running', value: counts.running, color: '#22c55e', icon: '🚀' },
+    { label: 'Ended', value: counts.ended, color: '#64748b', icon: '✓' },
+  ];
+
+  document.getElementById('statRow').innerHTML = cards.map(c => `
+    <div class="stat-card">
+      <div class="sc-accent" style="background:${c.color};"></div>
+      <div class="sc-label">${c.label}</div>
+      <div class="sc-value" style="color:${c.color};">${c.value}</div>
+      <div class="sc-icon">${c.icon}</div>
+    </div>
+  `).join('');
+}
+
+// ===================== FILTER & SORT =====================
+function getFiltered() {
+  let list = [...CAMPAIGNS];
+
+  if (searchTerm) {
+    const q = searchTerm.toLowerCase();
+    list = list.filter(c =>
+      c.name.toLowerCase().includes(q) ||
+      c.owner.toLowerCase().includes(q) ||
+      c.category.toLowerCase().includes(q) ||
+      c.categories.some(cat => cat.toLowerCase().includes(q))
+    );
+  }
+  if (statusFilterVal !== 'all') {
+    list = list.filter(c => c.status === statusFilterVal);
+  }
+  if (exclFilterVal !== 'all') {
+    const eVal = exclFilterVal === 'exclusive' ? 'Exclusive' : 'Non-Exclusive';
+    list = list.filter(c => c.exclusivity === eVal);
+  }
+  if (catFilterVal !== 'all') {
+    list = list.filter(c => c.category === catFilterVal);
+  }
+
+  // Sort
+  list.sort((a, b) => {
+    let va, vb;
+    switch (sortCol) {
+      case 'name': va = a.name.toLowerCase(); vb = b.name.toLowerCase(); break;
+      case 'category': va = a.category; vb = b.category; break;
+      case 'created': va = a.created.getTime(); vb = b.created.getTime(); break;
+      case 'excl': va = a.exclusivity; vb = b.exclusivity; break;
+      case 'owner': va = a.owner.toLowerCase(); vb = b.owner.toLowerCase(); break;
+      case 'status': va = STATUSES.indexOf(a.status); vb = STATUSES.indexOf(b.status); break;
+      default: va = a.created.getTime(); vb = b.created.getTime();
+    }
+    if (va < vb) return sortDir === 'asc' ? -1 : 1;
+    if (va > vb) return sortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  return list;
+}
+
+// ===================== RENDER TABLE =====================
+function renderTable() {
+  const filtered = getFiltered();
+  const totalPages = Math.max(1, Math.ceil(filtered.length / rowsPerPage));
+  if (currentPage > totalPages) currentPage = totalPages;
+
+  const start = (currentPage - 1) * rowsPerPage;
+  const page = filtered.slice(start, start + rowsPerPage);
+
+  const tbody = document.getElementById('tableBody');
+
+  if (page.length === 0) {
+    tbody.innerHTML = `
+      <tr><td colspan="7">
+        <div class="empty-state">
+          <div class="es-icon">🔍</div>
+          <div class="es-text">No campaigns found matching your criteria</div>
+        </div>
+      </td></tr>`;
+  } else {
+    tbody.innerHTML = page.map(c => `
+      <tr data-id="${c.id}">
+        <td>
+          <div class="camp-name">
+            <div class="camp-avatar" style="background:${c.iconColor}18;border:1px solid ${c.iconColor}30;">
+              ${c.icon}
+            </div>
+            <div>
+              <div class="camp-name-text">${c.name}</div>
+              <div class="camp-name-sub">${c.categories.join(' · ')}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <span class="cat-badge" style="background:${CAT_COLORS[c.category] || '#64748b'}14;border-color:${CAT_COLORS[c.category] || '#64748b'}30;color:${CAT_COLORS[c.category] || '#64748b'};">${c.category}</span>
+        </td>
+        <td>
+          <div class="date-main">${fmtDate(c.created)}</div>
+          <div class="date-sub">${relativeTime(c.created)}</div>
+        </td>
+        <td>
+          <span class="excl-badge ${c.exclusivity === 'Exclusive' ? 'exclusive' : 'non-exclusive'}">
+            ${c.exclusivity}
+          </span>
+        </td>
+        <td>
+          <div class="owner-cell">
+            <div class="owner-avatar" style="background:${c.ownerColor};">${initials(c.owner)}</div>
+            <span class="owner-name">${c.owner}</span>
+          </div>
+        </td>
+        <td>
+          <span class="status-badge ${c.status}">
+            <span class="dot"></span>
+            ${STATUS_LABELS[c.status]}
+          </span>
+        </td>
+        <td>
+          <div class="actions-cell">
+            <button class="action-btn" data-tooltip="View Detail" onclick="openDrawer(${c.id})">📄</button>
+            <button class="action-btn" data-tooltip="Campaign Calendar" onclick="openCalendar(${c.id})">📅</button>
+            <button class="action-btn" data-tooltip="Billboard Map" onclick="openMap(${c.id})">🗺️</button>
+            <div class="action-more">
+              <button class="action-btn" data-tooltip="More" onclick="toggleDropdown(event, ${c.id})">⋯</button>
+              <div class="action-dropdown" id="dd-${c.id}">
+                <button class="dd-item" onclick="openPreview(${c.id})">
+                  <span class="dd-icon">👁️</span> Preview Mode
+                </button>
+                <button class="dd-item" onclick="openDashboard(${c.id})">
+                  <span class="dd-icon">📊</span> Campaign Dashboard
+                </button>
+                <button class="dd-item" onclick="openTrend(${c.id})">
+                  <span class="dd-icon">📈</span> Trend Analysis
+                </button>
+                <div class="dd-divider"></div>
+                <button class="dd-item" onclick="duplicateCampaign(${c.id})">
+                  <span class="dd-icon">📋</span> Duplicate Campaign
+                </button>
+                <button class="dd-item" onclick="exportCampaign(${c.id})">
+                  <span class="dd-icon">⬇️</span> Export Data
+                </button>
+                <div class="dd-divider"></div>
+                <button class="dd-item" style="color:#f87171;" onclick="showToast('⚠️', 'Action not available in prototype')">
+                  <span class="dd-icon">🗑️</span> Delete Campaign
+                </button>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // Sort indicators
+  document.querySelectorAll('thead th[data-sort]').forEach(th => {
+    th.classList.toggle('sorted', th.dataset.sort === sortCol);
+    const arrow = th.querySelector('.sort-arrow');
+    if (th.dataset.sort === sortCol) {
+      arrow.textContent = sortDir === 'asc' ? '↑' : '↓';
+    } else {
+      arrow.textContent = '↕';
+    }
+  });
+
+  // Pagination
+  renderPagination(filtered.length, totalPages);
+}
+
+function renderPagination(totalItems, totalPages) {
+  const start = (currentPage - 1) * rowsPerPage + 1;
+  const end = Math.min(currentPage * rowsPerPage, totalItems);
+
+  let pagesHTML = '';
+  const maxVisible = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+  if (endPage - startPage < maxVisible - 1) startPage = Math.max(1, endPage - maxVisible + 1);
+
+  if (startPage > 1) {
+    pagesHTML += `<button class="page-btn" onclick="goToPage(1)">1</button>`;
+    if (startPage > 2) pagesHTML += `<span style="color:#555;padding:0 4px;">…</span>`;
+  }
+  for (let p = startPage; p <= endPage; p++) {
+    pagesHTML += `<button class="page-btn ${p === currentPage ? 'active' : ''}" onclick="goToPage(${p})">${p}</button>`;
+  }
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) pagesHTML += `<span style="color:#555;padding:0 4px;">…</span>`;
+    pagesHTML += `<button class="page-btn" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+  }
+
+  document.getElementById('tableFooter').innerHTML = `
+    <div class="table-info">
+      Showing <span>${totalItems > 0 ? start : 0}</span> – <span>${end}</span> of <span>${totalItems}</span> campaigns
+      <select class="rows-select" onchange="changeRows(this.value)">
+        <option value="5" ${rowsPerPage===5?'selected':''}>5 per page</option>
+        <option value="10" ${rowsPerPage===10?'selected':''}>10 per page</option>
+        <option value="20" ${rowsPerPage===20?'selected':''}>20 per page</option>
+        <option value="50" ${rowsPerPage===50?'selected':''}>50 per page</option>
+      </select>
+    </div>
+    <div class="pagination">
+      <button class="page-btn nav-btn" onclick="goToPage(${currentPage - 1})" ${currentPage===1?'disabled':''}>‹</button>
+      ${pagesHTML}
+      <button class="page-btn nav-btn" onclick="goToPage(${currentPage + 1})" ${currentPage===totalPages?'disabled':''}>›</button>
+    </div>
+  `;
+}
+
+// ===================== INTERACTIONS =====================
+function goToPage(p) {
+  const filtered = getFiltered();
+  const totalPages = Math.max(1, Math.ceil(filtered.length / rowsPerPage));
+  if (p < 1 || p > totalPages) return;
+  currentPage = p;
+  renderTable();
+}
+
+function changeRows(val) {
+  rowsPerPage = parseInt(val);
+  currentPage = 1;
+  renderTable();
+}
+
+// Sorting
+document.querySelectorAll('thead th[data-sort]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.sort;
+    if (sortCol === col) {
+      sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      sortCol = col;
+      sortDir = 'asc';
+    }
+    currentPage = 1;
+    renderTable();
+  });
+});
+
+// Search
+document.getElementById('searchInput').addEventListener('input', function() {
+  searchTerm = this.value.trim();
+  currentPage = 1;
+  renderTable();
+});
+
+// Filters
+document.getElementById('statusFilter').addEventListener('change', function() {
+  statusFilterVal = this.value;
+  currentPage = 1;
+  renderTable();
+});
+document.getElementById('exclFilter').addEventListener('change', function() {
+  exclFilterVal = this.value;
+  currentPage = 1;
+  renderTable();
+});
+document.getElementById('catFilter').addEventListener('change', function() {
+  catFilterVal = this.value;
+  currentPage = 1;
+  renderTable();
+});
+
+// Dropdown
+function toggleDropdown(e, id) {
+  e.stopPropagation();
+  const dd = document.getElementById(`dd-${id}`);
+  if (activeDropdown && activeDropdown !== dd) {
+    activeDropdown.classList.remove('show');
+  }
+  dd.classList.toggle('show');
+  activeDropdown = dd.classList.contains('show') ? dd : null;
+}
+document.addEventListener('click', () => {
+  if (activeDropdown) {
+    activeDropdown.classList.remove('show');
+    activeDropdown = null;
+  }
+});
+
+// ===================== MODAL =====================
+function openModal() {
+  document.getElementById('submitModal').classList.add('show');
+}
+function closeModal() {
+  document.getElementById('submitModal').classList.remove('show');
+}
+
+function submitCampaign() {
+  const name = document.getElementById('fCampName').value.trim();
+  if (!name) {
+    showToast('⚠️', 'Please enter a campaign name');
+    return;
+  }
+
+  const kpiTpv = parseFloat(document.getElementById('fKpiTpv').value);
+  const kpiCustomer = parseFloat(document.getElementById('fKpiCustomer').value);
+  if (!kpiTpv || kpiTpv <= 0) {
+    showToast('⚠️', 'TPV is required in Target KPI');
+    return;
+  }
+  if (!kpiCustomer || kpiCustomer <= 0) {
+    showToast('⚠️', 'Transaction User / Customer is required in Target KPI');
+    return;
+  }
+
+  const pStart = document.getElementById('fPeriodStart').value;
+  const pEnd = document.getElementById('fPeriodEnd').value;
+  const excl = document.getElementById('fExclusivity').value;
+  const tier = document.getElementById('fTier').value;
+  const campCat = document.getElementById('fCampCategory').value || 'OTHERS';
+  const cat = document.getElementById('fCategory').value || 'General';
+  const owner = document.getElementById('fOwner').value || 'Current User';
+  const micrositeUrl = document.getElementById('fMicrositeUrl').value.trim();
+
+  const kpiUV = parseFloat(document.getElementById('fKpiUV').value) || 0;
+  const kpiOrders = parseFloat(document.getElementById('fKpiOrders').value) || 0;
+  const kpiUnitSold = parseFloat(document.getElementById('fKpiUnitSold').value) || 0;
+
+  CAMPAIGNS.unshift({
+    id: CAMPAIGNS.length + 1,
+    name,
+    icon: pick(CAMPAIGN_ICONS),
+    iconColor: '#6c7aff',
+    created: new Date(2026, 1, 25, 14, 32),
+    periodStart: pStart ? new Date(pStart) : new Date(2026, 2, 1),
+    periodEnd: pEnd ? new Date(pEnd) : new Date(2026, 2, 15),
+    exclusivity: excl,
+    owner,
+    ownerColor: '#6c7aff',
+    status: 'waiting',
+    category: campCat,
+    categories: cat.split(',').map(c => c.trim()),
+    tier: parseInt(tier),
+    channels: ['Social Media', 'Platform', 'CRM', 'Performance Ads'],
+    micrositeUrl: micrositeUrl,
+    tpv: kpiTpv,
+    orders: kpiOrders || randInt(10000, 200000),
+    customers: kpiCustomer,
+    uv: kpiUV || randInt(500000, 3000000),
+    txnCR: parseFloat(document.getElementById('fKpiTxnCR').value) || 0,
+    pdpUV: parseFloat(document.getElementById('fKpiPdpUV').value) || 0,
+    pdpUVRate: parseFloat(document.getElementById('fKpiPdpUVRate').value) || 0,
+    unitSold: kpiUnitSold || randInt(20000, 800000),
+    newCustomer: parseFloat(document.getElementById('fKpiNewCustomer').value) || 0,
+  });
+
+  closeModal();
+  currentPage = 1;
+  renderStats();
+  renderTable();
+  showToast('✅', `"${name}" submitted for approval`);
+
+  // Reset form
+  document.getElementById('fCampName').value = '';
+  document.getElementById('fPeriodStart').value = '';
+  document.getElementById('fPeriodEnd').value = '';
+  document.getElementById('fCampCategory').value = '';
+  document.getElementById('fCategory').value = '';
+  document.getElementById('fOwner').value = '';
+  document.getElementById('fNotes').value = '';
+  document.getElementById('fMicrositeUrl').value = '';
+  document.getElementById('fKpiTpv').value = '';
+  document.getElementById('fKpiCustomer').value = '';
+  document.getElementById('fKpiTxnCR').value = '';
+  document.getElementById('fKpiUV').value = '';
+  document.getElementById('fKpiPdpUV').value = '';
+  document.getElementById('fKpiPdpUVRate').value = '';
+  document.getElementById('fKpiOrders').value = '';
+  document.getElementById('fKpiUnitSold').value = '';
+  document.getElementById('fKpiAOV').value = '';
+  document.getElementById('fKpiASP').value = '';
+  document.getElementById('fKpiUVCVR').value = '';
+  document.getElementById('fKpiBasketSize').value = '';
+  document.getElementById('fKpiPurchaseRate').value = '';
+  document.getElementById('fKpiNewCustomer').value = '';
+  document.getElementById('fKpiARPU').value = '';
+  // Collapse the KPI expandable section
+  document.getElementById('kpiExpandBtn').classList.remove('expanded');
+  document.getElementById('kpiExpandable').classList.remove('show');
+}
+
+// ===================== DRAWER (DETAIL) =====================
+function openDrawer(id) {
+  const c = CAMPAIGNS.find(x => x.id === id);
+  if (!c) return;
+
+  const panel = document.getElementById('drawerPanel');
+  panel.innerHTML = `
+    <div class="drawer-header">
+      <div>
+        <div class="drawer-title">${c.icon} ${c.name}</div>
+        <div class="drawer-subtitle">Campaign ID: #${String(c.id).padStart(4, '0')} · Created ${fmtDate(c.created)}</div>
+      </div>
+      <button class="modal-close" onclick="closeDrawer()">✕</button>
+    </div>
+
+    <div style="margin-bottom:18px;">
+      <span class="status-badge ${c.status}">
+        <span class="dot"></span>
+        ${STATUS_LABELS[c.status]}
+      </span>
+      <span class="excl-badge ${c.exclusivity === 'Exclusive' ? 'exclusive' : 'non-exclusive'}" style="margin-left:8px;">
+        ${c.exclusivity}
+      </span>
+      <span class="cat-badge" style="margin-left:8px;background:${CAT_COLORS[c.category] || '#64748b'}14;border-color:${CAT_COLORS[c.category] || '#64748b'}30;color:${CAT_COLORS[c.category] || '#64748b'};">${c.category}</span>
+    </div>
+
+    <div class="drawer-section">
+      <h3>Campaign Information</h3>
+      <div class="drawer-info-grid">
+        <div class="drawer-info-item">
+          <div class="dii-label">Period Start</div>
+          <div class="dii-value">${fmtDate(c.periodStart)}</div>
+        </div>
+        <div class="drawer-info-item">
+          <div class="dii-label">Period End</div>
+          <div class="dii-value">${fmtDate(c.periodEnd)}</div>
+        </div>
+        <div class="drawer-info-item">
+          <div class="dii-label">Category</div>
+          <div class="dii-value" style="color:${CAT_COLORS[c.category] || '#64748b'};">${c.category}</div>
+        </div>
+        <div class="drawer-info-item">
+          <div class="dii-label">Owner</div>
+          <div class="dii-value" style="display:flex;align-items:center;gap:6px;">
+            <div class="owner-avatar" style="background:${c.ownerColor};width:22px;height:22px;font-size:9px;">${initials(c.owner)}</div>
+            ${c.owner}
+          </div>
+        </div>
+        <div class="drawer-info-item">
+          <div class="dii-label">Tier</div>
+          <div class="dii-value">Tier ${c.tier}</div>
+        </div>
+        <div class="drawer-info-item">
+          <div class="dii-label">Sub-Categories</div>
+          <div class="dii-value">${c.categories.join(', ')}</div>
+        </div>
+      </div>
+      ${c.micrositeUrl ? `
+      <div style="margin-top:14px;">
+        <div class="drawer-info-item">
+          <div class="dii-label">Microsite URL</div>
+          <div class="dii-value" style="word-break:break-all;">
+            <a href="${c.micrositeUrl}" target="_blank" style="color:#6c7aff;text-decoration:none;font-size:13px;">${c.micrositeUrl}</a>
+          </div>
+        </div>
+      </div>` : ''}
+    </div>
+
+    <div class="drawer-section">
+      <h3>Target KPI</h3>
+      <div class="drawer-kpi-grid">
+        <div class="drawer-kpi-card" style="border-color:#6c7aff30;">
+          <div class="dkc-label" style="color:#6c7aff;">TPV ★</div>
+          <div class="dkc-value">${fmtCurrency(c.tpv)}</div>
+        </div>
+        <div class="drawer-kpi-card" style="border-color:#6c7aff30;">
+          <div class="dkc-label" style="color:#6c7aff;">Customer ★</div>
+          <div class="dkc-value">${fmtNum(c.customers)}</div>
+        </div>
+        <div class="drawer-kpi-card">
+          <div class="dkc-label">Txn User CR</div>
+          <div class="dkc-value">${c.txnCR || '—'}%</div>
+        </div>
+        <div class="drawer-kpi-card">
+          <div class="dkc-label">UV</div>
+          <div class="dkc-value">${fmtNum(c.uv)}</div>
+        </div>
+        <div class="drawer-kpi-card">
+          <div class="dkc-label">PDP UV</div>
+          <div class="dkc-value">${fmtNum(c.pdpUV || 0)}</div>
+        </div>
+        <div class="drawer-kpi-card">
+          <div class="dkc-label">PDP UV Rate</div>
+          <div class="dkc-value">${c.pdpUVRate || '—'}%</div>
+        </div>
+        <div class="drawer-kpi-card">
+          <div class="dkc-label">Orders</div>
+          <div class="dkc-value">${fmtNum(c.orders)}</div>
+        </div>
+        <div class="drawer-kpi-card">
+          <div class="dkc-label">Unit Sold</div>
+          <div class="dkc-value">${fmtNum(c.unitSold || 0)}</div>
+        </div>
+        <div class="drawer-kpi-card">
+          <div class="dkc-label">AOV</div>
+          <div class="dkc-value">${c.orders ? fmtCurrency(Math.round(c.tpv / c.orders)) : '—'}</div>
+        </div>
+        <div class="drawer-kpi-card">
+          <div class="dkc-label">ASP</div>
+          <div class="dkc-value">${c.unitSold ? fmtCurrency(Math.round(c.tpv / c.unitSold)) : '—'}</div>
+        </div>
+        <div class="drawer-kpi-card">
+          <div class="dkc-label">UV CVR</div>
+          <div class="dkc-value">${(c.unitSold && c.uv) ? (c.unitSold / c.uv * 100).toFixed(2) + '%' : '—'}</div>
+        </div>
+        <div class="drawer-kpi-card">
+          <div class="dkc-label">Basket Size</div>
+          <div class="dkc-value">${(c.unitSold && c.orders) ? (c.unitSold / c.orders).toFixed(2) : '—'}</div>
+        </div>
+        <div class="drawer-kpi-card">
+          <div class="dkc-label">Purchase Rate</div>
+          <div class="dkc-value">${(c.customers && c.uv) ? (c.customers / c.uv * 100).toFixed(2) + '%' : '—'}</div>
+        </div>
+        <div class="drawer-kpi-card">
+          <div class="dkc-label">New Customer</div>
+          <div class="dkc-value">${c.newCustomer ? fmtNum(c.newCustomer) : '—'}</div>
+        </div>
+        <div class="drawer-kpi-card">
+          <div class="dkc-label">ARPU</div>
+          <div class="dkc-value">${c.customers ? fmtCurrency(Math.round(c.tpv / c.customers)) : '—'}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="drawer-section">
+      <h3>Active Channels</h3>
+      <div class="drawer-channels">
+        ${c.channels.map(ch => `<span class="drawer-channel-tag">${ch}</span>`).join('')}
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
+      <button class="btn-primary" style="font-size:12px;padding:8px 16px;" onclick="openCalendar(${c.id})">📅 Calendar</button>
+      <button class="btn-primary" style="font-size:12px;padding:8px 16px;background:linear-gradient(135deg,#22c55e,#14b8a6);" onclick="openMap(${c.id})">🗺️ Map</button>
+      <button class="btn-primary" style="font-size:12px;padding:8px 16px;background:linear-gradient(135deg,#f97316,#ef4444);" onclick="openDashboard(${c.id})">📊 Dashboard</button>
+      <button class="btn-primary" style="font-size:12px;padding:8px 16px;background:linear-gradient(135deg,#3b82f6,#6366f1);" onclick="openTrend(${c.id})">📈 Trends</button>
+    </div>
+  `;
+
+  document.getElementById('drawerOverlay').classList.add('show');
+  panel.classList.add('show');
+}
+
+function closeDrawer() {
+  document.getElementById('drawerOverlay').classList.remove('show');
+  document.getElementById('drawerPanel').classList.remove('show');
+}
+
+// ===================== ACTION HANDLERS =====================
+function openCalendar(id) {
+  showToast('📅', 'Opening Campaign Calendar…');
+  setTimeout(() => window.open('campaign-calendar.html', '_blank'), 500);
+}
+function openMap(id) {
+  showToast('🗺️', 'Opening Billboard Map…');
+  setTimeout(() => window.open('billboard-map.html', '_blank'), 500);
+}
+function openDashboard(id) {
+  showToast('📊', 'Opening Campaign Dashboard…');
+  setTimeout(() => window.open('campaign-dashboard.html', '_blank'), 500);
+}
+function openTrend(id) {
+  showToast('📈', 'Opening Trend Analysis…');
+  setTimeout(() => window.open('trend-analysis.html', '_blank'), 500);
+}
+function openPreview(id) {
+  const c = CAMPAIGNS.find(x => x.id === id);
+  showToast('👁️', `Preview mode for "${c?.name || 'Campaign'}"`);
+}
+function duplicateCampaign(id) {
+  const c = CAMPAIGNS.find(x => x.id === id);
+  if (!c) return;
+  const dup = { ...c, id: CAMPAIGNS.length + 1, name: c.name + ' (Copy)', status: 'waiting', created: new Date(2026, 1, 25, 14, 32) };
+  CAMPAIGNS.unshift(dup);
+  renderStats();
+  renderTable();
+  showToast('📋', `Duplicated "${c.name}"`);
+}
+function exportCampaign(id) {
+  const c = CAMPAIGNS.find(x => x.id === id);
+  showToast('⬇️', `Exporting data for "${c?.name || 'Campaign'}"…`);
+}
+
+// ===================== TOAST =====================
+let toastTimeout;
+function showToast(icon, msg) {
+  const el = document.getElementById('toastEl');
+  el.querySelector('.toast-icon').textContent = icon;
+  document.getElementById('toastMsg').textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ===================== KPI METRICS =====================
+function toggleMoreKpi() {
+  const btn = document.getElementById('kpiExpandBtn');
+  const panel = document.getElementById('kpiExpandable');
+  btn.classList.toggle('expanded');
+  panel.classList.toggle('show');
+}
+
+function recalcKpi() {
+  const tpv = parseFloat(document.getElementById('fKpiTpv').value) || 0;
+  const customer = parseFloat(document.getElementById('fKpiCustomer').value) || 0;
+  const uv = parseFloat(document.getElementById('fKpiUV').value) || 0;
+  const orders = parseFloat(document.getElementById('fKpiOrders').value) || 0;
+  const unitSold = parseFloat(document.getElementById('fKpiUnitSold').value) || 0;
+
+  document.getElementById('fKpiAOV').value = (tpv && orders) ? fmtCurrency(Math.round(tpv / orders)) : '';
+  document.getElementById('fKpiASP').value = (tpv && unitSold) ? fmtCurrency(Math.round(tpv / unitSold)) : '';
+  document.getElementById('fKpiUVCVR').value = (unitSold && uv) ? (unitSold / uv * 100).toFixed(2) + '%' : '';
+  document.getElementById('fKpiBasketSize').value = (unitSold && orders) ? (unitSold / orders).toFixed(2) : '';
+  document.getElementById('fKpiPurchaseRate').value = (customer && uv) ? (customer / uv * 100).toFixed(2) + '%' : '';
+  document.getElementById('fKpiARPU').value = (tpv && customer) ? fmtCurrency(Math.round(tpv / customer)) : '';
+}
+
+// ===================== INIT =====================
+renderStats();
+renderTable();
+</script>
+
+</body>
+</html>

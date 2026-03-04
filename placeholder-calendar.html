@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Placeholder Calendar — Occupancy</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0b0d13;
+    color: #e0e0e0;
+    min-height: 100vh;
+    padding: 28px 32px;
+    overflow-x: hidden;
+  }
+
+  /* ===== HEADER ===== */
+  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .page-header h1 { font-size: 26px; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
+  .page-header h1 span { color: #6c7aff; }
+  .page-subtitle { color: #666; font-size: 13px; margin-bottom: 22px; }
+
+  /* ===== LEGEND ===== */
+  .legend { display: flex; align-items: center; gap: 14px; font-size: 11px; color: #666; }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+  /* ===== TOOLBAR ===== */
+  .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
+  .toolbar-left, .toolbar-right { display: flex; align-items: center; gap: 10px; }
+
+  .view-switch { display: flex; background: #12141f; border: 1px solid #1e2132; border-radius: 10px; overflow: hidden; }
+  .view-btn {
+    padding: 8px 18px; font-size: 13px; font-weight: 600; color: #888;
+    background: transparent; border: none; cursor: pointer; transition: all 0.15s;
+  }
+  .view-btn:hover { color: #ccc; }
+  .view-btn.active { background: linear-gradient(135deg, #6c7aff 0%, #a855f7 100%); color: #fff; }
+
+  .nav-btn {
+    width: 36px; height: 36px; border-radius: 10px; border: 1px solid #1e2132;
+    background: #12141f; color: #888; cursor: pointer; font-size: 16px;
+    display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+  }
+  .nav-btn:hover { border-color: #3a3f5c; color: #fff; background: #1a1d2e; }
+  .nav-label { font-size: 16px; font-weight: 700; color: #fff; min-width: 220px; text-align: center; }
+  .nav-label .nav-sub { font-size: 11px; font-weight: 400; color: #666; display: block; margin-top: 1px; }
+  .btn-today {
+    padding: 8px 16px; border-radius: 10px; border: 1px solid #1e2132;
+    background: #12141f; color: #aaa; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn-today:hover { border-color: #6c7aff; color: #fff; }
+
+  /* ===== GANTT TABLE ===== */
+  .gantt-wrap {
+    background: #12141f;
+    border: 1px solid #1e2132;
+    border-radius: 14px;
+    overflow-x: auto;
+    overflow-y: visible;
+    animation: fadeUp 0.4s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .gantt-table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+  .gantt-table th, .gantt-table td { border-right: 1px solid #0f111a; border-bottom: 1px solid #1a1d2a; }
+
+  .col-label {
+    width: 185px; min-width: 185px; max-width: 185px;
+    position: sticky; left: 0; z-index: 10; background: #12141f;
+  }
+
+  .gantt-table thead th {
+    background: #161829; padding: 8px 2px; text-align: center;
+    font-weight: 400; font-size: 11px; color: #888;
+    border-bottom: 1px solid #1e2132; user-select: none; vertical-align: middle;
+  }
+  .gantt-table thead th.col-label {
+    background: #161829; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; padding: 10px 14px; text-align: left; z-index: 15;
+  }
+  .dh-day { font-weight: 700; color: #ccc; font-size: 13px; line-height: 1.2; }
+  .dh-dow { font-size: 10px; color: #555; text-transform: uppercase; }
+  .dh-month { font-size: 10px; color: #555; }
+  th.today-col { background: rgba(108, 122, 255, 0.08) !important; }
+  th.today-col .dh-day { color: #6c7aff; }
+  th.weekend-col { background: rgba(100, 116, 139, 0.04) !important; }
+  th.weekend-col .dh-day { color: #555; }
+
+  .cat-row td { background: #0f1119 !important; border-bottom: 1px solid #1e2132; }
+  .cat-row .col-label {
+    background: #0f1119; padding: 8px 14px; font-size: 12px; font-weight: 700;
+    color: #6c7aff; text-transform: uppercase; letter-spacing: 0.8px; z-index: 12;
+  }
+  .cat-row .col-label .cat-icon { font-size: 14px; margin-right: 6px; }
+
+  .ph-row td { height: 42px; position: relative; vertical-align: middle; }
+  .ph-row .col-label {
+    padding: 0 14px; font-size: 12px; font-weight: 600; color: #bbb;
+    white-space: nowrap; z-index: 10;
+  }
+  .ph-row .col-label .ph-idx {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px; border-radius: 4px; background: #1a1d2e;
+    font-size: 10px; color: #555; margin-right: 6px; vertical-align: middle;
+  }
+
+  .ph-row td.today-col { background: rgba(108, 122, 255, 0.03); }
+  .ph-row td.weekend-col { background: rgba(100, 116, 139, 0.02); }
+
+  /* ===== CAMPAIGN BLOCKS ===== */
+  .camp-block {
+    position: absolute; top: 4px; bottom: 4px;
+    border-radius: 5px;
+    display: flex; align-items: center;
+    padding: 0 6px;
+    font-size: 10px; font-weight: 600; color: #fff;
+    cursor: grab;
+    overflow: visible; white-space: nowrap;
+    z-index: 5;
+    transition: filter 0.15s, box-shadow 0.15s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    user-select: none;
+  }
+  .camp-block:hover { filter: brightness(1.2); z-index: 8; }
+  .camp-block.dragging {
+    z-index: 50; cursor: grabbing;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 0 2px rgba(108,122,255,0.5);
+    filter: brightness(1.1);
+    opacity: 0.92;
+  }
+  .camp-block .cb-text {
+    overflow: hidden; text-overflow: ellipsis; pointer-events: none;
+    flex: 1; min-width: 0;
+  }
+
+  /* resize handles */
+  .camp-block .resize-handle {
+    position: absolute; top: 0; bottom: 0; width: 8px; cursor: col-resize; z-index: 6;
+  }
+  .camp-block .resize-handle.left { left: -2px; border-radius: 5px 0 0 5px; }
+  .camp-block .resize-handle.right { right: -2px; border-radius: 0 5px 5px 0; }
+  .camp-block .resize-handle:hover { background: rgba(255,255,255,0.15); }
+  .camp-block.resizing { z-index: 50; cursor: col-resize; }
+
+  /* delete button */
+  .camp-block .block-delete {
+    display: none; position: absolute; top: -6px; right: -6px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #ef4444; border: 2px solid #12141f;
+    color: #fff; font-size: 10px; line-height: 1;
+    cursor: pointer; align-items: center; justify-content: center;
+    z-index: 10; transition: transform 0.1s;
+  }
+  .camp-block:hover .block-delete { display: flex; }
+  .camp-block .block-delete:hover { transform: scale(1.2); background: #dc2626; }
+
+  /* drag ghost preview */
+  .drag-ghost {
+    position: absolute; top: 4px; bottom: 4px;
+    border: 2px dashed rgba(108, 122, 255, 0.5);
+    border-radius: 5px; background: rgba(108, 122, 255, 0.06);
+    pointer-events: none; z-index: 4;
+    transition: left 0.08s ease, width 0.08s ease;
+  }
+
+  /* ===== YEAR VIEW ===== */
+  .year-table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+  .year-table th, .year-table td { border-right: 1px solid #0f111a; border-bottom: 1px solid #1a1d2a; }
+  .year-table thead th {
+    background: #161829; padding: 10px 6px; text-align: center;
+    font-size: 12px; font-weight: 700; color: #ccc; border-bottom: 1px solid #1e2132;
+  }
+  .year-table thead th.col-label {
+    background: #161829; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; padding: 10px 14px; text-align: left;
+    position: sticky; left: 0; z-index: 15;
+  }
+  .year-table thead th.cur-month { color: #6c7aff; background: rgba(108, 122, 255, 0.06); }
+  .year-cat-row td { background: #0f1119 !important; border-bottom: 1px solid #1e2132; }
+  .year-cat-row .col-label {
+    background: #0f1119; padding: 6px 14px; font-size: 11px; font-weight: 700;
+    color: #6c7aff; text-transform: uppercase; letter-spacing: 0.8px;
+    position: sticky; left: 0; z-index: 12;
+  }
+  .year-ph-row td { height: 38px; position: relative; vertical-align: middle; padding: 3px 2px; }
+  .year-ph-row td.cur-month { background: rgba(108, 122, 255, 0.02); }
+  .year-ph-row .col-label {
+    padding: 0 14px; font-size: 12px; font-weight: 600; color: #bbb;
+    white-space: nowrap; position: sticky; left: 0; z-index: 10; background: #12141f;
+  }
+  .year-ph-row .col-label .ph-idx {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px; border-radius: 4px; background: #1a1d2e;
+    font-size: 10px; color: #555; margin-right: 6px; vertical-align: middle;
+  }
+  .year-block {
+    height: 8px; border-radius: 3px; margin-bottom: 2px;
+    position: absolute; top: 50%; transform: translateY(-50%);
+    cursor: pointer; transition: filter 0.15s, height 0.1s;
+  }
+  .year-block:hover { filter: brightness(1.3); height: 14px; }
+
+  /* ===== TOOLTIP ===== */
+  .tooltip {
+    display: none; position: fixed;
+    background: #1a1d2e; border: 1px solid #2a2d3e; border-radius: 12px;
+    padding: 14px 18px; z-index: 500; min-width: 250px; max-width: 320px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5); pointer-events: none;
+  }
+  .tooltip.show { display: block; animation: ttIn 0.15s ease; }
+  @keyframes ttIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+  .tt-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .tt-color { width: 4px; height: 28px; border-radius: 2px; flex-shrink: 0; }
+  .tt-name { font-size: 14px; font-weight: 700; color: #fff; }
+  .tt-placeholder { font-size: 11px; color: #888; }
+  .tt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .tt-item .tt-label { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+  .tt-item .tt-value { font-size: 13px; color: #e0e0e0; font-weight: 600; }
+  .tt-status {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; margin-top: 8px;
+  }
+
+  /* ===== SUMMARY BAR ===== */
+  .summary-bar { display: flex; gap: 16px; margin-top: 20px; flex-wrap: wrap; }
+  .summary-card {
+    background: #12141f; border: 1px solid #1e2132; border-radius: 12px;
+    padding: 16px 22px; flex: 1; min-width: 180px; position: relative; overflow: hidden;
+  }
+  .summary-card .sm-accent { position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: 12px 12px 0 0; }
+  .summary-card .sm-label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 4px; }
+  .summary-card .sm-value { font-size: 24px; font-weight: 800; color: #fff; }
+  .summary-card .sm-sub { font-size: 11px; color: #555; margin-top: 2px; }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+    z-index: 600; align-items: center; justify-content: center;
+  }
+  .modal-overlay.show { display: flex; animation: mFadeIn 0.2s ease; }
+  @keyframes mFadeIn { from { opacity:0; } to { opacity:1; } }
+  .modal-box {
+    background: #12141f; border: 1px solid #2a2d3e; border-radius: 16px;
+    width: 440px; max-width: 92vw; padding: 28px 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    animation: mSlideUp 0.25s ease;
+  }
+  @keyframes mSlideUp { from { opacity:0; transform:translateY(20px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+  .modal-icon { font-size: 36px; text-align: center; margin-bottom: 14px; }
+  .modal-title { font-size: 18px; font-weight: 700; color: #fff; text-align: center; margin-bottom: 6px; }
+  .modal-desc { font-size: 13px; color: #888; text-align: center; margin-bottom: 20px; line-height: 1.5; }
+  .modal-detail {
+    background: #0b0d13; border: 1px solid #1e2132; border-radius: 10px;
+    padding: 14px 16px; margin-bottom: 20px;
+  }
+  .modal-detail-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 4px 0; font-size: 13px;
+  }
+  .modal-detail-row .md-label { color: #666; }
+  .modal-detail-row .md-value { color: #e0e0e0; font-weight: 600; }
+  .modal-actions {
+    display: flex; justify-content: center; gap: 10px;
+  }
+  .mbtn {
+    padding: 10px 24px; border-radius: 10px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; border: none;
+  }
+  .mbtn-cancel { background: #1a1d2e; border: 1px solid #2a2d3e; color: #aaa; }
+  .mbtn-cancel:hover { background: #242740; color: #fff; }
+  .mbtn-danger { background: #ef4444; color: #fff; }
+  .mbtn-danger:hover { background: #dc2626; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(239,68,68,0.3); }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed; bottom: 32px; right: 32px;
+    background: #1a1d2e; border: 1px solid #2a2d3e; border-radius: 12px;
+    padding: 12px 18px; display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: #e0e0e0; z-index: 700;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.3s ease;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast .t-icon { font-size: 16px; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    body { padding: 16px; }
+    .toolbar { flex-direction: column; align-items: stretch; }
+    .toolbar-left, .toolbar-right { justify-content: center; flex-wrap: wrap; }
+    .summary-bar { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="page-header">
+  <h1>Placeholder <span>Calendar</span></h1>
+  <div class="legend">
+    <span style="color:#888;font-weight:600;">Status:</span>
+    <div class="legend-item"><div class="legend-dot" style="background:#22c55e;"></div> Running</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#3b82f6;"></div> Scheduled</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#fbbf24;"></div> Pending</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#64748b;"></div> Ended</div>
+  </div>
+</div>
+<div class="page-subtitle">Drag blocks to move, drag edges to resize period, or click <span style="color:#ef4444;">x</span> to delete. Hover for details.</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <div class="view-switch">
+      <button class="view-btn" data-view="week" onclick="setView('week')">Week</button>
+      <button class="view-btn active" data-view="month" onclick="setView('month')">Month</button>
+      <button class="view-btn" data-view="year" onclick="setView('year')">Year</button>
+    </div>
+    <button class="btn-today" onclick="goToday()">Today</button>
+  </div>
+  <div class="toolbar-right">
+    <button class="nav-btn" onclick="navPrev()">‹</button>
+    <div class="nav-label" id="navLabel"></div>
+    <button class="nav-btn" onclick="navNext()">›</button>
+  </div>
+</div>
+
+<!-- CALENDAR -->
+<div id="calendarWrap"></div>
+
+<!-- SUMMARY -->
+<div class="summary-bar" id="summaryBar"></div>
+
+<!-- TOOLTIP -->
+<div class="tooltip" id="tooltip"></div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box">
+    <div class="modal-icon">🗑️</div>
+    <div class="modal-title">Delete Booking</div>
+    <div class="modal-desc">Are you sure you want to remove this campaign booking from the placeholder?</div>
+    <div class="modal-detail" id="deleteDetail"></div>
+    <div class="modal-actions">
+      <button class="mbtn mbtn-cancel" onclick="closeDeleteModal()">Cancel</button>
+      <button class="mbtn mbtn-danger" onclick="confirmDelete()">Delete Booking</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toastEl">
+  <span class="t-icon" id="toastIcon"></span>
+  <span id="toastMsg"></span>
+</div>
+
+<script>
+// ===================== CONSTANTS =====================
+const TODAY = new Date(2026, 1, 25);
+
+const PLACEHOLDER_GROUPS = [
+  {
+    name: 'MAIN BANNER',
+    icon: '🖼️',
+    items: [
+      'CAROUSEL_1', 'CAROUSEL_10', 'CAROUSEL_11', 'CAROUSEL_12',
+      'CAROUSEL_2', 'CAROUSEL_3', 'CAROUSEL_4', 'CAROUSEL_5',
+      'CAROUSEL_6', 'CAROUSEEL_7', 'CAROUSEL_8', 'CAROUSEL_9',
+      'SEE_ALL_PROMO'
+    ]
+  }
+];
+
+const CAMPAIGN_POOL = [
+  { name: 'Blibli Ramadhan 2026',    cat: 'HTA',  color: '#6c7aff' },
+  { name: 'Harbolnas 3.3 Mega Sale',  cat: 'KGA',  color: '#f97316' },
+  { name: 'Super Electronics Day',    cat: 'PEL',  color: '#22c55e' },
+  { name: 'Fashion Week Special',     cat: 'FWA',  color: '#ec4899' },
+  { name: 'Valentine\'s Love Sale',   cat: 'KAM',  color: '#ef4444' },
+  { name: 'Chinese New Year Promo',   cat: 'HOM',  color: '#eab308' },
+  { name: 'Blibli Pay Day Sale',      cat: 'BLM',  color: '#3b82f6' },
+  { name: 'Women\'s Day Special',     cat: 'KKE',  color: '#a855f7' },
+  { name: 'Grocery Super Saver',      cat: 'KGA',  color: '#14b8a6' },
+  { name: 'Gadget Flash Sale Q1',     cat: 'PEL',  color: '#06b6d4' },
+  { name: 'Home Makeover Festival',   cat: 'HOM',  color: '#f43f5e' },
+  { name: 'Beauty Awards 2026',       cat: 'MBS',  color: '#8b5cf6' },
+  { name: 'Free Shipping Festival',   cat: 'FPR',  color: '#10b981' },
+  { name: 'Member Exclusive Deals',   cat: 'BLM',  color: '#0ea5e9' },
+  { name: 'Back to School 2026',      cat: 'IAN',  color: '#f59e0b' },
+  { name: 'Bundle Bonanza March',     cat: 'KGA',  color: '#d946ef' },
+  { name: 'Weekend Mega Deals',       cat: 'HTA',  color: '#84cc16' },
+  { name: 'Baby & Kids Fair',         cat: 'IAN',  color: '#fb923c' },
+  { name: 'Sports Season Kickoff',    cat: 'TIVO', color: '#38bdf8' },
+  { name: 'Blibli Anniversary 15th',  cat: 'BLM',  color: '#c084fc' },
+  { name: 'Travel Fair 2026',         cat: 'TRAV', color: '#2dd4bf' },
+  { name: 'Automotive Fest 2026',     cat: 'OTO',  color: '#fb7185' },
+  { name: 'Gaming Fest 2026',         cat: 'PEL',  color: '#818cf8' },
+  { name: 'Mid-Year Clearance',       cat: 'OTHERS', color: '#64748b' },
+];
+
+const MONTHS   = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTHS_S = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAYS_S   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+// ===================== SEEDED RNG =====================
+function seededRand(seed) { let s = seed; return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
+const rng    = seededRand(42);
+const pick   = a => a[Math.floor(rng() * a.length)];
+const randInt = (lo, hi) => Math.floor(rng() * (hi - lo + 1)) + lo;
+
+// ===================== GENERATE BOOKINGS =====================
+const BOOKINGS = [];
+let bkId = 0;
+
+PLACEHOLDER_GROUPS.forEach(group => {
+  group.items.forEach(ph => {
+    const n = randInt(7, 14);
+    let cursor = new Date(2026, 0, randInt(1, 6));
+    for (let i = 0; i < n; i++) {
+      const camp = pick(CAMPAIGN_POOL);
+      const dur  = randInt(2, 12);
+      const sd   = new Date(cursor);
+      const ed   = new Date(cursor); ed.setDate(ed.getDate() + dur - 1);
+
+      let status;
+      if (ed < TODAY) status = 'ended';
+      else if (sd <= TODAY && ed >= TODAY) status = 'running';
+      else status = rng() > 0.3 ? 'scheduled' : 'pending';
+
+      BOOKINGS.push({ id: bkId++, group: group.name, placeholder: ph, campaign: camp.name, category: camp.cat, color: camp.color, startDate: new Date(sd), endDate: new Date(ed), status });
+
+      cursor.setDate(cursor.getDate() + dur + randInt(1, 8));
+      if (cursor.getFullYear() > 2026) break;
+    }
+  });
+});
+
+// ===================== STATE =====================
+let currentView = 'month';
+let viewDate    = new Date(TODAY);
+let deleteTargetId = null;
+
+// ===== DRAG STATE =====
+let dragState = null;
+// { mode: 'move'|'resize-left'|'resize-right', bkId, el, startX, origStart, origEnd, cellWidth, rangeStart }
+
+// ===================== DATE HELPERS =====================
+function sameDay(a, b) { return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+function daysBetween(a, b) { return Math.round((b - a) / 86400000); }
+function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
+function startOfWeek(d) { const r = new Date(d); const day = r.getDay(); r.setDate(r.getDate() - day + (day === 0 ? -6 : 1)); return r; }
+function fmtDate(d) { return `${d.getDate()} ${MONTHS_S[d.getMonth()]} ${d.getFullYear()}`; }
+
+function getDateRange() {
+  if (currentView === 'week') {
+    const s = startOfWeek(viewDate);
+    return { start: s, end: addDays(s, 6), dates: Array.from({length: 7}, (_, i) => addDays(s, i)) };
+  }
+  const s = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
+  const e = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0);
+  return { start: s, end: e, dates: Array.from({length: e.getDate()}, (_, i) => addDays(s, i)) };
+}
+
+function statusColor(st) {
+  return { running:'#22c55e', scheduled:'#3b82f6', pending:'#fbbf24', ended:'#64748b' }[st] || '#555';
+}
+
+// ===================== NAVIGATION =====================
+function setView(v) {
+  currentView = v;
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  render();
+}
+function goToday() { viewDate = new Date(TODAY); render(); }
+function navPrev() {
+  if (currentView === 'week') viewDate = addDays(viewDate, -7);
+  else if (currentView === 'month') viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1);
+  else viewDate = new Date(viewDate.getFullYear() - 1, viewDate.getMonth(), 1);
+  render();
+}
+function navNext() {
+  if (currentView === 'week') viewDate = addDays(viewDate, 7);
+  else if (currentView === 'month') viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
+  else viewDate = new Date(viewDate.getFullYear() + 1, viewDate.getMonth(), 1);
+  render();
+}
+function updateNavLabel() {
+  const el = document.getElementById('navLabel');
+  if (currentView === 'week') {
+    const r = getDateRange();
+    el.innerHTML = `${fmtDate(r.start)} — ${fmtDate(r.end)}<span class="nav-sub">Week View · 7 days</span>`;
+  } else if (currentView === 'month') {
+    el.innerHTML = `${MONTHS[viewDate.getMonth()]} ${viewDate.getFullYear()}<span class="nav-sub">Month View</span>`;
+  } else {
+    el.innerHTML = `${viewDate.getFullYear()}<span class="nav-sub">Year View · 12 months</span>`;
+  }
+}
+
+// ===================== RENDER =====================
+function render() { updateNavLabel(); currentView === 'year' ? renderYear() : renderGrid(); renderSummary(); }
+
+// ——— WEEK / MONTH ———
+function renderGrid() {
+  const { start, end, dates } = getDateRange();
+  const N = dates.length;
+
+  let html = `<div class="gantt-wrap"><table class="gantt-table"><colgroup><col class="col-label">`;
+  for (let i = 0; i < N; i++) html += `<col style="width:${100/N}%">`;
+  html += `</colgroup><thead><tr><th class="col-label">Placeholder</th>`;
+
+  dates.forEach(d => {
+    let cls = '';
+    if (sameDay(d, TODAY)) cls = ' today-col';
+    else if (d.getDay() === 0 || d.getDay() === 6) cls = ' weekend-col';
+    if (currentView === 'week') {
+      html += `<th class="${cls}"><div class="dh-dow">${DAYS_S[d.getDay()]}</div><div class="dh-day">${d.getDate()}</div><div class="dh-month">${MONTHS_S[d.getMonth()]}</div></th>`;
+    } else {
+      html += `<th class="${cls}"><div class="dh-day">${d.getDate()}</div><div class="dh-dow">${DAYS_S[d.getDay()].charAt(0)}</div></th>`;
+    }
+  });
+  html += `</tr></thead><tbody>`;
+
+  PLACEHOLDER_GROUPS.forEach(group => {
+    html += `<tr class="cat-row"><td class="col-label" colspan="${N + 1}"><span class="cat-icon">${group.icon}</span> ${group.name} <span style="font-weight:400;color:#555;font-size:11px;margin-left:6px;">(${group.items.length} slots)</span></td></tr>`;
+
+    group.items.forEach((ph, idx) => {
+      html += `<tr class="ph-row"><td class="col-label"><span class="ph-idx">${idx + 1}</span>${ph}</td>`;
+
+      const phBks = BOOKINGS.filter(b => b.placeholder === ph && b.endDate >= start && b.startDate <= end);
+
+      for (let ci = 0; ci < N; ci++) {
+        const d = dates[ci];
+        let cls = '';
+        if (sameDay(d, TODAY)) cls = ' today-col';
+        else if (d.getDay() === 0 || d.getDay() === 6) cls = ' weekend-col';
+
+        html += `<td class="${cls}" data-date-idx="${ci}">`;
+
+        phBks.forEach(bk => {
+          const bkStart = bk.startDate < start ? start : bk.startDate;
+          const bkEnd   = bk.endDate > end ? end : bk.endDate;
+          const sIdx = daysBetween(start, bkStart);
+          if (sIdx !== ci) return;
+
+          const spanCells = daysBetween(bkStart, bkEnd) + 1;
+          const widthCalc = `calc(${spanCells * 100}% + ${(spanCells - 1)}px)`;
+
+          const alpha = bk.status === 'ended' ? '88' : bk.status === 'pending' ? 'bb' : '';
+          const bg = `linear-gradient(135deg, ${bk.color}${alpha || ''}, ${bk.color}${alpha || 'cc'})`;
+          const shadow = bk.status === 'running' ? `box-shadow:0 0 10px ${bk.color}44, 0 1px 4px rgba(0,0,0,0.3);` : '';
+          const label = currentView === 'week' ? bk.campaign : (spanCells >= 3 ? bk.campaign.split(' ').slice(0, 2).join(' ') : '');
+
+          html += `<div class="camp-block" style="left:0;width:${widthCalc};background:${bg};${shadow}" data-bk-id="${bk.id}" data-ph="${ph}" data-span="${spanCells}">`;
+          html += `<div class="resize-handle left" data-side="left"></div>`;
+          html += `<span class="cb-text">${label}</span>`;
+          html += `<div class="resize-handle right" data-side="right"></div>`;
+          html += `<div class="block-delete" data-bk-id="${bk.id}" title="Delete">✕</div>`;
+          html += `</div>`;
+        });
+
+        html += `</td>`;
+      }
+      html += `</tr>`;
+    });
+  });
+
+  html += `</tbody></table></div>`;
+  document.getElementById('calendarWrap').innerHTML = html;
+
+  attachBlockEvents();
+}
+
+// ——— YEAR (read-only) ———
+function renderYear() {
+  const year = viewDate.getFullYear();
+  const curMonth = (year === TODAY.getFullYear()) ? TODAY.getMonth() : -1;
+
+  let html = `<div class="gantt-wrap"><table class="year-table"><colgroup><col class="col-label">`;
+  for (let m = 0; m < 12; m++) html += `<col style="width:${100/12}%">`;
+  html += `</colgroup><thead><tr><th class="col-label">Placeholder</th>`;
+  for (let m = 0; m < 12; m++) {
+    html += `<th class="${m === curMonth ? 'cur-month' : ''}">${MONTHS_S[m]}</th>`;
+  }
+  html += `</tr></thead><tbody>`;
+
+  PLACEHOLDER_GROUPS.forEach(group => {
+    html += `<tr class="year-cat-row"><td class="col-label" colspan="13"><span style="font-size:14px;margin-right:6px;">${group.icon}</span> ${group.name}</td></tr>`;
+
+    group.items.forEach((ph, idx) => {
+      html += `<tr class="year-ph-row"><td class="col-label"><span class="ph-idx">${idx + 1}</span>${ph}</td>`;
+      for (let m = 0; m < 12; m++) {
+        const mStart = new Date(year, m, 1);
+        const mEnd   = new Date(year, m + 1, 0);
+        const daysInM = mEnd.getDate();
+        html += `<td class="${m === curMonth ? 'cur-month' : ''}" style="position:relative;">`;
+        const phBks = BOOKINGS.filter(b => b.placeholder === ph && b.endDate >= mStart && b.startDate <= mEnd);
+        phBks.forEach(bk => {
+          const bS = bk.startDate < mStart ? mStart : bk.startDate;
+          const bE = bk.endDate > mEnd ? mEnd : bk.endDate;
+          const leftPct  = ((bS.getDate() - 1) / daysInM * 100);
+          const widthPct = ((daysBetween(bS, bE) + 1) / daysInM * 100);
+          const alpha = bk.status === 'ended' ? '88' : '';
+          html += `<div class="year-block" style="left:${leftPct}%;width:${Math.min(widthPct, 100 - leftPct)}%;background:${bk.color}${alpha};" data-bk-id="${bk.id}" data-ph="${ph}"></div>`;
+        });
+        html += `</td>`;
+      }
+      html += `</tr>`;
+    });
+  });
+
+  html += `</tbody></table></div>`;
+  document.getElementById('calendarWrap').innerHTML = html;
+
+  // Year view: tooltip only
+  document.querySelectorAll('.year-block').forEach(el => {
+    const bk = BOOKINGS.find(b => b.id === parseInt(el.dataset.bkId));
+    const ph = el.dataset.ph;
+    if (!bk) return;
+    el.addEventListener('mouseenter', e => showTooltip(e, bk, ph));
+    el.addEventListener('mousemove',  e => moveTooltip(e));
+    el.addEventListener('mouseleave', () => hideTooltip());
+  });
+}
+
+// ===================== BLOCK EVENTS (WEEK/MONTH) =====================
+function attachBlockEvents() {
+  document.querySelectorAll('.camp-block').forEach(el => {
+    const bkIdVal = parseInt(el.dataset.bkId);
+    const bk = BOOKINGS.find(b => b.id === bkIdVal);
+    const ph = el.dataset.ph;
+    if (!bk) return;
+
+    // Tooltip on hover (only when not dragging)
+    el.addEventListener('mouseenter', e => { if (!dragState) showTooltip(e, bk, ph); });
+    el.addEventListener('mousemove',  e => { if (!dragState) moveTooltip(e); });
+    el.addEventListener('mouseleave', () => hideTooltip());
+
+    // Delete button
+    const delBtn = el.querySelector('.block-delete');
+    if (delBtn) {
+      delBtn.addEventListener('mousedown', e => { e.stopPropagation(); e.preventDefault(); });
+      delBtn.addEventListener('click', e => { e.stopPropagation(); openDeleteModal(bkIdVal); });
+    }
+
+    // Resize handles
+    el.querySelectorAll('.resize-handle').forEach(handle => {
+      handle.addEventListener('mousedown', e => {
+        e.stopPropagation();
+        e.preventDefault();
+        startDrag(e, bk, el, 'resize-' + handle.dataset.side);
+      });
+    });
+
+    // Move: mousedown on block body
+    el.addEventListener('mousedown', e => {
+      if (e.target.classList.contains('resize-handle') || e.target.classList.contains('block-delete')) return;
+      e.preventDefault();
+      startDrag(e, bk, el, 'move');
+    });
+  });
+}
+
+// ===================== DRAG SYSTEM =====================
+function getCellWidth() {
+  const cell = document.querySelector('.ph-row td:not(.col-label)');
+  return cell ? cell.getBoundingClientRect().width : 40;
+}
+
+function startDrag(e, bk, el, mode) {
+  hideTooltip();
+  const cellW = getCellWidth();
+  const range = getDateRange();
+
+  dragState = {
+    mode,
+    bkId: bk.id,
+    el,
+    startX: e.clientX,
+    origStart: new Date(bk.startDate),
+    origEnd: new Date(bk.endDate),
+    cellWidth: cellW,
+    rangeStart: range.start,
+    rangeEnd: range.end,
+    moved: false,
+  };
+
+  el.classList.add(mode === 'move' ? 'dragging' : 'resizing');
+  document.body.style.cursor = mode === 'move' ? 'grabbing' : 'col-resize';
+  document.body.style.userSelect = 'none';
+}
+
+document.addEventListener('mousemove', e => {
+  if (!dragState) return;
+  const ds = dragState;
+  const dx = e.clientX - ds.startX;
+  const daysDelta = Math.round(dx / ds.cellWidth);
+
+  if (daysDelta === 0 && !ds.moved) return;
+  ds.moved = true;
+
+  const bk = BOOKINGS.find(b => b.id === ds.bkId);
+  if (!bk) return;
+
+  if (ds.mode === 'move') {
+    bk.startDate = addDays(ds.origStart, daysDelta);
+    bk.endDate   = addDays(ds.origEnd, daysDelta);
+  } else if (ds.mode === 'resize-left') {
+    const newStart = addDays(ds.origStart, daysDelta);
+    if (newStart <= bk.endDate) {
+      bk.startDate = newStart;
+    }
+  } else if (ds.mode === 'resize-right') {
+    const newEnd = addDays(ds.origEnd, daysDelta);
+    if (newEnd >= bk.startDate) {
+      bk.endDate = newEnd;
+    }
+  }
+
+  // Live re-render
+  renderGrid();
+});
+
+document.addEventListener('mouseup', e => {
+  if (!dragState) return;
+  const ds = dragState;
+  const bk = BOOKINGS.find(b => b.id === ds.bkId);
+
+  document.body.style.cursor = '';
+  document.body.style.userSelect = '';
+
+  if (ds.moved && bk) {
+    // Recalculate status
+    if (bk.endDate < TODAY) bk.status = 'ended';
+    else if (bk.startDate <= TODAY && bk.endDate >= TODAY) bk.status = 'running';
+    else if (bk.startDate > TODAY) bk.status = bk.status === 'ended' ? 'scheduled' : bk.status;
+
+    const dur = daysBetween(bk.startDate, bk.endDate) + 1;
+
+    if (ds.mode === 'move') {
+      showToast('📅', `Moved "${bk.campaign}" to ${fmtDate(bk.startDate)} — ${fmtDate(bk.endDate)}`);
+    } else {
+      showToast('↔️', `Resized "${bk.campaign}" to ${dur} day${dur > 1 ? 's' : ''} (${fmtDate(bk.startDate)} — ${fmtDate(bk.endDate)})`);
+    }
+
+    renderSummary();
+  }
+
+  dragState = null;
+  render();
+});
+
+// ===================== DELETE =====================
+function openDeleteModal(id) {
+  const bk = BOOKINGS.find(b => b.id === id);
+  if (!bk) return;
+  deleteTargetId = id;
+  const dur = daysBetween(bk.startDate, bk.endDate) + 1;
+  const sc = statusColor(bk.status);
+
+  document.getElementById('deleteDetail').innerHTML = `
+    <div class="modal-detail-row"><span class="md-label">Campaign</span><span class="md-value">${bk.campaign}</span></div>
+    <div class="modal-detail-row"><span class="md-label">Placeholder</span><span class="md-value">${bk.placeholder}</span></div>
+    <div class="modal-detail-row"><span class="md-label">Period</span><span class="md-value">${fmtDate(bk.startDate)} — ${fmtDate(bk.endDate)}</span></div>
+    <div class="modal-detail-row"><span class="md-label">Duration</span><span class="md-value">${dur} day${dur>1?'s':''}</span></div>
+    <div class="modal-detail-row"><span class="md-label">Category</span><span class="md-value">${bk.category}</span></div>
+    <div class="modal-detail-row"><span class="md-label">Status</span><span class="md-value" style="color:${sc};">${bk.status.charAt(0).toUpperCase() + bk.status.slice(1)}</span></div>
+  `;
+  document.getElementById('deleteModal').classList.add('show');
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('show');
+  deleteTargetId = null;
+}
+
+function confirmDelete() {
+  if (deleteTargetId === null) return;
+  const idx = BOOKINGS.findIndex(b => b.id === deleteTargetId);
+  if (idx === -1) return;
+  const bk = BOOKINGS[idx];
+  const name = bk.campaign;
+  const ph = bk.placeholder;
+
+  BOOKINGS.splice(idx, 1);
+  closeDeleteModal();
+  render();
+  showToast('🗑️', `Deleted "${name}" from ${ph}`);
+}
+
+// ===================== TOOLTIP =====================
+function showTooltip(e, bk, ph) {
+  const tt = document.getElementById('tooltip');
+  const sc = statusColor(bk.status);
+  const dur = daysBetween(bk.startDate, bk.endDate) + 1;
+  const sl = bk.status.charAt(0).toUpperCase() + bk.status.slice(1);
+
+  tt.innerHTML = `
+    <div class="tt-header">
+      <div class="tt-color" style="background:${bk.color};"></div>
+      <div>
+        <div class="tt-name">${bk.campaign}</div>
+        <div class="tt-placeholder">${ph} · ${bk.group}</div>
+      </div>
+    </div>
+    <div class="tt-grid">
+      <div class="tt-item"><div class="tt-label">Start Date</div><div class="tt-value">${fmtDate(bk.startDate)}</div></div>
+      <div class="tt-item"><div class="tt-label">End Date</div><div class="tt-value">${fmtDate(bk.endDate)}</div></div>
+      <div class="tt-item"><div class="tt-label">Duration</div><div class="tt-value">${dur} day${dur>1?'s':''}</div></div>
+      <div class="tt-item"><div class="tt-label">Category</div><div class="tt-value">${bk.category}</div></div>
+    </div>
+    <div class="tt-status" style="background:${sc}18;color:${sc};border:1px solid ${sc}30;">● ${sl}</div>
+    <div style="font-size:10px;color:#555;margin-top:8px;text-align:center;">Drag to move · Drag edges to resize</div>`;
+  tt.classList.add('show');
+  moveTooltip(e);
+}
+function moveTooltip(e) {
+  const tt = document.getElementById('tooltip');
+  let x = e.clientX + 14, y = e.clientY + 14;
+  if (x + 300 > window.innerWidth) x = e.clientX - 300;
+  if (y + 200 > window.innerHeight) y = e.clientY - 200;
+  tt.style.left = x + 'px'; tt.style.top = y + 'px';
+}
+function hideTooltip() { document.getElementById('tooltip').classList.remove('show'); }
+
+// ===================== TOAST =====================
+let toastTimer;
+function showToast(icon, msg) {
+  const el = document.getElementById('toastEl');
+  document.getElementById('toastIcon').textContent = icon;
+  document.getElementById('toastMsg').textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// ===================== SUMMARY =====================
+function renderSummary() {
+  let rStart, rEnd;
+  if (currentView === 'year') { rStart = new Date(viewDate.getFullYear(), 0, 1); rEnd = new Date(viewDate.getFullYear(), 11, 31); }
+  else { const r = getDateRange(); rStart = r.start; rEnd = r.end; }
+
+  const vis = BOOKINGS.filter(b => b.endDate >= rStart && b.startDate <= rEnd);
+  const totalSlots   = PLACEHOLDER_GROUPS.reduce((s, g) => s + g.items.length, 0);
+  const activeCamps  = [...new Set(vis.map(b => b.campaign))].length;
+  const runningNow   = vis.filter(b => b.status === 'running').length;
+  const scheduledCnt = vis.filter(b => b.status === 'scheduled').length;
+
+  const rangeDays = daysBetween(rStart, rEnd) + 1;
+  const totalSlotDays = totalSlots * rangeDays;
+  let occupiedDays = 0;
+  PLACEHOLDER_GROUPS.forEach(g => g.items.forEach(ph => {
+    BOOKINGS.filter(b => b.placeholder === ph && b.endDate >= rStart && b.startDate <= rEnd).forEach(bk => {
+      const s = bk.startDate < rStart ? rStart : bk.startDate;
+      const e = bk.endDate > rEnd ? rEnd : bk.endDate;
+      occupiedDays += daysBetween(s, e) + 1;
+    });
+  }));
+  const occRate = totalSlotDays > 0 ? (occupiedDays / totalSlotDays * 100).toFixed(1) : '0.0';
+
+  const cards = [
+    { l:'Total Slots',     v: totalSlots,   c:'#6c7aff', s: PLACEHOLDER_GROUPS.map(g => g.name).join(', ') },
+    { l:'Active Campaigns',v: activeCamps,   c:'#a855f7', s: 'Unique in current view' },
+    { l:'Running Now',     v: runningNow,    c:'#22c55e', s: 'Currently live' },
+    { l:'Scheduled',       v: scheduledCnt,  c:'#3b82f6', s: 'Upcoming bookings' },
+    { l:'Occupancy Rate',  v: occRate + '%', c:'#f97316', s: `${occupiedDays} / ${totalSlotDays} slot-days` },
+  ];
+
+  document.getElementById('summaryBar').innerHTML = cards.map(c => `
+    <div class="summary-card">
+      <div class="sm-accent" style="background:${c.c};"></div>
+      <div class="sm-label">${c.l}</div>
+      <div class="sm-value" style="color:${c.c};">${c.v}</div>
+      <div class="sm-sub">${c.s}</div>
+    </div>`).join('');
+}
+
+// ===================== INIT =====================
+render();
+</script>
+</body>
+</html>

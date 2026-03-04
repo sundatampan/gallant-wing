@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trend Analysis — Blibli Campaign Comparison</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0b0d13;
+    --card: #12141f;
+    --card-border: #1c1f30;
+    --text: #e0e0e0;
+    --text-muted: #6b7280;
+    --text-dim: #3d4155;
+    --accent: #f97316;
+    --accent2: #6366f1;
+    --green: #22c55e;
+    --green-bg: rgba(34,197,94,0.1);
+    --red: #ef4444;
+    --red-bg: rgba(239,68,68,0.1);
+    --yellow: #fbbf24;
+    --yellow-bg: rgba(251,191,36,0.1);
+    --blue: #3b82f6;
+    --cyan: #06b6d4;
+    --pink: #ec4899;
+    --purple: #a855f7;
+  }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ===== TOP NAV ===== */
+  .topnav {
+    background: #0e1019;
+    border-bottom: 1px solid var(--card-border);
+    padding: 0 32px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  .topnav-left { display: flex; align-items: center; gap: 16px; }
+  .topnav-logo { font-size: 18px; font-weight: 800; color: #fff; }
+  .topnav-logo span { color: var(--accent); }
+  .topnav-sep { width: 1px; height: 24px; background: var(--card-border); }
+  .topnav-page { font-size: 14px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
+
+  /* ===== MAIN ===== */
+  .dashboard { padding: 24px 32px 60px; max-width: 1600px; margin: 0 auto; }
+
+  /* ===== HERO ===== */
+  .hero {
+    background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(249,115,22,0.08) 100%);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+  }
+  .hero-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+  .hero h2 { font-size: 24px; font-weight: 800; color: #fff; }
+  .hero h2 em { font-style: normal; color: var(--accent); }
+  .hero-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; max-width: 700px; }
+
+  /* ===== CAMPAIGN SELECTOR ===== */
+  .selector-section {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .selector-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+  .selector-header h3 { font-size: 16px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+  .current-badge {
+    background: var(--green-bg);
+    color: var(--green);
+    border: 1px solid rgba(34,197,94,0.3);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .selector-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+  }
+  .campaign-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--card-border);
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .campaign-chip:hover { border-color: #3a3d5e; transform: translateY(-1px); }
+  .campaign-chip.selected {
+    border-color: var(--accent2);
+    background: rgba(99,102,241,0.08);
+    box-shadow: 0 0 0 1px rgba(99,102,241,0.2);
+  }
+  .campaign-chip.current-campaign {
+    border-color: var(--accent);
+    background: rgba(249,115,22,0.08);
+    pointer-events: none;
+  }
+  .chip-check {
+    width: 20px; height: 20px;
+    border-radius: 6px;
+    border: 2px solid var(--card-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .campaign-chip.selected .chip-check { background: var(--accent2); border-color: var(--accent2); color: #fff; }
+  .campaign-chip.current-campaign .chip-check { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .chip-info { flex: 1; min-width: 0; }
+  .chip-name { font-size: 12px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chip-period { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+  .chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  .compare-btn-row { margin-top: 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .compare-btn {
+    padding: 10px 28px;
+    border-radius: 10px;
+    border: none;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .compare-btn-primary {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: #fff;
+  }
+  .compare-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,102,241,0.3); }
+  .compare-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+  .compare-btn-ghost {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+  }
+  .compare-btn-ghost:hover { border-color: #555; color: #ccc; }
+  .selected-count { font-size: 12px; color: var(--text-muted); }
+
+  /* ===== SECTION HEADERS ===== */
+  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; margin-top: 8px; }
+  .section-header h3 { font-size: 16px; font-weight: 700; color: #fff; white-space: nowrap; }
+  .section-header .sh-line { flex: 1; height: 1px; background: var(--card-border); }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 20px;
+  }
+  .card h4 { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .card h4 .sub { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+  .chart-wrapper { position: relative; }
+
+  /* ===== COMPARISON TABLE ===== */
+  .cmp-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .cmp-table thead th {
+    text-align: left;
+    padding: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--card-border);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    background: var(--card);
+  }
+  .cmp-table thead th:first-child { padding-left: 0; }
+  .cmp-table tbody td {
+    padding: 12px;
+    border-bottom: 1px solid #12141f08;
+    color: #ccc;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+  .cmp-table tbody td:first-child { padding-left: 0; font-weight: 600; color: #fff; }
+  .cmp-table tbody tr:hover td { background: rgba(255,255,255,0.015); }
+  .cmp-table tbody tr:last-child td { border-bottom: none; }
+  .cmp-table .tbl-badge { padding: 2px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; }
+  .tbl-up { background: var(--green-bg); color: var(--green); }
+  .tbl-down { background: var(--red-bg); color: var(--red); }
+  .tbl-flat { background: var(--yellow-bg); color: var(--yellow); }
+  .cmp-bar-track { width: 80px; height: 6px; background: #1a1d2e; border-radius: 3px; display: inline-block; vertical-align: middle; margin-right: 6px; overflow: hidden; }
+  .cmp-bar { height: 100%; border-radius: 3px; }
+
+  /* ===== CAMPAIGN COLOR DOTS ===== */
+  .legend-row { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+  /* ===== CHARTS GRID ===== */
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .charts-grid .card { margin-bottom: 0; }
+
+  /* ===== AI ANALYSIS ===== */
+  .ai-section {
+    background: linear-gradient(135deg, rgba(99,102,241,0.06) 0%, rgba(249,115,22,0.04) 100%);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .ai-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent), var(--pink), var(--purple));
+  }
+  .ai-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .ai-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent2), var(--purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+  }
+  .ai-header-text h3 { font-size: 16px; font-weight: 800; color: #fff; }
+  .ai-header-text p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .ai-btn-row { display: flex; gap: 8px; margin-left: auto; }
+  .ai-btn {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+    background: var(--card);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ai-btn:hover { border-color: var(--accent2); color: #fff; }
+  .ai-btn.active { border-color: var(--accent2); background: rgba(99,102,241,0.1); color: var(--accent2); }
+  .ai-content {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+    min-height: 120px;
+  }
+  .ai-content .ai-text {
+    font-size: 14px;
+    line-height: 1.9;
+    color: #d1d5db;
+  }
+  .ai-text strong { color: #fff; }
+  .ai-text .highlight {
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  .ai-text .hl-green { background: var(--green-bg); color: var(--green); }
+  .ai-text .hl-red { background: var(--red-bg); color: var(--red); }
+  .ai-text .hl-blue { background: rgba(59,130,246,0.1); color: var(--blue); }
+  .ai-text .hl-purple { background: rgba(168,85,247,0.1); color: var(--purple); }
+  .ai-text .hl-orange { background: rgba(249,115,22,0.1); color: var(--accent); }
+  .ai-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    margin: 20px 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ai-section-title:first-child { margin-top: 0; }
+  .ai-text ul { padding-left: 20px; margin: 8px 0; }
+  .ai-text li { margin-bottom: 6px; }
+  .ai-typing-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 16px;
+    background: var(--accent2);
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    animation: cursorBlink 0.8s ease infinite;
+  }
+  @keyframes cursorBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+  .ai-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--card-border);
+  }
+  .ai-footer-left { font-size: 11px; color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
+  .ai-footer-actions { display: flex; gap: 8px; }
+  .ai-footer-btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .ai-footer-btn:hover { border-color: #555; color: #ccc; }
+
+  /* ===== ACHIEVEMENT HEATMAP ===== */
+  .heatmap-grid {
+    display: grid;
+    gap: 4px;
+    font-size: 11px;
+  }
+  .heatmap-cell {
+    border-radius: 6px;
+    padding: 10px 8px;
+    text-align: center;
+    font-weight: 600;
+    transition: transform 0.15s;
+    cursor: default;
+  }
+  .heatmap-cell:hover { transform: scale(1.05); z-index: 2; }
+  .heatmap-header { font-weight: 700; color: var(--text-muted); background: transparent !important; font-size: 10px; text-transform: uppercase; }
+  .heatmap-label { text-align: left; color: #ccc; font-size: 11px; display: flex; align-items: center; padding-left: 0; background: transparent !important; }
+
+  /* ===== RESULTS AREA (hidden initially) ===== */
+  .results-area { display: none; }
+  .results-area.show { display: block; }
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-dim);
+  }
+  .empty-state .es-icon { font-size: 56px; margin-bottom: 16px; opacity: 0.4; }
+  .empty-state .es-title { font-size: 18px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; }
+  .empty-state .es-desc { font-size: 13px; line-height: 1.6; max-width: 400px; margin: 0 auto; }
+
+  /* ===== YoY DELTA CARDS ===== */
+  .yoy-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px; }
+  .yoy-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    transition: transform 0.15s;
+  }
+  .yoy-card:hover { transform: translateY(-2px); }
+  .yoy-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 8px; }
+  .yoy-value { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+  .yoy-delta { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 8px; display: inline-block; }
+  .yoy-sub { font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 1200px) {
+    .charts-grid { grid-template-columns: 1fr; }
+    .yoy-grid { grid-template-columns: repeat(3, 1fr); }
+    .selector-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+  }
+  @media (max-width: 768px) {
+    .dashboard { padding: 16px; }
+    .yoy-grid { grid-template-columns: repeat(2, 1fr); }
+    .ai-header { flex-wrap: wrap; }
+    .ai-btn-row { margin-left: 0; }
+  }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+  .card, .ai-section, .yoy-card { animation: fadeUp 0.4s ease forwards; }
+  @keyframes typeIn { from { max-height: 0; opacity: 0; } to { max-height: 2000px; opacity: 1; } }
+  .ai-typing { animation: typeIn 1.5s ease forwards; overflow: hidden; }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <div class="topnav-left">
+    <div class="topnav-logo">Blibli<span>Analytics</span></div>
+    <div class="topnav-sep"></div>
+    <div class="topnav-page">📊 Trend Analysis & Comparison</div>
+  </div>
+</div>
+
+<div class="dashboard">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-top">
+      <h2>🌙 <em>Blibli Ramadhan 2026</em> — Trend Analysis</h2>
+      <div class="current-badge">● Current Campaign · Day 10 of 18</div>
+    </div>
+    <div class="hero-desc">Compare the current Ramadhan 2026 campaign against previous campaigns to identify performance trends, growth patterns, and optimization opportunities. Select campaigns below to generate a side-by-side comparison and AI-powered analysis.</div>
+  </div>
+
+  <!-- CAMPAIGN SELECTOR -->
+  <div class="selector-section">
+    <div class="selector-header">
+      <h3>📋 Select Campaigns to Compare</h3>
+      <div class="selected-count" id="selectedCount">0 of 8 selected</div>
+    </div>
+    <div class="selector-grid" id="selectorGrid"></div>
+    <div class="compare-btn-row">
+      <button class="compare-btn compare-btn-primary" id="compareBtn" disabled>Generate Comparison & Analysis</button>
+      <button class="compare-btn compare-btn-ghost" id="clearBtn">Clear All</button>
+      <button class="compare-btn compare-btn-ghost" id="selectAllBtn">Select All</button>
+    </div>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div class="empty-state" id="emptyState">
+    <div class="es-icon">📈</div>
+    <div class="es-title">Select Campaigns to Compare</div>
+    <div class="es-desc">Choose one or more previous campaigns above, then click "Generate Comparison" to view trend analysis, side-by-side KPI comparison, and AI-generated insights.</div>
+  </div>
+
+  <!-- RESULTS (hidden until comparison runs) -->
+  <div class="results-area" id="resultsArea">
+
+    <!-- YoY DELTA CARDS -->
+    <div class="section-header">
+      <h3>⚡ Key Growth Indicators vs Best Comparator</h3>
+      <div class="sh-line"></div>
+    </div>
+    <div class="yoy-grid" id="yoyGrid"></div>
+
+    <!-- CHARTS -->
+    <div class="section-header">
+      <h3>📈 KPI Trend Comparison</h3>
+      <div class="sh-line"></div>
+    </div>
+    <div class="legend-row" id="legendRow"></div>
+    <div class="charts-grid">
+      <div class="card"><h4>TPV Achievement % <span class="sub">Target vs Actual by campaign</span></h4><div class="chart-wrapper" style="height:300px;"><canvas id="tpvCompChart"></canvas></div></div>
+      <div class="card"><h4>Orders Achievement % <span class="sub">Volume comparison</span></h4><div class="chart-wrapper" style="height:300px;"><canvas id="ordersCompChart"></canvas></div></div>
+      <div class="card"><h4>UV CVR Trend <span class="sub">Conversion rate evolution</span></h4><div class="chart-wrapper" style="height:300px;"><canvas id="cvrChart"></canvas></div></div>
+      <div class="card"><h4>AOV Trend <span class="sub">Average Order Value evolution</span></h4><div class="chart-wrapper" style="height:300px;"><canvas id="aovChart"></canvas></div></div>
+    </div>
+
+    <!-- DAILY OVERLAY CHART -->
+    <div class="card">
+      <h4>📊 Daily TPV Curve Overlay <span class="sub">Normalized to day-of-campaign for direct comparison</span></h4>
+      <div class="legend-row" id="overlayLegend"></div>
+      <div class="chart-wrapper" style="height:340px;"><canvas id="overlayChart"></canvas></div>
+    </div>
+
+    <!-- COMPARISON TABLE -->
+    <div class="section-header">
+      <h3>📋 Full KPI Comparison Table</h3>
+      <div class="sh-line"></div>
+    </div>
+    <div class="card" style="overflow-x:auto;">
+      <table class="cmp-table" id="cmpTable"></table>
+    </div>
+
+    <!-- ACHIEVEMENT HEATMAP -->
+    <div class="section-header">
+      <h3>🗺 Achievement Heatmap</h3>
+      <div class="sh-line"></div>
+    </div>
+    <div class="card">
+      <div style="overflow-x:auto;">
+        <div class="heatmap-grid" id="heatmapGrid"></div>
+      </div>
+    </div>
+
+    <!-- AI ANALYSIS -->
+    <div class="ai-section" id="aiSection">
+      <div class="ai-header">
+        <div class="ai-icon">🤖</div>
+        <div class="ai-header-text">
+          <h3>AI Trend Analysis</h3>
+          <p>Automated insights generated from campaign performance data</p>
+        </div>
+        <div class="ai-btn-row">
+          <button class="ai-btn active" data-mode="executive" onclick="switchAIMode('executive')">📊 Executive Summary</button>
+          <button class="ai-btn" data-mode="detailed" onclick="switchAIMode('detailed')">🔬 Deep-Dive Analysis</button>
+          <button class="ai-btn" data-mode="action" onclick="switchAIMode('action')">🎯 Action Items</button>
+        </div>
+      </div>
+      <div class="ai-content" id="aiContent"></div>
+      <div class="ai-footer">
+        <div class="ai-footer-left">✨ Generated by Blibli AI Analytics Engine · Based on comparison of <span id="aiCampaignCount">0</span> campaigns</div>
+        <div class="ai-footer-actions">
+          <button class="ai-footer-btn" onclick="regenerateAI()">🔄 Regenerate</button>
+          <button class="ai-footer-btn" onclick="copyAI()">📋 Copy</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ============================
+// HISTORICAL CAMPAIGNS DATA
+// ============================
+// Using seeded random for consistency
+let seed = 42;
+function seededRandom() { seed = (seed * 16807 + 0) % 2147483647; return (seed - 1) / 2147483646; }
+
+const CURRENT = {
+  id: 'ramadhan2026',
+  name: 'Ramadhan 2026',
+  shortName: 'Ram 2026',
+  period: 'Mar 2–19, 2026',
+  days: 18,
+  year: 2026,
+  type: 'Ramadhan',
+  color: '#f97316',
+  isCurrent: true,
+  kpi: {
+    tpv: { target: 850e9, actual: 502e9 },
+    customer: { target: 420000, actual: 248000 },
+    txnUserCR: { target: 4.2, actual: 4.35 },
+    uv: { target: 18000000, actual: 10500000 },
+    pdpUV: { target: 8500000, actual: 5100000 },
+    pdpUVRate: { target: 47.2, actual: 48.6 },
+    orders: { target: 1250000, actual: 735000 },
+    unitSold: { target: 3200000, actual: 1890000 },
+    aov: { target: 680000, actual: 683000 },
+    asp: { target: 265625, actual: 265608 },
+    uvCVR: { target: 6.94, actual: 7.12 },
+    basketSize: { target: 2.56, actual: 2.57 },
+    purchaseRate: { target: 2.33, actual: 2.36 },
+    newCustomer: { target: 165000, actual: 96000 },
+    arpu: { target: 2023810, actual: 2024194 },
+  },
+  // Daily TPV for overlay (normalized, 18 days)
+  dailyTPV: [],
+};
+// Generate daily curve for current
+(function() {
+  seed = 100;
+  for (let i = 0; i < 18; i++) {
+    const peak = 1 + 0.5 * Math.sin((i / 17) * Math.PI);
+    const r = 0.9 + seededRandom() * 0.2;
+    CURRENT.dailyTPV.push(i < 10 ? Math.round(502e9 / 10 * peak * r / (1 + 0.5 * Math.sin((10/17)*Math.PI))) : null);
+  }
+  // normalize so sum of first 10 ≈ 502B
+  const sum10 = CURRENT.dailyTPV.slice(0,10).reduce((a,b)=>a+(b||0),0);
+  const scale = 502e9 / sum10;
+  CURRENT.dailyTPV = CURRENT.dailyTPV.map((v,i) => i < 10 ? Math.round(v * scale) : null);
+})();
+
+const PAST_CAMPAIGNS = [
+  {
+    id: 'ramadhan2025', name: 'Ramadhan 2025', shortName: 'Ram 2025', period: 'Mar 1–18, 2025', days: 18, year: 2025, type: 'Ramadhan', color: '#6366f1',
+    kpi: { tpv:{target:720e9,actual:695e9}, customer:{target:380000,actual:362000}, txnUserCR:{target:3.9,actual:3.82}, uv:{target:15000000,actual:14800000}, pdpUV:{target:7200000,actual:6900000}, pdpUVRate:{target:48.0,actual:46.6}, orders:{target:1050000,actual:1010000}, unitSold:{target:2700000,actual:2580000}, aov:{target:685714,actual:688119}, asp:{target:266667,actual:269380}, uvCVR:{target:6.67,actual:6.55}, basketSize:{target:2.57,actual:2.55}, purchaseRate:{target:2.53,actual:2.45}, newCustomer:{target:140000,actual:128000}, arpu:{target:1894737,actual:1919890} }
+  },
+  {
+    id: 'ramadhan2024', name: 'Ramadhan 2024', shortName: 'Ram 2024', period: 'Mar 3–20, 2024', days: 18, year: 2024, type: 'Ramadhan', color: '#a855f7',
+    kpi: { tpv:{target:600e9,actual:585e9}, customer:{target:320000,actual:310000}, txnUserCR:{target:3.6,actual:3.54}, uv:{target:12500000,actual:12200000}, pdpUV:{target:5800000,actual:5500000}, pdpUVRate:{target:46.4,actual:45.1}, orders:{target:880000,actual:852000}, unitSold:{target:2200000,actual:2100000}, aov:{target:681818,actual:686620}, asp:{target:272727,actual:278571}, uvCVR:{target:6.40,actual:6.28}, basketSize:{target:2.50,actual:2.46}, purchaseRate:{target:2.56,actual:2.54}, newCustomer:{target:118000,actual:112000}, arpu:{target:1875000,actual:1887097} }
+  },
+  {
+    id: '1212_2025', name: '12.12 Sale 2025', shortName: '12.12 \'25', period: 'Dec 1–15, 2025', days: 15, year: 2025, type: 'Mega Sale', color: '#ec4899',
+    kpi: { tpv:{target:920e9,actual:905e9}, customer:{target:500000,actual:488000}, txnUserCR:{target:4.5,actual:4.42}, uv:{target:22000000,actual:21500000}, pdpUV:{target:10200000,actual:9800000}, pdpUVRate:{target:46.4,actual:45.6}, orders:{target:1500000,actual:1470000}, unitSold:{target:3800000,actual:3680000}, aov:{target:613333,actual:615646}, asp:{target:242105,actual:245924}, uvCVR:{target:6.82,actual:6.68}, basketSize:{target:2.53,actual:2.50}, purchaseRate:{target:2.27,actual:2.27}, newCustomer:{target:185000,actual:172000}, arpu:{target:1840000,actual:1854508} }
+  },
+  {
+    id: '1111_2025', name: '11.11 Sale 2025', shortName: '11.11 \'25', period: 'Nov 1–14, 2025', days: 14, year: 2025, type: 'Mega Sale', color: '#22c55e',
+    kpi: { tpv:{target:980e9,actual:1020e9}, customer:{target:520000,actual:545000}, txnUserCR:{target:4.6,actual:4.85}, uv:{target:24000000,actual:23800000}, pdpUV:{target:11500000,actual:11200000}, pdpUVRate:{target:47.9,actual:47.1}, orders:{target:1600000,actual:1680000}, unitSold:{target:4100000,actual:4350000}, aov:{target:612500,actual:607143}, asp:{target:239024,actual:234483}, uvCVR:{target:6.67,actual:7.02}, basketSize:{target:2.56,actual:2.59}, purchaseRate:{target:2.17,actual:2.29}, newCustomer:{target:200000,actual:210000}, arpu:{target:1884615,actual:1871560} }
+  },
+  {
+    id: 'merdeka2025', name: 'Merdeka Day 2025', shortName: 'Merdeka \'25', period: 'Aug 1–20, 2025', days: 20, year: 2025, type: 'National', color: '#ef4444',
+    kpi: { tpv:{target:550e9,actual:520e9}, customer:{target:280000,actual:265000}, txnUserCR:{target:3.5,actual:3.38}, uv:{target:11000000,actual:10800000}, pdpUV:{target:5000000,actual:4700000}, pdpUVRate:{target:45.5,actual:43.5}, orders:{target:750000,actual:710000}, unitSold:{target:1900000,actual:1780000}, aov:{target:733333,actual:732394}, asp:{target:289474,actual:292135}, uvCVR:{target:6.36,actual:6.12}, basketSize:{target:2.53,actual:2.51}, purchaseRate:{target:2.55,actual:2.45}, newCustomer:{target:100000,actual:92000}, arpu:{target:1964286,actual:1962264} }
+  },
+  {
+    id: '99_2025', name: '9.9 Sale 2025', shortName: '9.9 \'25', period: 'Sep 1–12, 2025', days: 12, year: 2025, type: 'Flash Sale', color: '#06b6d4',
+    kpi: { tpv:{target:480e9,actual:465e9}, customer:{target:250000,actual:242000}, txnUserCR:{target:3.8,actual:3.72}, uv:{target:10000000,actual:9800000}, pdpUV:{target:4500000,actual:4300000}, pdpUVRate:{target:45.0,actual:43.9}, orders:{target:680000,actual:660000}, unitSold:{target:1700000,actual:1640000}, aov:{target:705882,actual:704545}, asp:{target:282353,actual:283537}, uvCVR:{target:6.80,actual:6.58}, basketSize:{target:2.50,actual:2.48}, purchaseRate:{target:2.50,actual:2.47}, newCustomer:{target:95000,actual:88000}, arpu:{target:1920000,actual:1921488} }
+  },
+  {
+    id: 'midyear2025', name: 'Mid-Year Sale 2025', shortName: 'Mid \'25', period: 'Jun 1–21, 2025', days: 21, year: 2025, type: 'Flash Sale', color: '#3b82f6',
+    kpi: { tpv:{target:420e9,actual:398e9}, customer:{target:220000,actual:208000}, txnUserCR:{target:3.4,actual:3.28}, uv:{target:9500000,actual:9200000}, pdpUV:{target:4200000,actual:3900000}, pdpUVRate:{target:44.2,actual:42.4}, orders:{target:580000,actual:552000}, unitSold:{target:1450000,actual:1380000}, aov:{target:724138,actual:721014}, asp:{target:289655,actual:288406}, uvCVR:{target:6.32,actual:6.15}, basketSize:{target:2.50,actual:2.50}, purchaseRate:{target:2.32,actual:2.26}, newCustomer:{target:82000,actual:75000}, arpu:{target:1909091,actual:1913462} }
+  },
+  {
+    id: 'cny2026', name: 'CNY Sale 2026', shortName: 'CNY \'26', period: 'Jan 15–Feb 5, 2026', days: 22, year: 2026, type: 'Seasonal', color: '#fbbf24',
+    kpi: { tpv:{target:380e9,actual:372e9}, customer:{target:200000,actual:195000}, txnUserCR:{target:3.3,actual:3.25}, uv:{target:8500000,actual:8300000}, pdpUV:{target:3800000,actual:3600000}, pdpUVRate:{target:44.7,actual:43.4}, orders:{target:520000,actual:508000}, unitSold:{target:1300000,actual:1260000}, aov:{target:730769,actual:732283}, asp:{target:292308,actual:295238}, uvCVR:{target:6.12,actual:6.02}, basketSize:{target:2.50,actual:2.48}, purchaseRate:{target:2.35,actual:2.35}, newCustomer:{target:72000,actual:68000}, arpu:{target:1900000,actual:1907692} }
+  },
+];
+
+// Generate daily curves for past campaigns
+PAST_CAMPAIGNS.forEach(c => {
+  seed = c.id.length * 17 + c.year;
+  c.dailyTPV = [];
+  for (let i = 0; i < c.days; i++) {
+    const peak = 1 + 0.45 * Math.sin((i / (c.days-1)) * Math.PI);
+    const r = 0.88 + seededRandom() * 0.24;
+    c.dailyTPV.push(Math.round(c.kpi.tpv.actual / c.days * peak * r));
+  }
+  const s = c.kpi.tpv.actual / c.dailyTPV.reduce((a,b)=>a+b,0);
+  c.dailyTPV = c.dailyTPV.map(v => Math.round(v * s));
+});
+
+const ALL_CAMPAIGNS = [CURRENT, ...PAST_CAMPAIGNS];
+const KPI_KEYS = ['tpv','customer','txnUserCR','uv','pdpUV','pdpUVRate','orders','unitSold','aov','asp','uvCVR','basketSize','purchaseRate','newCustomer','arpu'];
+const KPI_META = {
+  tpv:          { label: 'TPV',               format: 'currency', icon: '💰', isRatio: false },
+  customer:     { label: 'Customer',           format: 'number',   icon: '👥', isRatio: false },
+  txnUserCR:    { label: 'Txn User CR',        format: 'percent',  icon: '🔄', isRatio: true },
+  uv:           { label: 'UV',                 format: 'number',   icon: '👁', isRatio: false },
+  pdpUV:        { label: 'PDP UV',             format: 'number',   icon: '📄', isRatio: false },
+  pdpUVRate:    { label: 'PDP UV Rate',        format: 'percent',  icon: '📊', isRatio: true },
+  orders:       { label: 'Orders',             format: 'number',   icon: '🛒', isRatio: false },
+  unitSold:     { label: 'Unit Sold',          format: 'number',   icon: '📦', isRatio: false },
+  aov:          { label: 'AOV',                format: 'currency_k', icon: '💳', isRatio: true },
+  asp:          { label: 'ASP',                format: 'currency_k', icon: '🏷', isRatio: true },
+  uvCVR:        { label: 'UV CVR',             format: 'percent',  icon: '🎯', isRatio: true },
+  basketSize:   { label: 'Basket Size',        format: 'decimal',  icon: '🧺', isRatio: true },
+  purchaseRate: { label: 'Purchase Rate',      format: 'percent',  icon: '🛍', isRatio: true },
+  newCustomer:  { label: 'New Customer',       format: 'number',   icon: '🆕', isRatio: false },
+  arpu:         { label: 'ARPU',               format: 'currency_k', icon: '📈', isRatio: true },
+};
+
+// ============================
+// FORMAT HELPERS
+// ============================
+function fmtN(n) { if(n>=1e12)return(n/1e12).toFixed(1)+'T'; if(n>=1e9)return(n/1e9).toFixed(1)+'B'; if(n>=1e6)return(n/1e6).toFixed(1)+'M'; if(n>=1e3)return(n/1e3).toFixed(1)+'K'; return n.toLocaleString(); }
+function fmtC(n) { return 'Rp '+fmtN(n); }
+function fmtCK(n) { return 'Rp '+n.toLocaleString('id-ID'); }
+function fmtP(n) { return n.toFixed(2)+'%'; }
+function fmtD(n) { return n.toFixed(2); }
+function fmtVal(v, fmt) {
+  switch(fmt) { case 'currency':return fmtC(v); case 'currency_k':return fmtCK(v); case 'number':return fmtN(v); case 'percent':return fmtP(v); case 'decimal':return fmtD(v); default:return v; }
+}
+function achPct(actual, target) { return target === 0 ? 0 : (actual / target * 100); }
+function growthPct(current, previous) { return previous === 0 ? 0 : ((current - previous) / previous * 100); }
+
+// ============================
+// STATE
+// ============================
+let selectedIds = new Set();
+let chartInstances = {};
+
+// ============================
+// BUILD SELECTOR
+// ============================
+function buildSelector() {
+  const grid = document.getElementById('selectorGrid');
+  grid.innerHTML = '';
+
+  // Current campaign (always shown, not selectable)
+  const curChip = document.createElement('div');
+  curChip.className = 'campaign-chip current-campaign';
+  curChip.innerHTML = `
+    <div class="chip-check">★</div>
+    <div class="chip-info"><div class="chip-name">${CURRENT.name}</div><div class="chip-period">${CURRENT.period} · Current</div></div>
+    <div class="chip-dot" style="background:${CURRENT.color}"></div>
+  `;
+  grid.appendChild(curChip);
+
+  PAST_CAMPAIGNS.forEach(c => {
+    const chip = document.createElement('div');
+    chip.className = 'campaign-chip' + (selectedIds.has(c.id) ? ' selected' : '');
+    chip.innerHTML = `
+      <div class="chip-check">${selectedIds.has(c.id) ? '✓' : ''}</div>
+      <div class="chip-info"><div class="chip-name">${c.name}</div><div class="chip-period">${c.period}</div></div>
+      <div class="chip-dot" style="background:${c.color}"></div>
+    `;
+    chip.addEventListener('click', () => {
+      if (selectedIds.has(c.id)) selectedIds.delete(c.id);
+      else selectedIds.add(c.id);
+      buildSelector();
+      updateBtnState();
+    });
+    grid.appendChild(chip);
+  });
+
+  document.getElementById('selectedCount').textContent = `${selectedIds.size} of ${PAST_CAMPAIGNS.length} selected`;
+}
+
+function updateBtnState() {
+  document.getElementById('compareBtn').disabled = selectedIds.size === 0;
+}
+
+document.getElementById('compareBtn').addEventListener('click', runComparison);
+document.getElementById('clearBtn').addEventListener('click', () => { selectedIds.clear(); buildSelector(); updateBtnState(); });
+document.getElementById('selectAllBtn').addEventListener('click', () => { PAST_CAMPAIGNS.forEach(c => selectedIds.add(c.id)); buildSelector(); updateBtnState(); });
+
+buildSelector();
+
+// ============================
+// RUN COMPARISON
+// ============================
+function runComparison() {
+  const selected = PAST_CAMPAIGNS.filter(c => selectedIds.has(c.id));
+  const compared = [CURRENT, ...selected];
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('resultsArea').classList.add('show');
+
+  // Destroy old charts
+  Object.values(chartInstances).forEach(c => c.destroy());
+  chartInstances = {};
+
+  renderYoYCards(compared);
+  renderLegend(compared);
+  renderBarCharts(compared);
+  renderOverlayChart(compared);
+  renderComparisonTable(compared);
+  renderHeatmap(compared);
+  renderAIAnalysis(compared, 'executive');
+
+  document.getElementById('aiCampaignCount').textContent = compared.length;
+
+  // Scroll to results
+  document.getElementById('resultsArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ============================
+// YOY DELTA CARDS
+// ============================
+function renderYoYCards(compared) {
+  const grid = document.getElementById('yoyGrid');
+  grid.innerHTML = '';
+
+  // Compare current vs the most relevant past (Ramadhan 2025 if available, else first selected)
+  const bestComp = compared.find(c => c.id === 'ramadhan2025') || compared[1];
+  if (!bestComp || bestComp.isCurrent) return;
+
+  const pairs = [
+    { key: 'tpv', label: 'TPV', fmt: 'currency' },
+    { key: 'customer', label: 'Customers', fmt: 'number' },
+    { key: 'orders', label: 'Orders', fmt: 'number' },
+    { key: 'uvCVR', label: 'UV CVR', fmt: 'percent' },
+    { key: 'aov', label: 'AOV', fmt: 'currency_k' },
+  ];
+
+  pairs.forEach((p, i) => {
+    const curAch = achPct(CURRENT.kpi[p.key].actual, CURRENT.kpi[p.key].target);
+    const pastAch = achPct(bestComp.kpi[p.key].actual, bestComp.kpi[p.key].target);
+    const achDelta = curAch - pastAch;
+
+    const curActual = CURRENT.kpi[p.key].actual;
+    const pastActual = bestComp.kpi[p.key].actual;
+    const growth = growthPct(curActual, pastActual);
+
+    const isUp = growth > 0;
+    const card = document.createElement('div');
+    card.className = 'yoy-card';
+    card.style.animationDelay = `${i * 0.05}s`;
+    card.innerHTML = `
+      <div class="yoy-label">${p.label}</div>
+      <div class="yoy-value" style="color:${isUp ? 'var(--green)' : 'var(--red)'};">${fmtVal(curActual, p.fmt)}</div>
+      <div class="yoy-delta ${isUp ? 'tbl-up' : 'tbl-down'}">${isUp ? '▲' : '▼'} ${Math.abs(growth).toFixed(1)}% YoY</div>
+      <div class="yoy-sub">vs ${bestComp.shortName}: ${fmtVal(pastActual, p.fmt)}</div>
+      <div class="yoy-sub" style="margin-top:2px;">Ach: ${curAch.toFixed(1)}% vs ${pastAch.toFixed(1)}% (${achDelta > 0 ? '+' : ''}${achDelta.toFixed(1)}pp)</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ============================
+// LEGEND
+// ============================
+function renderLegend(compared) {
+  const row = document.getElementById('legendRow');
+  row.innerHTML = compared.map(c =>
+    `<div class="legend-item"><span class="legend-dot" style="background:${c.color}"></span>${c.shortName}${c.isCurrent ? ' (Current)' : ''}</div>`
+  ).join('');
+}
+
+// ============================
+// BAR CHARTS
+// ============================
+function renderBarCharts(compared) {
+  const labels = compared.map(c => c.shortName);
+  const colors = compared.map(c => c.color);
+
+  // TPV Achievement
+  chartInstances.tpvComp = new Chart(document.getElementById('tpvCompChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Achievement %', data: compared.map(c => achPct(c.kpi.tpv.actual, c.kpi.tpv.target)), backgroundColor: colors.map(c => c+'cc'), borderRadius: 6, barPercentage: 0.6 },
+        { label: '100% Target', data: compared.map(() => 100), type: 'line', borderColor: '#ef4444', borderDash: [6,4], borderWidth: 2, pointRadius: 0, fill: false }
+      ]
+    },
+    options: chartOptions('% of Target')
+  });
+
+  // Orders Achievement
+  chartInstances.ordersComp = new Chart(document.getElementById('ordersCompChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Achievement %', data: compared.map(c => achPct(c.kpi.orders.actual, c.kpi.orders.target)), backgroundColor: colors.map(c => c+'cc'), borderRadius: 6, barPercentage: 0.6 },
+        { label: '100% Target', data: compared.map(() => 100), type: 'line', borderColor: '#ef4444', borderDash: [6,4], borderWidth: 2, pointRadius: 0, fill: false }
+      ]
+    },
+    options: chartOptions('% of Target')
+  });
+
+  // UV CVR Trend
+  chartInstances.cvr = new Chart(document.getElementById('cvrChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Target', data: compared.map(c => c.kpi.uvCVR.target), backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 6, barPercentage: 0.4 },
+        { label: 'Actual', data: compared.map(c => c.kpi.uvCVR.actual), backgroundColor: colors.map(c => c+'cc'), borderRadius: 6, barPercentage: 0.4 }
+      ]
+    },
+    options: chartOptions('UV CVR %')
+  });
+
+  // AOV Trend
+  chartInstances.aov = new Chart(document.getElementById('aovChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Target', data: compared.map(c => c.kpi.aov.target / 1000), backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 6, barPercentage: 0.4 },
+        { label: 'Actual', data: compared.map(c => c.kpi.aov.actual / 1000), backgroundColor: colors.map(c => c+'cc'), borderRadius: 6, barPercentage: 0.4 }
+      ]
+    },
+    options: chartOptions('AOV (K Rp)')
+  });
+}
+
+function chartOptions(yLabel) {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: '#888', font: { size: 11 } } }, tooltip: { backgroundColor: '#1a1d2e', titleColor: '#fff', bodyColor: '#ccc', borderColor: '#2a2d3e', borderWidth: 1 } },
+    scales: {
+      x: { grid: { color: '#1a1d2e' }, ticks: { color: '#888', font: { size: 10 } } },
+      y: { grid: { color: '#1a1d2e' }, ticks: { color: '#555', font: { size: 10 } }, title: { display: true, text: yLabel, color: '#555', font: { size: 10 } } }
+    }
+  };
+}
+
+// ============================
+// DAILY OVERLAY CHART
+// ============================
+function renderOverlayChart(compared) {
+  const maxDays = Math.max(...compared.map(c => c.days));
+  const labels = Array.from({length: maxDays}, (_, i) => `Day ${i+1}`);
+
+  const datasets = compared.map(c => ({
+    label: c.shortName,
+    data: c.dailyTPV.map(v => v !== null ? v / 1e9 : null),
+    borderColor: c.color,
+    backgroundColor: c.isCurrent ? c.color + '15' : 'transparent',
+    borderWidth: c.isCurrent ? 3 : 2,
+    borderDash: c.isCurrent ? [] : [4, 3],
+    fill: c.isCurrent,
+    tension: 0.35,
+    pointRadius: c.isCurrent ? 4 : 2,
+    pointBackgroundColor: c.color,
+    spanGaps: false,
+  }));
+
+  document.getElementById('overlayLegend').innerHTML = compared.map(c =>
+    `<div class="legend-item"><span class="legend-dot" style="background:${c.color}"></span>${c.shortName}${c.isCurrent ? ' (Current · partial)' : ''}</div>`
+  ).join('');
+
+  chartInstances.overlay = new Chart(document.getElementById('overlayChart'), {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1a1d2e', titleColor: '#fff', bodyColor: '#ccc', borderColor: '#2a2d3e', borderWidth: 1, callbacks: { label: ctx => ctx.parsed.y !== null ? `${ctx.dataset.label}: Rp ${ctx.parsed.y.toFixed(1)}B` : '' } } },
+      scales: {
+        x: { grid: { color: '#1a1d2e' }, ticks: { color: '#888', font: { size: 10 } } },
+        y: { grid: { color: '#1a1d2e' }, ticks: { color: '#555', font: { size: 10 }, callback: v => v + 'B' }, title: { display: true, text: 'Daily TPV (B Rp)', color: '#555', font: { size: 10 } } }
+      }
+    }
+  });
+}
+
+// ============================
+// COMPARISON TABLE
+// ============================
+function renderComparisonTable(compared) {
+  const table = document.getElementById('cmpTable');
+  let html = '<thead><tr><th>KPI</th>';
+  compared.forEach(c => {
+    html += `<th><span style="display:inline-block;width:8px;height:8px;border-radius:3px;background:${c.color};margin-right:6px;"></span>${c.shortName}${c.isCurrent ? ' ★' : ''}</th>`;
+    html += `<th>Ach %</th>`;
+  });
+  html += '<th>Best</th></tr></thead><tbody>';
+
+  KPI_KEYS.forEach(key => {
+    const meta = KPI_META[key];
+    html += `<tr><td>${meta.icon} ${meta.label}</td>`;
+
+    let bestAch = 0, bestName = '';
+    compared.forEach(c => {
+      const actual = c.kpi[key].actual;
+      const target = c.kpi[key].target;
+      const ach = achPct(actual, target);
+      const cls = ach >= 95 ? 'tbl-up' : ach >= 80 ? 'tbl-flat' : 'tbl-down';
+
+      if (ach > bestAch) { bestAch = ach; bestName = c.shortName; }
+
+      html += `<td>${fmtVal(actual, meta.format)}</td>`;
+      html += `<td><span class="tbl-badge ${cls}">${ach.toFixed(1)}%</span></td>`;
+    });
+
+    html += `<td style="color:var(--green);font-weight:700;">${bestName}</td>`;
+    html += '</tr>';
+  });
+
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+// ============================
+// HEATMAP
+// ============================
+function renderHeatmap(compared) {
+  const grid = document.getElementById('heatmapGrid');
+  const cols = compared.length + 1;
+  grid.style.gridTemplateColumns = `140px repeat(${compared.length}, 1fr)`;
+  grid.innerHTML = '';
+
+  // Header row
+  grid.innerHTML += '<div class="heatmap-cell heatmap-header">KPI</div>';
+  compared.forEach(c => {
+    grid.innerHTML += `<div class="heatmap-cell heatmap-header" style="color:${c.color}">${c.shortName}</div>`;
+  });
+
+  KPI_KEYS.forEach(key => {
+    const meta = KPI_META[key];
+    grid.innerHTML += `<div class="heatmap-cell heatmap-label">${meta.icon} ${meta.label}</div>`;
+    compared.forEach(c => {
+      const ach = achPct(c.kpi[key].actual, c.kpi[key].target);
+      let bg, fg;
+      if (ach >= 100) { bg = 'rgba(34,197,94,0.25)'; fg = '#4ade80'; }
+      else if (ach >= 95) { bg = 'rgba(34,197,94,0.12)'; fg = '#86efac'; }
+      else if (ach >= 85) { bg = 'rgba(251,191,36,0.15)'; fg = '#fbbf24'; }
+      else if (ach >= 70) { bg = 'rgba(249,115,22,0.15)'; fg = '#f97316'; }
+      else { bg = 'rgba(239,68,68,0.15)'; fg = '#f87171'; }
+
+      grid.innerHTML += `<div class="heatmap-cell" style="background:${bg};color:${fg};">${ach.toFixed(1)}%</div>`;
+    });
+  });
+}
+
+// ============================
+// AI ANALYSIS GENERATOR
+// ============================
+let currentAIMode = 'executive';
+let currentCompared = [];
+
+function switchAIMode(mode) {
+  currentAIMode = mode;
+  document.querySelectorAll('.ai-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+  if (currentCompared.length > 0) renderAIAnalysis(currentCompared, mode);
+}
+
+function regenerateAI() {
+  if (currentCompared.length > 0) renderAIAnalysis(currentCompared, currentAIMode, true);
+}
+
+function copyAI() {
+  const text = document.getElementById('aiContent').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.ai-footer-btn:last-child');
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => btn.innerHTML = '📋 Copy', 2000);
+  });
+}
+
+function renderAIAnalysis(compared, mode, animate = true) {
+  currentCompared = compared;
+  const content = document.getElementById('aiContent');
+
+  // Gather data for AI text generation
+  const cur = CURRENT;
+  const past = compared.filter(c => !c.isCurrent);
+  const yoyComp = past.find(c => c.id === 'ramadhan2025') || past[0];
+
+  // Compute key metrics
+  const curTPVAch = achPct(cur.kpi.tpv.actual, cur.kpi.tpv.target);
+  const curOrderAch = achPct(cur.kpi.orders.actual, cur.kpi.orders.target);
+  const curCustAch = achPct(cur.kpi.customer.actual, cur.kpi.customer.target);
+
+  let tpvGrowth = yoyComp ? growthPct(cur.kpi.tpv.actual, yoyComp.kpi.tpv.actual) : 0;
+  let orderGrowth = yoyComp ? growthPct(cur.kpi.orders.actual, yoyComp.kpi.orders.actual) : 0;
+  let cvrDelta = yoyComp ? (cur.kpi.uvCVR.actual - yoyComp.kpi.uvCVR.actual) : 0;
+  let aovDelta = yoyComp ? growthPct(cur.kpi.aov.actual, yoyComp.kpi.aov.actual) : 0;
+  let newCustGrowth = yoyComp ? growthPct(cur.kpi.newCustomer.actual, yoyComp.kpi.newCustomer.actual) : 0;
+
+  // Best performers
+  const bestTPV = [...compared].sort((a,b) => achPct(b.kpi.tpv.actual, b.kpi.tpv.target) - achPct(a.kpi.tpv.actual, a.kpi.tpv.target))[0];
+  const bestCVR = [...compared].sort((a,b) => b.kpi.uvCVR.actual - a.kpi.uvCVR.actual)[0];
+
+  let html = '';
+
+  if (mode === 'executive') {
+    html = `
+      <div class="ai-section-title">📊 Executive Summary</div>
+      <div class="ai-text">
+        <p>The <strong>Blibli Ramadhan 2026</strong> campaign is currently at <strong>Day 10 of 18</strong> (55.6% elapsed). At the midpoint, the campaign is showing <span class="highlight hl-green">strong momentum</span> across most primary KPIs.</p>
+
+        <p style="margin-top:14px;"><strong>TPV</strong> has reached <span class="highlight hl-orange">${fmtC(cur.kpi.tpv.actual)}</span>, representing <strong>${curTPVAch.toFixed(1)}%</strong> of the Rp 850B target.${yoyComp ? ` Compared to ${yoyComp.shortName} at the same elapsed point, this represents a <span class="highlight ${tpvGrowth > 0 ? 'hl-green' : 'hl-red'}">${tpvGrowth > 0 ? '+' : ''}${tpvGrowth.toFixed(1)}% growth</span> in absolute TPV.` : ''} The daily run-rate needs to average <strong>${fmtC(Math.round((cur.kpi.tpv.target - cur.kpi.tpv.actual) / 8))}/day</strong> over the remaining 8 days to hit the full campaign target.</p>
+
+        <p style="margin-top:14px;"><strong>Orders</strong> are at <span class="highlight hl-blue">${fmtN(cur.kpi.orders.actual)}</span> (${curOrderAch.toFixed(1)}% of target).${yoyComp ? ` This is <span class="highlight ${orderGrowth > 0 ? 'hl-green' : 'hl-red'}">${orderGrowth > 0 ? '+' : ''}${orderGrowth.toFixed(1)}%</span> versus ${yoyComp.shortName}.` : ''} <strong>UV CVR</strong> stands at <span class="highlight hl-purple">${cur.kpi.uvCVR.actual}%</span>, which is ${cvrDelta > 0 ? 'above' : 'below'} the target of ${cur.kpi.uvCVR.target}%${yoyComp ? ` and ${Math.abs(cvrDelta).toFixed(2)}pp ${cvrDelta > 0 ? 'higher' : 'lower'} than ${yoyComp.shortName}` : ''}.</p>
+
+        <p style="margin-top:14px;"><strong>Customer acquisition</strong> has reached <span class="highlight hl-blue">${fmtN(cur.kpi.customer.actual)}</span> customers (${curCustAch.toFixed(1)}% of target), with <strong>${fmtN(cur.kpi.newCustomer.actual)} new customers</strong>${yoyComp ? ` — a <span class="highlight ${newCustGrowth > 0 ? 'hl-green' : 'hl-red'}">${newCustGrowth > 0 ? '+' : ''}${newCustGrowth.toFixed(1)}%</span> change vs ${yoyComp.shortName}` : ''}. The <strong>ARPU</strong> of ${fmtCK(cur.kpi.arpu.actual)} indicates healthy per-customer revenue.</p>
+
+        <div class="ai-section-title" style="margin-top:20px;">🏆 Cross-Campaign Performance Ranking</div>
+        <p>Among the ${compared.length} campaigns compared, <strong>${bestTPV.shortName}</strong> leads in TPV achievement at ${achPct(bestTPV.kpi.tpv.actual, bestTPV.kpi.tpv.target).toFixed(1)}%, while <strong>${bestCVR.shortName}</strong> achieved the highest UV CVR at ${bestCVR.kpi.uvCVR.actual}%. The current Ramadhan 2026 campaign is trending ${curTPVAch >= 55 ? '<span class="highlight hl-green">ahead of pace</span>' : '<span class="highlight hl-red">behind pace</span>'} and is ${compared.filter(c => achPct(c.kpi.tpv.actual, c.kpi.tpv.target) < curTPVAch).length > 0 ? 'outperforming ' + compared.filter(c => !c.isCurrent && achPct(c.kpi.tpv.actual, c.kpi.tpv.target) < curTPVAch).length + ' out of ' + past.length + ' compared campaigns' : 'in line with historical benchmarks'} in terms of target achievement rate.</p>
+      </div>
+    `;
+  } else if (mode === 'detailed') {
+    html = `
+      <div class="ai-section-title">🔬 Deep-Dive Analysis</div>
+      <div class="ai-text">
+        <div class="ai-section-title">1. Revenue Trajectory Analysis</div>
+        <p>The TPV trajectory for Ramadhan 2026 shows a <strong>characteristic bell-curve pattern</strong> consistent with previous Ramadhan campaigns, with spending peaking around days 7–12. Current daily TPV averages <strong>${fmtC(Math.round(cur.kpi.tpv.actual / 10))}/day</strong>, which is ${(cur.kpi.tpv.actual / 10) > (cur.kpi.tpv.target / 18) ? 'above' : 'below'} the required daily average of ${fmtC(Math.round(cur.kpi.tpv.target / 18))}/day.</p>
+
+        <p style="margin-top:12px;">Comparing the daily TPV curve overlay, Ramadhan 2026 shows a <span class="highlight ${tpvGrowth > 0 ? 'hl-green' : 'hl-red'}">steeper growth ramp</span> in the first 5 days compared to historical Ramadhan campaigns, suggesting earlier consumer engagement. The <strong>AOV</strong> at ${fmtCK(cur.kpi.aov.actual)} is ${aovDelta > 0 ? 'slightly higher' : 'slightly lower'} than ${yoyComp ? yoyComp.shortName : 'previous campaigns'} (${aovDelta > 0 ? '+' : ''}${aovDelta.toFixed(1)}%), indicating ${aovDelta > 0 ? 'increased basket value per order' : 'potential price sensitivity among buyers'}.</p>
+
+        <div class="ai-section-title">2. Conversion Funnel Efficiency</div>
+        <p>The full funnel metrics reveal several key insights:</p>
+        <ul>
+          <li><strong>UV → PDP UV</strong> (${cur.kpi.pdpUVRate.actual}%): ${cur.kpi.pdpUVRate.actual > cur.kpi.pdpUVRate.target ? '<span class="highlight hl-green">Above target</span>' : '<span class="highlight hl-red">Below target</span>'}. Product discovery is ${cur.kpi.pdpUVRate.actual > 47 ? 'healthy' : 'lagging'}, suggesting ${cur.kpi.pdpUVRate.actual > 47 ? 'effective merchandising and search relevance' : 'potential issues with category navigation or search results'}.</li>
+          <li><strong>UV CVR</strong> (${cur.kpi.uvCVR.actual}%): This is the ${cur.kpi.uvCVR.actual > 7 ? 'strongest' : 'a moderate'} conversion rate observed across recent campaigns. ${bestCVR.id === 'ramadhan2026' ? 'Ramadhan 2026 leads all compared campaigns in this metric.' : `${bestCVR.shortName} still leads with ${bestCVR.kpi.uvCVR.actual}%.`}</li>
+          <li><strong>Basket Size</strong> (${cur.kpi.basketSize.actual}): Stable vs historical average, indicating consistent multi-item purchasing behavior during Ramadhan promotional period.</li>
+          <li><strong>Purchase Rate</strong> (${cur.kpi.purchaseRate.actual}%): ${cur.kpi.purchaseRate.actual > cur.kpi.purchaseRate.target ? 'Exceeding' : 'Slightly below'} target, reflecting ${cur.kpi.purchaseRate.actual > 2.3 ? 'strong buyer intent among visitors' : 'opportunity to improve traffic quality'}.</li>
+        </ul>
+
+        <div class="ai-section-title">3. Customer Growth Dynamics</div>
+        <p><strong>New customer acquisition</strong> accounts for <span class="highlight hl-purple">${(cur.kpi.newCustomer.actual / cur.kpi.customer.actual * 100).toFixed(1)}%</span> of total customers — ${(cur.kpi.newCustomer.actual / cur.kpi.customer.actual) > 0.38 ? 'a healthy ratio indicating strong top-of-funnel performance' : 'suggesting more returning customers are driving the campaign, with room to improve acquisition'}. Compared to ${yoyComp ? yoyComp.shortName : 'historical data'}, new customer volume is ${newCustGrowth > 0 ? 'growing' : 'declining'} at <span class="highlight ${newCustGrowth > 0 ? 'hl-green' : 'hl-red'}">${newCustGrowth > 0 ? '+' : ''}${newCustGrowth.toFixed(1)}%</span>, which ${newCustGrowth > 15 ? 'signals effective acquisition spend and expanded market reach' : newCustGrowth > 0 ? 'shows steady expansion' : 'warrants review of acquisition channel efficiency'}.</p>
+
+        <div class="ai-section-title">4. Historical Benchmark Positioning</div>
+        <p>When normalized for campaign duration and seasonality, Ramadhan 2026 ranks <strong>#${compared.sort((a,b) => achPct(b.kpi.tpv.actual, b.kpi.tpv.target) - achPct(a.kpi.tpv.actual, a.kpi.tpv.target)).findIndex(c => c.isCurrent) + 1}</strong> out of ${compared.length} campaigns in TPV achievement, and <strong>#${[...compared].sort((a,b) => b.kpi.uvCVR.actual - a.kpi.uvCVR.actual).findIndex(c => c.isCurrent) + 1}</strong> in UV CVR. The Mega Sale events (11.11, 12.12) typically drive higher absolute volumes but with lower AOV, while Ramadhan campaigns show higher AOV reflecting festive bulk-buying patterns.</p>
+      </div>
+    `;
+  } else if (mode === 'action') {
+    const remainingDays = 8;
+    const neededDailyTPV = (cur.kpi.tpv.target - cur.kpi.tpv.actual) / remainingDays;
+    const neededDailyOrders = (cur.kpi.orders.target - cur.kpi.orders.actual) / remainingDays;
+
+    html = `
+      <div class="ai-section-title">🎯 Recommended Action Items</div>
+      <div class="ai-text">
+        <div class="ai-section-title" style="color:var(--red);">🔴 Critical (Immediate Action Required)</div>
+        <ul>
+          <li><strong>Accelerate TPV Run-Rate:</strong> Current daily average is ${fmtC(Math.round(cur.kpi.tpv.actual / 10))}. To hit the Rp 850B target, the remaining ${remainingDays} days need <span class="highlight hl-red">${fmtC(Math.round(neededDailyTPV))}/day</span> — a ${((neededDailyTPV / (cur.kpi.tpv.actual / 10) - 1) * 100).toFixed(0)}% increase from current pace. <em>Action: Activate flash sale mechanics, push high-AOV categories, deploy targeted vouchers for cart abandoners.</em></li>
+          <li><strong>Order Volume Push:</strong> Need <span class="highlight hl-red">${fmtN(Math.round(neededDailyOrders))} orders/day</span> for remaining period. <em>Action: Increase push notification frequency, run limited-time free shipping promotions, expand cashback tiers.</em></li>
+        </ul>
+
+        <div class="ai-section-title" style="color:var(--yellow);">🟡 High Priority (This Week)</div>
+        <ul>
+          <li><strong>New Customer Acceleration:</strong> At ${fmtN(cur.kpi.newCustomer.actual)} new customers (${achPct(cur.kpi.newCustomer.actual, cur.kpi.newCustomer.target).toFixed(1)}% of target), acquisition needs a boost. <em>Action: Increase performance ads budget by 20%, activate referral bonus program, partner with influencers for last-week push.</em></li>
+          <li><strong>PDP UV Rate Optimization:</strong> Currently at ${cur.kpi.pdpUVRate.actual}%. ${cur.kpi.pdpUVRate.actual < cur.kpi.pdpUVRate.target ? `Gap of ${(cur.kpi.pdpUVRate.target - cur.kpi.pdpUVRate.actual).toFixed(1)}pp vs target.` : 'Above target but room to improve.'} <em>Action: A/B test homepage banner layouts, improve search relevance for Ramadhan keywords, add "trending during Ramadhan" collection.</em></li>
+          <li><strong>Basket Size Enhancement:</strong> At ${cur.kpi.basketSize.actual} items/order. <em>Action: Implement "Complete Your Ramadhan" cross-sell bundles, add quantity discounts on staple categories, introduce "buy 3 get 1 free" mechanics.</em></li>
+        </ul>
+
+        <div class="ai-section-title" style="color:var(--green);">🟢 Maintain & Optimize</div>
+        <ul>
+          <li><strong>UV CVR is Strong at ${cur.kpi.uvCVR.actual}%</strong> — ${cur.kpi.uvCVR.actual > cur.kpi.uvCVR.target ? 'exceeding target' : 'near target'}. Maintain current checkout flow optimizations and payment gateway uptime.</li>
+          <li><strong>AOV Performing at ${fmtCK(cur.kpi.aov.actual)}</strong> — stable and healthy. Continue premium product featuring and bundle promotions.</li>
+          <li><strong>ARPU at ${fmtCK(cur.kpi.arpu.actual)}</strong> — on track. Maintain CRM retargeting sequences for repeat purchases within the campaign period.</li>
+        </ul>
+
+        <div class="ai-section-title">📋 Projected Outcome (If Actions Implemented)</div>
+        <p>If the recommended acceleration measures are executed within the next 2 days, projected end-of-campaign results: <strong>TPV ${fmtC(Math.round(cur.kpi.tpv.actual + neededDailyTPV * remainingDays * 0.95))}–${fmtC(Math.round(cur.kpi.tpv.actual + neededDailyTPV * remainingDays * 1.05))}</strong> (${(((cur.kpi.tpv.actual + neededDailyTPV * remainingDays * 0.95) / cur.kpi.tpv.target) * 100).toFixed(0)}–${(((cur.kpi.tpv.actual + neededDailyTPV * remainingDays * 1.05) / cur.kpi.tpv.target) * 100).toFixed(0)}% of target), <strong>Orders ${fmtN(Math.round(cur.kpi.orders.actual + neededDailyOrders * remainingDays * 0.93))}–${fmtN(Math.round(cur.kpi.orders.actual + neededDailyOrders * remainingDays * 1.02))}</strong>.</p>
+      </div>
+    `;
+  }
+
+  content.innerHTML = html;
+
+  // Typing animation
+  if (animate) {
+    content.style.opacity = '0';
+    content.style.transform = 'translateY(8px)';
+    requestAnimationFrame(() => {
+      content.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      content.style.opacity = '1';
+      content.style.transform = 'translateY(0)';
+    });
+  }
+}
+
+</script>
+</body>
+</html>

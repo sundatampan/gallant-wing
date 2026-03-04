@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campaign KPI & Channel Selection</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0b0d13;
+    color: #e0e0e0;
+    min-height: 100vh;
+    padding: 32px 40px 64px;
+  }
+
+  /* ===== HEADER ===== */
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .page-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .page-header h1 span { color: #6c7aff; }
+  .page-subtitle {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 28px;
+  }
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid #2a2d3e;
+    color: #ccc;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-outline:hover {
+    border-color: #6c7aff;
+    color: #fff;
+    background: rgba(108,122,255,0.06);
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #6c7aff 0%, #a855f7 100%);
+    border: none;
+    color: #fff;
+    padding: 8px 24px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 12px rgba(108,122,255,0.25);
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(108,122,255,0.35);
+  }
+  .btn-primary:active { transform: translateY(0); }
+
+  /* ===== STAT CARDS (KPI) ===== */
+  .section-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #1e2132;
+  }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-bottom: 36px;
+  }
+  .kpi-card {
+    background: #12141f;
+    border: 1px solid #1e2132;
+    border-radius: 14px;
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.15s;
+    animation: fadeUp 0.4s ease backwards;
+  }
+  .kpi-card:nth-child(1)  { animation-delay: 0.03s; }
+  .kpi-card:nth-child(2)  { animation-delay: 0.06s; }
+  .kpi-card:nth-child(3)  { animation-delay: 0.09s; }
+  .kpi-card:nth-child(4)  { animation-delay: 0.12s; }
+  .kpi-card:nth-child(5)  { animation-delay: 0.15s; }
+  .kpi-card:nth-child(6)  { animation-delay: 0.18s; }
+  .kpi-card:nth-child(7)  { animation-delay: 0.21s; }
+  .kpi-card:nth-child(8)  { animation-delay: 0.24s; }
+  .kpi-card:nth-child(9)  { animation-delay: 0.27s; }
+  .kpi-card:nth-child(10) { animation-delay: 0.30s; }
+  .kpi-card:nth-child(11) { animation-delay: 0.33s; }
+  .kpi-card:nth-child(12) { animation-delay: 0.36s; }
+  .kpi-card:nth-child(13) { animation-delay: 0.39s; }
+  .kpi-card:nth-child(14) { animation-delay: 0.42s; }
+  .kpi-card:nth-child(15) { animation-delay: 0.45s; }
+  .kpi-card:hover {
+    border-color: #3a3f5c;
+    transform: translateY(-2px);
+  }
+  .kpi-accent {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: 14px 14px 0 0;
+  }
+  .kpi-icon {
+    font-size: 22px;
+    margin-bottom: 12px;
+    opacity: 0.85;
+  }
+  .kpi-label {
+    font-size: 11px;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 6px;
+  }
+  .kpi-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.1;
+  }
+
+  /* ===== CHANNEL SELECTION SECTION ===== */
+  .channel-section {
+    background: #12141f;
+    border: 1px solid #1e2132;
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 28px;
+    animation: fadeUp 0.4s ease 0.3s backwards;
+  }
+  .channel-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .channel-section-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .channel-section-subtitle {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 24px;
+  }
+  .channel-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .pill-btn {
+    background: #1a1d2e;
+    border: 1px solid #2a2d3e;
+    color: #aaa;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .pill-btn:hover { border-color: #6c7aff; color: #fff; }
+  .pill-btn.active { background: rgba(108,122,255,0.15); border-color: #6c7aff; color: #6c7aff; }
+  .ai-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, rgba(108,122,255,0.12), rgba(168,85,247,0.12));
+    border: 1px solid rgba(108,122,255,0.25);
+    color: #a5b4fc;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ===== CHANNEL CARDS ===== */
+  .channel-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  .channel-card {
+    background: #0f1117;
+    border: 1px solid #1e2132;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .channel-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    border-radius: 12px 0 0 12px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .channel-card.selected {
+    border-color: #2a2d3e;
+    background: #13151f;
+  }
+  .channel-card.selected::before { opacity: 1; }
+  .channel-card:hover {
+    border-color: #2a2d3e;
+  }
+  .channel-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .channel-card-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .channel-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+  }
+  .channel-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .channel-desc {
+    font-size: 12px;
+    color: #666;
+    margin-top: 1px;
+  }
+
+  /* ===== TOGGLE SWITCH ===== */
+  .toggle-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    cursor: pointer;
+  }
+  .toggle input { display: none; }
+  .toggle-track {
+    position: absolute;
+    inset: 0;
+    background: #2a2d3e;
+    border-radius: 12px;
+    transition: background 0.25s;
+  }
+  .toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    background: #555;
+    border-radius: 50%;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+  .toggle input:checked ~ .toggle-track {
+    background: linear-gradient(135deg, #6c7aff, #a855f7);
+  }
+  .toggle input:checked ~ .toggle-thumb {
+    left: 23px;
+    background: #fff;
+  }
+  .toggle-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    transition: color 0.2s;
+    min-width: 24px;
+  }
+  .toggle-label.on { color: #6c7aff; }
+
+  /* ===== RECOMMENDATION TAG ===== */
+  .rec-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-left: 8px;
+  }
+  .rec-tag.recommended {
+    background: rgba(34,197,94,0.12);
+    color: #22c55e;
+    border: 1px solid rgba(34,197,94,0.2);
+  }
+  .rec-tag.optional {
+    background: rgba(251,191,36,0.1);
+    color: #fbbf24;
+    border: 1px solid rgba(251,191,36,0.2);
+  }
+
+  /* ===== CHANNEL SUBITEMS ===== */
+  .channel-subitems {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #1e2132;
+    display: none;
+  }
+  .channel-card.selected .channel-subitems { display: block; }
+  .subitem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background 0.15s;
+    margin-bottom: 4px;
+  }
+  .subitem:hover { background: rgba(108,122,255,0.04); }
+  .subitem-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .subitem-check {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid #2a2d3e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .subitem-check.checked {
+    background: linear-gradient(135deg, #6c7aff, #a855f7);
+    border-color: #6c7aff;
+  }
+  .subitem-check.checked::after {
+    content: '✓';
+    font-size: 11px;
+    color: #fff;
+    font-weight: 700;
+  }
+  .subitem-name {
+    font-size: 13px;
+    color: #ccc;
+  }
+  .subitem-tag {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  /* ===== SUMMARY BAR ===== */
+  .summary-bar {
+    background: #12141f;
+    border: 1px solid #1e2132;
+    border-radius: 14px;
+    padding: 22px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    animation: fadeUp 0.4s ease 0.45s backwards;
+  }
+  .summary-left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .summary-stat {
+    text-align: center;
+  }
+  .summary-stat .ss-val {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+  }
+  .summary-stat .ss-label {
+    font-size: 11px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+  .summary-divider {
+    width: 1px;
+    height: 36px;
+    background: #1e2132;
+  }
+  .summary-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .summary-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #1a1d2e;
+    border: 1px solid #2a2d3e;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #ccc;
+    transition: all 0.2s;
+  }
+  .summary-chip .chip-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .summary-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* ===== APPROVE BUTTON ===== */
+  .btn-approve {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border: none;
+    color: #fff;
+    padding: 12px 32px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 16px rgba(34,197,94,0.25);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-approve:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(34,197,94,0.35);
+  }
+  .btn-approve:active { transform: translateY(0); }
+  .btn-save {
+    background: #1a1d2e;
+    border: 1px solid #2a2d3e;
+    color: #ccc;
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-save:hover {
+    border-color: #6c7aff;
+    color: #fff;
+    transform: translateY(-1px);
+  }
+  .btn-reject {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.25);
+    color: #ef4444;
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-reject:hover {
+    background: rgba(239,68,68,0.18);
+    border-color: #ef4444;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(239,68,68,0.2);
+  }
+  .btn-reject:active { transform: translateY(0); }
+
+  /* ===== NOTES SECTION ===== */
+  .notes-section {
+    background: #12141f;
+    border: 1px solid #1e2132;
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 28px;
+    animation: fadeUp 0.4s ease 0.5s backwards;
+  }
+  .notes-section h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .notes-textarea {
+    width: 100%;
+    background: #0f1117;
+    border: 1px solid #1e2132;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: inherit;
+    font-size: 13px;
+    color: #ccc;
+    resize: vertical;
+    min-height: 80px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .notes-textarea:focus {
+    border-color: #6c7aff;
+  }
+  .notes-textarea::placeholder { color: #444; }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: #1a1d2e;
+    border: 1px solid #2a2d3e;
+    border-radius: 12px;
+    padding: 14px 22px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 999;
+  }
+  .toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  .toast .toast-icon { font-size: 18px; }
+
+  /* ===== STATUS INDICATOR ===== */
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .status-dot.active { background: #22c55e; }
+  .status-dot.inactive { background: #555; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 1400px) {
+    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 1100px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .channel-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    body { padding: 16px; }
+    .kpi-grid { grid-template-columns: 1fr; }
+    .summary-bar { flex-direction: column; gap: 16px; text-align: center; }
+    .summary-left { flex-wrap: wrap; justify-content: center; }
+    .summary-right { width: 100%; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="page-header">
+  <div>
+    <h1>KPI <span>Metrics</span> & Channel Selection</h1>
+  </div>
+  <div class="header-actions">
+    <button class="btn-outline" onclick="window.history.back()">← Back</button>
+    <div class="ai-badge">✦ AI Recommended</div>
+  </div>
+</div>
+<p class="page-subtitle">Define campaign KPIs and select communication channels. AI recommendations are pre-selected for review.</p>
+
+<!-- KPI METRICS -->
+<div class="section-label">Campaign KPI Metrics</div>
+<div class="kpi-grid" id="kpiGrid"></div>
+
+<!-- CHANNEL SELECTION -->
+<div class="channel-section">
+  <div class="channel-section-header">
+    <h2>📡 Channel Selection</h2>
+    <div class="channel-toolbar">
+      <button class="pill-btn active" onclick="filterChannels('all', this)">All Channels</button>
+      <button class="pill-btn" onclick="filterChannels('recommended', this)">Recommended</button>
+      <button class="pill-btn" onclick="filterChannels('selected', this)">Selected</button>
+    </div>
+  </div>
+  <p class="channel-section-subtitle">Toggle channels on/off. Items marked <span style="color:#22c55e;font-weight:600">Recommended</span> are pre-selected based on campaign objectives. You can override any selection.</p>
+  <div class="channel-grid" id="channelGrid"></div>
+</div>
+
+<!-- SUMMARY BAR -->
+<div class="summary-bar">
+  <div class="summary-left">
+    <div class="summary-stat">
+      <div class="ss-val" id="selectedCount">0</div>
+      <div class="ss-label">Channels</div>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-stat">
+      <div class="ss-val" id="subitemCount">0</div>
+      <div class="ss-label">Placements</div>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-chips" id="summaryChips"></div>
+  </div>
+  <div class="summary-right">
+    <button class="btn-reject" onclick="handleReject()">✕ Reject</button>
+    <button class="btn-save" onclick="handleSave()">💾 Save Draft</button>
+    <button class="btn-approve" onclick="handleApprove()">✓ Approve & Continue</button>
+  </div>
+</div>
+
+<!-- NOTES -->
+<div class="notes-section">
+  <h3>📝 PIC Notes & Remarks</h3>
+  <textarea class="notes-textarea" placeholder="Add any notes, justification for channel overrides, or additional context for this campaign setup..."></textarea>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon"></span>
+  <span class="toast-text"></span>
+</div>
+
+<script>
+// ===== KPI DATA =====
+const KPI_DATA = [
+  { id: 'tpv',             label: 'TPV',                         value: 'Rp 60B',   icon: '💰', color: '#6c7aff',  formula: '' },
+  { id: 'trx-user',        label: 'Transaction User / Customer', value: '400K',     icon: '👤', color: '#a855f7',  formula: '' },
+  { id: 'trx-user-cr',     label: 'Transaction User CR',         value: '8.0%',     icon: '🔄', color: '#22c55e',  formula: '' },
+  { id: 'uv',              label: 'User Visitor (UV)',            value: '5.0M',     icon: '👥', color: '#f97316',  formula: '' },
+  { id: 'pdp-uv',          label: 'PDP UV',                      value: '2.5M',     icon: '📄', color: '#3b82f6',  formula: '' },
+  { id: 'pdp-uv-rate',     label: 'PDP UV Rate',                 value: '50%',      icon: '📊', color: '#06b6d4',  formula: 'PDP UV / UV' },
+  { id: 'orders',          label: 'Orders',                      value: '220K',     icon: '🛒', color: '#fbbf24',  formula: '' },
+  { id: 'unit-sold',       label: 'Unit Sold',                   value: '600K',     icon: '📦', color: '#ef4444',  formula: '' },
+  { id: 'aov',             label: 'AOV',                         value: 'Rp 275K',  icon: '🧾', color: '#8b5cf6',  formula: 'TPV / Orders' },
+  { id: 'asp',             label: 'ASP',                         value: 'Rp 100K',  icon: '🏷️', color: '#ec4899',  formula: 'TPV / Unit Sold' },
+  { id: 'uv-cvr',          label: 'UV CVR',                      value: '12%',      icon: '🎯', color: '#14b8a6',  formula: 'Unit Sold / UV' },
+  { id: 'basket-size',     label: 'Basket Size',                 value: '3.0',      icon: '🧺', color: '#f59e0b',  formula: 'Unit Sold / Order' },
+  { id: 'purchase-rate',   label: 'Purchase Rate',               value: '8.0%',     icon: '💳', color: '#10b981',  formula: 'Customer / UV' },
+  { id: 'new-customer',    label: 'New Customer',                value: '100K',     icon: '🌟', color: '#6366f1',  formula: '' },
+  { id: 'arpu',            label: 'ARPU',                        value: 'Rp 150K',  icon: '📈', color: '#0ea5e9',  formula: 'TPV / Customer' },
+];
+
+// ===== CHANNEL DATA =====
+const CHANNELS = [
+  {
+    id: 'mass-media',
+    name: 'Mass Media',
+    desc: 'Television, radio, and print media placements',
+    icon: '📺',
+    color: '#6c7aff',
+    recommended: true,
+    subitems: [
+      { name: 'TV Commercial (15s/30s)', recommended: true },
+      { name: 'Radio Spot', recommended: false },
+      { name: 'Print Advertisement', recommended: false },
+      { name: 'Cinema Pre-roll', recommended: true },
+    ]
+  },
+  {
+    id: 'social-media',
+    name: 'Social Media',
+    desc: 'Organic and paid social media content',
+    icon: '📱',
+    color: '#a855f7',
+    recommended: true,
+    subitems: [
+      { name: 'Instagram Feed & Stories', recommended: true },
+      { name: 'TikTok Content', recommended: true },
+      { name: 'Facebook Ads', recommended: false },
+      { name: 'Twitter / X Post', recommended: false },
+      { name: 'YouTube Shorts', recommended: true },
+    ]
+  },
+  {
+    id: 'platform',
+    name: 'Platform',
+    desc: 'On-platform placements: carousels, banners, etc.',
+    icon: '🖥️',
+    color: '#f97316',
+    recommended: true,
+    subitems: [
+      { name: 'Homepage Carousel', recommended: true },
+      { name: 'Long Banner (Hero)', recommended: true },
+      { name: 'Category Banner', recommended: false },
+      { name: 'Pop-up / Interstitial', recommended: false },
+      { name: 'Product Listing Highlight', recommended: true },
+      { name: 'Flash Sale Widget', recommended: true },
+    ]
+  },
+  {
+    id: 'crm',
+    name: 'CRM',
+    desc: 'Customer relationship management channels',
+    icon: '💌',
+    color: '#22c55e',
+    recommended: true,
+    subitems: [
+      { name: 'Email Blast', recommended: true },
+      { name: 'Push Notification', recommended: true },
+      { name: 'SMS Broadcast', recommended: false },
+      { name: 'In-App Message', recommended: true },
+      { name: 'WhatsApp Broadcast', recommended: false },
+    ]
+  },
+  {
+    id: 'seo',
+    name: 'SEO',
+    desc: 'Search engine optimization & content',
+    icon: '🔍',
+    color: '#3b82f6',
+    recommended: false,
+    subitems: [
+      { name: 'Landing Page Optimization', recommended: true },
+      { name: 'Blog/Article Content', recommended: false },
+      { name: 'Schema Markup', recommended: false },
+      { name: 'Keyword Campaign', recommended: true },
+    ]
+  },
+  {
+    id: 'public-relation',
+    name: 'Public Relation',
+    desc: 'Press releases, media coverage, influencer',
+    icon: '📰',
+    color: '#fbbf24',
+    recommended: false,
+    subitems: [
+      { name: 'Press Release', recommended: false },
+      { name: 'Media Coverage', recommended: false },
+      { name: 'KOL / Influencer', recommended: true },
+      { name: 'Event Sponsorship', recommended: false },
+    ]
+  },
+  {
+    id: 'bli-iklan',
+    name: 'Bli-Iklan',
+    desc: 'Blibli internal advertising network',
+    icon: '🏷️',
+    color: '#ef4444',
+    recommended: true,
+    subitems: [
+      { name: 'Search Ads', recommended: true },
+      { name: 'Display Network', recommended: true },
+      { name: 'Sponsored Products', recommended: true },
+      { name: 'Brand Store Takeover', recommended: false },
+    ]
+  },
+  {
+    id: 'performance-ads',
+    name: 'Performance Ads',
+    desc: 'Paid performance marketing channels',
+    icon: '🚀',
+    color: '#06b6d4',
+    recommended: true,
+    subitems: [
+      { name: 'Google Ads (Search)', recommended: true },
+      { name: 'Google Display Network', recommended: false },
+      { name: 'Meta Ads (FB/IG)', recommended: true },
+      { name: 'TikTok Ads', recommended: true },
+      { name: 'Programmatic Display', recommended: false },
+      { name: 'Affiliate Network', recommended: false },
+    ]
+  }
+];
+
+// ===== STATE =====
+let channelState = {};
+CHANNELS.forEach(ch => {
+  channelState[ch.id] = {
+    enabled: ch.recommended,
+    subitems: ch.subitems.map(s => ({ ...s, checked: s.recommended && ch.recommended }))
+  };
+});
+
+// ===== RENDER KPI =====
+function renderKPIs() {
+  const grid = document.getElementById('kpiGrid');
+  grid.innerHTML = KPI_DATA.map(k => `
+    <div class="kpi-card">
+      <div class="kpi-accent" style="background:${k.color}"></div>
+      <div class="kpi-icon">${k.icon}</div>
+      <div class="kpi-label">${k.label}${k.formula ? `<span style="display:block;font-size:10px;color:#555;letter-spacing:0;text-transform:none;margin-top:2px;font-style:italic">${k.formula}</span>` : ''}</div>
+      <div class="kpi-value">${k.value}</div>
+    </div>
+  `).join('');
+}
+
+// ===== RENDER CHANNELS =====
+function renderChannels(filter) {
+  const grid = document.getElementById('channelGrid');
+  let channels = CHANNELS;
+  if (filter === 'recommended') channels = CHANNELS.filter(c => c.recommended);
+  if (filter === 'selected') channels = CHANNELS.filter(c => channelState[c.id].enabled);
+
+  grid.innerHTML = channels.map(ch => {
+    const state = channelState[ch.id];
+    const isSelected = state.enabled;
+    return `
+      <div class="channel-card ${isSelected ? 'selected' : ''}" data-id="${ch.id}" style="--ch-color:${ch.color}">
+        <style>
+          .channel-card[data-id="${ch.id}"]::before { background: ${ch.color}; }
+        </style>
+        <div class="channel-card-top">
+          <div class="channel-card-left">
+            <div class="channel-icon" style="background:${ch.color}15; color:${ch.color}">${ch.icon}</div>
+            <div>
+              <div class="channel-name">
+                ${ch.name}
+                ${ch.recommended ? '<span class="rec-tag recommended">✦ Recommended</span>' : '<span class="rec-tag optional">Optional</span>'}
+              </div>
+              <div class="channel-desc">${ch.desc}</div>
+            </div>
+          </div>
+          <div class="toggle-wrap">
+            <span class="toggle-label ${isSelected ? '' : 'on'}" style="color:${isSelected ? '#555' : '#888'}">${isSelected ? '' : 'OFF'}</span>
+            <label class="toggle">
+              <input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleChannel('${ch.id}', this.checked)">
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+            <span class="toggle-label ${isSelected ? 'on' : ''}">${isSelected ? 'ON' : ''}</span>
+          </div>
+        </div>
+        <div class="channel-subitems">
+          ${state.subitems.map((sub, i) => `
+            <div class="subitem">
+              <div class="subitem-left">
+                <div class="subitem-check ${sub.checked ? 'checked' : ''}" onclick="toggleSubitem('${ch.id}', ${i}, this)"></div>
+                <span class="subitem-name">${sub.name}</span>
+                ${sub.recommended ? '<span class="subitem-tag" style="background:rgba(34,197,94,0.1);color:#22c55e">Rec</span>' : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+  updateSummary();
+}
+
+// ===== TOGGLE CHANNEL =====
+function toggleChannel(id, checked) {
+  channelState[id].enabled = checked;
+  if (checked) {
+    // Auto-check recommended subitems when enabling
+    const ch = CHANNELS.find(c => c.id === id);
+    channelState[id].subitems.forEach((s, i) => {
+      if (ch.subitems[i].recommended) s.checked = true;
+    });
+  } else {
+    channelState[id].subitems.forEach(s => s.checked = false);
+  }
+  renderChannels(currentFilter);
+}
+
+// ===== TOGGLE SUBITEM =====
+function toggleSubitem(channelId, index, el) {
+  const state = channelState[channelId];
+  state.subitems[index].checked = !state.subitems[index].checked;
+  el.classList.toggle('checked');
+  updateSummary();
+}
+
+// ===== FILTER =====
+let currentFilter = 'all';
+function filterChannels(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderChannels(filter);
+}
+
+// ===== UPDATE SUMMARY =====
+function updateSummary() {
+  const enabledChannels = Object.entries(channelState).filter(([, v]) => v.enabled);
+  const totalSubitems = enabledChannels.reduce((sum, [, v]) => sum + v.subitems.filter(s => s.checked).length, 0);
+
+  document.getElementById('selectedCount').textContent = enabledChannels.length;
+  document.getElementById('subitemCount').textContent = totalSubitems;
+
+  const chipsEl = document.getElementById('summaryChips');
+  chipsEl.innerHTML = enabledChannels.map(([id]) => {
+    const ch = CHANNELS.find(c => c.id === id);
+    const checkedCount = channelState[id].subitems.filter(s => s.checked).length;
+    return `<span class="summary-chip"><span class="chip-dot" style="background:${ch.color}"></span>${ch.name} (${checkedCount})</span>`;
+  }).join('');
+}
+
+// ===== TOAST =====
+function showToast(icon, text) {
+  const toast = document.getElementById('toast');
+  toast.querySelector('.toast-icon').textContent = icon;
+  toast.querySelector('.toast-text').textContent = text;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// ===== SAVE / APPROVE =====
+function handleReject() {
+  const notes = document.querySelector('.notes-textarea').value.trim();
+  if (!notes) {
+    showToast('⚠️', 'Please add rejection reason in the notes before rejecting.');
+    document.querySelector('.notes-textarea').focus();
+    document.querySelector('.notes-textarea').style.borderColor = '#ef4444';
+    setTimeout(() => {
+      document.querySelector('.notes-textarea').style.borderColor = '';
+    }, 3000);
+    return;
+  }
+  showToast('🚫', 'Campaign rejected. Returning to previous page...');
+  setTimeout(() => {
+    window.history.back();
+  }, 1500);
+}
+
+function handleSave() {
+  showToast('💾', 'Draft saved successfully!');
+}
+
+function handleApprove() {
+  const enabledCount = Object.values(channelState).filter(v => v.enabled).length;
+  if (enabledCount === 0) {
+    showToast('⚠️', 'Please select at least one channel before approving.');
+    return;
+  }
+  showToast('✅', 'Approved! Redirecting to campaign calendar...');
+  setTimeout(() => {
+    window.location.href = 'campaign-calendar.html';
+  }, 1200);
+}
+
+// ===== INIT =====
+renderKPIs();
+renderChannels('all');
+</script>
+</body>
+</html>
