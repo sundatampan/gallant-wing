@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Category Tasks — Campaign Operations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #08090e;
+    --bg: #0c0e16;
+    --bg-card: #111320;
+    --bg-card-hover: #151729;
+    --bg-elevated: #181b2d;
+    --border: #1c1f33;
+    --border-subtle: #161930;
+    --text: #c8cad0;
+    --text-muted: #5a5e72;
+    --text-bright: #eef0f4;
+    --accent: #6c7aff;
+    --accent-glow: rgba(108, 122, 255, 0.15);
+    --green: #34d399;
+    --green-bg: rgba(52, 211, 153, 0.1);
+    --red: #f87171;
+    --red-bg: rgba(248, 113, 113, 0.1);
+    --yellow: #fbbf24;
+    --yellow-bg: rgba(251, 191, 36, 0.1);
+    --blue: #60a5fa;
+    --blue-bg: rgba(96, 165, 250, 0.1);
+    --orange: #fb923c;
+    --orange-bg: rgba(251, 146, 60, 0.1);
+    --purple: #a78bfa;
+    --purple-bg: rgba(167, 139, 250, 0.1);
+    --slate: #94a3b8;
+    --slate-bg: rgba(148, 163, 184, 0.08);
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    background: var(--bg-deep);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== TOP BAR ===== */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 36px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .topbar-logo {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent) 0%, #a855f7 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -1px;
+  }
+  .topbar h1 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-bright);
+    letter-spacing: -0.3px;
+  }
+  .topbar h1 span {
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .topbar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 14px 6px 6px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: default;
+  }
+  .topbar-avatar {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--orange) 0%, #f97316 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    color: #fff;
+  }
+  .topbar-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-bright);
+  }
+  .topbar-role {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ===== PAGE LAYOUT ===== */
+  .page {
+    padding: 28px 36px 120px;
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+
+  /* ===== PAGE HEADER ===== */
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .page-header-left h2 {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-bright);
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .page-header-left p {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ===== STAT STRIP ===== */
+  .stat-strip {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: border-color 0.15s;
+    cursor: default;
+  }
+  .stat-chip:hover {
+    border-color: #2a2e48;
+  }
+  .stat-chip .stat-val {
+    font-family: var(--mono);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-bright);
+  }
+  .stat-chip .stat-dot {
+    width: 8px; height: 8px;
+    border-radius: 3px;
+  }
+
+  /* ===== TOOLBAR ===== */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .search-box {
+    position: relative;
+    flex: 1;
+    max-width: 320px;
+  }
+  .search-box input {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 9px 14px 9px 36px;
+    color: var(--text-bright);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-box input::placeholder { color: var(--text-muted); }
+  .search-box input:focus { border-color: var(--accent); }
+  .search-box .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 13px;
+    pointer-events: none;
+  }
+  .filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .filter-btn:hover {
+    border-color: #2a2e48;
+    color: var(--text);
+  }
+  .filter-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-glow);
+  }
+  .filter-btn .f-count {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    background: var(--border);
+    padding: 1px 6px;
+    border-radius: 5px;
+    color: var(--text);
+  }
+  .filter-btn.active .f-count {
+    background: rgba(108, 122, 255, 0.25);
+    color: #c0ccff;
+  }
+
+  /* ===== TABLE ===== */
+  .table-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  thead th {
+    padding: 12px 16px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    white-space: nowrap;
+  }
+  thead th:first-child {
+    padding-left: 18px;
+    width: 44px;
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border-subtle);
+    transition: background 0.1s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover {
+    background: rgba(108, 122, 255, 0.025);
+  }
+  tbody tr.selected {
+    background: rgba(108, 122, 255, 0.06);
+  }
+  tbody td {
+    padding: 14px 16px;
+    font-size: 13px;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  tbody td:first-child {
+    padding-left: 18px;
+  }
+
+  /* Checkbox */
+  .chk {
+    width: 16px; height: 16px;
+    border-radius: 4px;
+    border: 2px solid #2e3250;
+    background: transparent;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: all 0.12s;
+    position: relative;
+    vertical-align: middle;
+  }
+  .chk:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .chk:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+  }
+  .chk:hover { border-color: #4a4e70; }
+  .chk.chk-header { margin-top: 1px; }
+
+  /* Campaign cell */
+  .cell-campaign {
+    font-weight: 600;
+    color: var(--text-bright);
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Category badge */
+  .cat-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    font-family: var(--mono);
+  }
+
+  /* Date cell */
+  .cell-date {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  /* Tier badge */
+  .tier-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 6px;
+  }
+  .tier-1 { background: rgba(251, 191, 36, 0.1); color: #fbbf24; }
+  .tier-2 { background: rgba(96, 165, 250, 0.1); color: #60a5fa; }
+  .tier-3 { background: rgba(148, 163, 184, 0.08); color: #94a3b8; }
+
+  /* PIC cell */
+  .cell-pic {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* Status badge */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .status-badge .s-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-pending     { background: var(--yellow-bg); color: var(--yellow); }
+  .status-pending .s-dot { background: var(--yellow); }
+  .status-in-progress { background: var(--blue-bg); color: var(--blue); }
+  .status-in-progress .s-dot { background: var(--blue); animation: pulse-dot 1.5s infinite; }
+  .status-completed   { background: var(--green-bg); color: var(--green); }
+  .status-completed .s-dot { background: var(--green); }
+  .status-overdue     { background: var(--red-bg); color: var(--red); }
+  .status-overdue .s-dot { background: var(--red); }
+  .status-review      { background: var(--purple-bg); color: var(--purple); }
+  .status-review .s-dot { background: var(--purple); }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* Assignee */
+  .assignee-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .assignee-avatar {
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 800;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .assignee-name {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .assignee-empty {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 7px;
+    border: 1px dashed #2a2e48;
+    font-size: 11px;
+    color: var(--text-muted);
+    cursor: default;
+  }
+
+  /* ===== FLOATING BULK BAR ===== */
+  .bulk-bar {
+    position: fixed;
+    bottom: -80px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 20px;
+    background: #1a1d32;
+    border: 1px solid #2e3250;
+    border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(108, 122, 255, 0.08);
+    z-index: 200;
+    transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    backdrop-filter: blur(12px);
+  }
+  .bulk-bar.visible {
+    bottom: 28px;
+  }
+  .bulk-bar .bulk-count {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    padding: 4px 12px;
+    background: var(--accent-glow);
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+  .bulk-bar .bulk-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .bulk-bar .bulk-sep {
+    width: 1px;
+    height: 24px;
+    background: #2a2e48;
+  }
+  .bulk-assign-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: var(--bg-card);
+    border: 1px solid #2a2e48;
+    border-radius: 9px;
+    padding: 8px 32px 8px 12px;
+    color: var(--text-bright);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+    min-width: 180px;
+    transition: border-color 0.15s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+  .bulk-assign-select:hover,
+  .bulk-assign-select:focus {
+    border-color: var(--accent);
+  }
+  .bulk-assign-select option {
+    background: #111320;
+    color: var(--text);
+    padding: 8px;
+  }
+  .bulk-assign-btn {
+    padding: 8px 22px;
+    border: none;
+    border-radius: 9px;
+    background: linear-gradient(135deg, var(--accent) 0%, #a855f7 100%);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .bulk-assign-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(108, 122, 255, 0.35);
+  }
+  .bulk-assign-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  .bulk-status-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: var(--bg-card);
+    border: 1px solid #2a2e48;
+    border-radius: 9px;
+    padding: 8px 32px 8px 12px;
+    color: var(--text-bright);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+    min-width: 150px;
+    transition: border-color 0.15s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+  .bulk-status-select:hover,
+  .bulk-status-select:focus {
+    border-color: var(--accent);
+  }
+  .bulk-status-select option {
+    background: #111320;
+    color: var(--text);
+  }
+  .bulk-deselect {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: 1px solid #2a2e48;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.15s;
+  }
+  .bulk-deselect:hover {
+    border-color: var(--red);
+    color: var(--red);
+    background: var(--red-bg);
+  }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed;
+    bottom: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    z-index: 300;
+    transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    pointer-events: none;
+  }
+  .toast.show { bottom: 90px; }
+  .toast.success { background: linear-gradient(135deg, #059669, #10b981); }
+  .toast.info { background: linear-gradient(135deg, #4f46e5, #6366f1); }
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state .empty-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+  }
+  .empty-state h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .empty-state p { font-size: 13px; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 1100px) {
+    .page { padding: 20px 16px 120px; }
+    .topbar { padding: 12px 16px; }
+    .stat-strip { flex-wrap: wrap; }
+    .table-container { border-radius: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">B</div>
+    <h1>Category Tasks <span>/ Campaign Operations</span></h1>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-user">
+      <div class="topbar-avatar">RM</div>
+      <div>
+        <div class="topbar-name">Rina Maharani</div>
+        <div class="topbar-role">Category Manager</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h2>Task Assignment Board</h2>
+      <p>Manage and assign campaign tasks to your category team members</p>
+    </div>
+  </div>
+
+  <!-- Stat Strip -->
+  <div class="stat-strip" id="statStrip"></div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="search-box">
+      <span class="search-icon">⌕</span>
+      <input type="text" placeholder="Search campaigns, PIC, assignees..." id="searchInput" oninput="filterTasks()">
+    </div>
+    <button class="filter-btn" data-status="all" onclick="setStatusFilter('all')">
+      All <span class="f-count" id="fAll">0</span>
+    </button>
+    <button class="filter-btn" data-status="pending" onclick="setStatusFilter('pending')">
+      Pending <span class="f-count" id="fPending">0</span>
+    </button>
+    <button class="filter-btn" data-status="in-progress" onclick="setStatusFilter('in-progress')">
+      In Progress <span class="f-count" id="fInProgress">0</span>
+    </button>
+    <button class="filter-btn" data-status="review" onclick="setStatusFilter('review')">
+      Review <span class="f-count" id="fReview">0</span>
+    </button>
+    <button class="filter-btn" data-status="overdue" onclick="setStatusFilter('overdue')">
+      Overdue <span class="f-count" id="fOverdue">0</span>
+    </button>
+    <button class="filter-btn" data-status="completed" onclick="setStatusFilter('completed')">
+      Completed <span class="f-count" id="fCompleted">0</span>
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th><input type="checkbox" class="chk chk-header" id="chkAll" onchange="toggleAll(this.checked)"></th>
+          <th>Campaign</th>
+          <th>Category</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Tier</th>
+          <th>PIC</th>
+          <th>Status</th>
+          <th>Assigned To</th>
+        </tr>
+      </thead>
+      <tbody id="taskBody"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <div class="empty-icon">📋</div>
+      <h4>No tasks match your filter</h4>
+      <p>Try adjusting your search or filter criteria</p>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Bulk Action Bar -->
+<div class="bulk-bar" id="bulkBar">
+  <span class="bulk-count" id="bulkCount">0 selected</span>
+  <span class="bulk-label">Assign to →</span>
+  <select class="bulk-assign-select" id="bulkAssignSelect">
+    <option value="">Choose team member...</option>
+  </select>
+  <button class="bulk-assign-btn" id="bulkAssignBtn" onclick="bulkAssign()" disabled>Assign</button>
+  <div class="bulk-sep"></div>
+  <select class="bulk-status-select" id="bulkStatusSelect">
+    <option value="">Change status...</option>
+    <option value="pending">Pending</option>
+    <option value="in-progress">In Progress</option>
+    <option value="review">Waiting Review</option>
+    <option value="overdue">Overdue</option>
+    <option value="completed">Completed</option>
+  </select>
+  <button class="bulk-assign-btn" onclick="bulkChangeStatus()" id="bulkStatusBtn" disabled>Apply</button>
+  <div class="bulk-sep"></div>
+  <button class="bulk-deselect" onclick="deselectAll()" title="Deselect all">✕</button>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== TEAM MEMBERS ==========
+const TEAM = [
+  { id: 'dimas',   name: 'Dimas Prasetyo',  initials: 'DP', color: '#6c7aff' },
+  { id: 'sarah',   name: 'Sarah Putri',     initials: 'SP', color: '#a855f7' },
+  { id: 'budi',    name: 'Budi Santoso',    initials: 'BS', color: '#f97316' },
+  { id: 'anita',   name: 'Anita Wijaya',    initials: 'AW', color: '#22c55e' },
+  { id: 'ricky',   name: 'Ricky Hermawan',  initials: 'RH', color: '#ef4444' },
+  { id: 'mei',     name: 'Mei Lin Chen',    initials: 'MC', color: '#14b8a6' },
+  { id: 'fajar',   name: 'Fajar Nugroho',   initials: 'FN', color: '#eab308' },
+];
+
+// ========== CATEGORY COLORS ==========
+const CAT_COLORS = {
+  'HICE': { bg: 'rgba(239, 68, 68, 0.1)',  text: '#f87171', border: 'rgba(239, 68, 68, 0.2)' },
+  'SPO':  { bg: 'rgba(34, 197, 94, 0.1)',  text: '#4ade80', border: 'rgba(34, 197, 94, 0.2)' },
+  'HTA':  { bg: 'rgba(20, 184, 166, 0.1)', text: '#2dd4bf', border: 'rgba(20, 184, 166, 0.2)' },
+  'BLM':  { bg: 'rgba(251, 191, 36, 0.1)', text: '#fbbf24', border: 'rgba(251, 191, 36, 0.2)' },
+  'KGA':  { bg: 'rgba(168, 85, 247, 0.1)', text: '#c084fc', border: 'rgba(168, 85, 247, 0.2)' },
+  'PEL':  { bg: 'rgba(6, 182, 212, 0.1)',  text: '#22d3ee', border: 'rgba(6, 182, 212, 0.2)' },
+  'KAM':  { bg: 'rgba(244, 63, 94, 0.1)',  text: '#fb7185', border: 'rgba(244, 63, 94, 0.2)' },
+  'HOM':  { bg: 'rgba(249, 115, 22, 0.1)', text: '#fb923c', border: 'rgba(249, 115, 22, 0.2)' },
+  'KKE':  { bg: 'rgba(139, 92, 246, 0.1)', text: '#a78bfa', border: 'rgba(139, 92, 246, 0.2)' },
+};
+
+// ========== DUMMY TASKS ==========
+let tasks = [
+  { id: 1,  campaign: 'Blibli Ramadhan 2026',              category: 'HICE', startDate: '2026-03-02', endDate: '2026-03-19', tier: 1, pic: 'Wawan Setiawan',   status: 'in-progress', assignee: 'dimas' },
+  { id: 2,  campaign: 'Blibli Ramadhan 2026',              category: 'BLM',  startDate: '2026-03-02', endDate: '2026-03-19', tier: 1, pic: 'Wawan Setiawan',   status: 'in-progress', assignee: 'sarah' },
+  { id: 3,  campaign: 'Blibli Ramadhan 2026',              category: 'SPO',  startDate: '2026-03-02', endDate: '2026-03-19', tier: 1, pic: 'Wawan Setiawan',   status: 'pending',     assignee: '' },
+  { id: 4,  campaign: 'Harbolnas 3.3 Mega Sale',           category: 'KGA',  startDate: '2026-03-01', endDate: '2026-03-05', tier: 2, pic: 'Wilson Tanuwijaya', status: 'completed',   assignee: 'budi' },
+  { id: 5,  campaign: 'Harbolnas 3.3 Mega Sale',           category: 'PEL',  startDate: '2026-03-01', endDate: '2026-03-05', tier: 2, pic: 'Wilson Tanuwijaya', status: 'completed',   assignee: 'anita' },
+  { id: 6,  campaign: 'Super Electronics Day',             category: 'HICE', startDate: '2026-03-10', endDate: '2026-03-16', tier: 2, pic: 'Deni Kurniawan',   status: 'pending',     assignee: '' },
+  { id: 7,  campaign: 'Super Electronics Day',             category: 'HTA',  startDate: '2026-03-10', endDate: '2026-03-16', tier: 2, pic: 'Deni Kurniawan',   status: 'pending',     assignee: '' },
+  { id: 8,  campaign: 'Fashion Week Special',              category: 'KAM',  startDate: '2026-03-07', endDate: '2026-03-14', tier: 3, pic: 'Sarah Putri',      status: 'review',      assignee: 'ricky' },
+  { id: 9,  campaign: 'Fashion Week Special',              category: 'BLM',  startDate: '2026-03-07', endDate: '2026-03-14', tier: 3, pic: 'Sarah Putri',      status: 'in-progress', assignee: 'mei' },
+  { id: 10, campaign: 'Home & Living Festival',            category: 'HOM',  startDate: '2026-03-15', endDate: '2026-03-22', tier: 2, pic: 'Budi Santoso',     status: 'pending',     assignee: '' },
+  { id: 11, campaign: 'Home & Living Festival',            category: 'KKE',  startDate: '2026-03-15', endDate: '2026-03-22', tier: 2, pic: 'Budi Santoso',     status: 'pending',     assignee: '' },
+  { id: 12, campaign: 'Beauty & Health Blowout',           category: 'BLM',  startDate: '2026-02-25', endDate: '2026-03-03', tier: 3, pic: 'Anita Wijaya',     status: 'overdue',     assignee: 'fajar' },
+  { id: 13, campaign: 'Beauty & Health Blowout',           category: 'KGA',  startDate: '2026-02-25', endDate: '2026-03-03', tier: 3, pic: 'Anita Wijaya',     status: 'completed',   assignee: 'dimas' },
+  { id: 14, campaign: 'Samsung Galaxy Week',               category: 'HICE', startDate: '2026-03-20', endDate: '2026-03-27', tier: 1, pic: 'Wawan Setiawan',   status: 'pending',     assignee: '' },
+  { id: 15, campaign: 'Samsung Galaxy Week',               category: 'PEL',  startDate: '2026-03-20', endDate: '2026-03-27', tier: 1, pic: 'Wawan Setiawan',   status: 'pending',     assignee: '' },
+  { id: 16, campaign: 'NIKE Air Max Day',                  category: 'SPO',  startDate: '2026-03-26', endDate: '2026-03-31', tier: 2, pic: 'Deni Kurniawan',   status: 'pending',     assignee: 'sarah' },
+  { id: 17, campaign: 'Apple Product Launch Q1',           category: 'HTA',  startDate: '2026-03-12', endDate: '2026-03-18', tier: 1, pic: 'Wilson Tanuwijaya', status: 'review',      assignee: 'budi' },
+  { id: 18, campaign: 'Grocery Everyday Deals',            category: 'KKE',  startDate: '2026-03-01', endDate: '2026-03-31', tier: 3, pic: 'Budi Santoso',     status: 'in-progress', assignee: 'anita' },
+  { id: 19, campaign: 'Mother\'s Day Special Campaign',    category: 'HOM',  startDate: '2026-03-18', endDate: '2026-03-22', tier: 2, pic: 'Sarah Putri',      status: 'pending',     assignee: '' },
+  { id: 20, campaign: 'Payday Sale March 2026',            category: 'KAM',  startDate: '2026-03-25', endDate: '2026-03-31', tier: 3, pic: 'Deni Kurniawan',   status: 'pending',     assignee: '' },
+];
+
+// ========== STATE ==========
+let selectedIds = new Set();
+let activeStatusFilter = 'all';
+
+// ========== POPULATE BULK ASSIGN SELECT ==========
+function populateBulkSelects() {
+  const sel = document.getElementById('bulkAssignSelect');
+  sel.innerHTML = '<option value="">Choose team member...</option>';
+  TEAM.forEach(t => {
+    sel.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+  });
+}
+populateBulkSelects();
+
+// ========== FORMAT DATE ==========
+function fmtDate(dateStr) {
+  const d = new Date(dateStr);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+// ========== RENDER STATS ==========
+function renderStats() {
+  const strip = document.getElementById('statStrip');
+  const total = tasks.length;
+  const pending = tasks.filter(t => t.status === 'pending').length;
+  const inProgress = tasks.filter(t => t.status === 'in-progress').length;
+  const overdue = tasks.filter(t => t.status === 'overdue').length;
+  const unassigned = tasks.filter(t => !t.assignee).length;
+  const completed = tasks.filter(t => t.status === 'completed').length;
+
+  strip.innerHTML = `
+    <div class="stat-chip"><span class="stat-val">${total}</span> Total Tasks</div>
+    <div class="stat-chip"><span class="stat-dot" style="background:var(--yellow)"></span><span class="stat-val">${pending}</span> Pending</div>
+    <div class="stat-chip"><span class="stat-dot" style="background:var(--blue)"></span><span class="stat-val">${inProgress}</span> In Progress</div>
+    <div class="stat-chip"><span class="stat-dot" style="background:var(--red)"></span><span class="stat-val">${overdue}</span> Overdue</div>
+    <div class="stat-chip"><span class="stat-dot" style="background:var(--orange)"></span><span class="stat-val">${unassigned}</span> Unassigned</div>
+    <div class="stat-chip"><span class="stat-dot" style="background:var(--green)"></span><span class="stat-val">${completed}</span> Completed</div>
+  `;
+
+  // Filter counts
+  document.getElementById('fAll').textContent = total;
+  document.getElementById('fPending').textContent = pending;
+  document.getElementById('fInProgress').textContent = inProgress;
+  document.getElementById('fReview').textContent = tasks.filter(t => t.status === 'review').length;
+  document.getElementById('fOverdue').textContent = overdue;
+  document.getElementById('fCompleted').textContent = completed;
+}
+
+// ========== RENDER TABLE ==========
+function renderTable() {
+  const tbody = document.getElementById('taskBody');
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const empty = document.getElementById('emptyState');
+
+  const filtered = tasks.filter(t => {
+    const matchStatus = activeStatusFilter === 'all' || t.status === activeStatusFilter;
+    const assigneeName = TEAM.find(m => m.id === t.assignee)?.name || '';
+    const matchSearch = !search ||
+      t.campaign.toLowerCase().includes(search) ||
+      t.category.toLowerCase().includes(search) ||
+      t.pic.toLowerCase().includes(search) ||
+      assigneeName.toLowerCase().includes(search);
+    return matchStatus && matchSearch;
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = filtered.map(t => {
+    const cc = CAT_COLORS[t.category] || { bg: 'rgba(108,122,255,0.1)', text: '#8b9aff', border: 'rgba(108,122,255,0.2)' };
+    const member = TEAM.find(m => m.id === t.assignee);
+    const isSelected = selectedIds.has(t.id);
+    const tierClass = 'tier-' + t.tier;
+    const tierLabel = t.tier === 1 ? '👑 Tier 1' : t.tier === 2 ? '🥈 Tier 2' : '🥉 Tier 3';
+
+    const statusMap = {
+      'pending': 'Pending',
+      'in-progress': 'In Progress',
+      'review': 'Waiting Review',
+      'completed': 'Completed',
+      'overdue': 'Overdue',
+    };
+
+    const assigneeHtml = member
+      ? `<div class="assignee-cell">
+           <div class="assignee-avatar" style="background:${member.color}">${member.initials}</div>
+           <span class="assignee-name">${member.name}</span>
+         </div>`
+      : `<span class="assignee-empty">— Unassigned</span>`;
+
+    return `
+      <tr class="${isSelected ? 'selected' : ''}" onclick="toggleRow(${t.id}, event)">
+        <td><input type="checkbox" class="chk" ${isSelected ? 'checked' : ''} onchange="toggleSelect(${t.id}, this.checked)" onclick="event.stopPropagation()"></td>
+        <td class="cell-campaign">${escHtml(t.campaign)}</td>
+        <td><span class="cat-badge" style="background:${cc.bg};color:${cc.text};border:1px solid ${cc.border};">${t.category}</span></td>
+        <td class="cell-date">${fmtDate(t.startDate)}</td>
+        <td class="cell-date">${fmtDate(t.endDate)}</td>
+        <td><span class="tier-badge ${tierClass}">${tierLabel}</span></td>
+        <td class="cell-pic">${escHtml(t.pic)}</td>
+        <td><span class="status-badge status-${t.status}"><span class="s-dot"></span>${statusMap[t.status]}</span></td>
+        <td>${assigneeHtml}</td>
+      </tr>
+    `;
+  }).join('');
+
+  // Sync header checkbox
+  document.getElementById('chkAll').checked = filtered.length > 0 && filtered.every(t => selectedIds.has(t.id));
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ========== SELECTION ==========
+function toggleSelect(id, checked) {
+  if (checked) selectedIds.add(id);
+  else selectedIds.delete(id);
+  updateBulkBar();
+  renderTable();
+}
+
+function toggleRow(id, e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+  if (selectedIds.has(id)) selectedIds.delete(id);
+  else selectedIds.add(id);
+  updateBulkBar();
+  renderTable();
+}
+
+function toggleAll(checked) {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  tasks.forEach(t => {
+    const matchStatus = activeStatusFilter === 'all' || t.status === activeStatusFilter;
+    const assigneeName = TEAM.find(m => m.id === t.assignee)?.name || '';
+    const matchSearch = !search ||
+      t.campaign.toLowerCase().includes(search) ||
+      t.category.toLowerCase().includes(search) ||
+      t.pic.toLowerCase().includes(search) ||
+      assigneeName.toLowerCase().includes(search);
+    if (matchStatus && matchSearch) {
+      if (checked) selectedIds.add(t.id);
+      else selectedIds.delete(t.id);
+    }
+  });
+  updateBulkBar();
+  renderTable();
+}
+
+function deselectAll() {
+  selectedIds.clear();
+  updateBulkBar();
+  renderTable();
+}
+
+function updateBulkBar() {
+  const bar = document.getElementById('bulkBar');
+  const count = selectedIds.size;
+  document.getElementById('bulkCount').textContent = count + ' selected';
+  if (count > 0) bar.classList.add('visible');
+  else bar.classList.remove('visible');
+}
+
+// ========== BULK ACTIONS ==========
+document.getElementById('bulkAssignSelect').addEventListener('change', function() {
+  document.getElementById('bulkAssignBtn').disabled = !this.value;
+});
+document.getElementById('bulkStatusSelect').addEventListener('change', function() {
+  document.getElementById('bulkStatusBtn').disabled = !this.value;
+});
+
+function bulkAssign() {
+  const memberId = document.getElementById('bulkAssignSelect').value;
+  if (!memberId || selectedIds.size === 0) return;
+
+  const member = TEAM.find(m => m.id === memberId);
+  let count = 0;
+  tasks.forEach(t => {
+    if (selectedIds.has(t.id)) {
+      t.assignee = memberId;
+      count++;
+    }
+  });
+
+  showToast(`✓ Assigned ${count} task${count !== 1 ? 's' : ''} to ${member.name}`, 'success');
+
+  // Reset
+  selectedIds.clear();
+  document.getElementById('bulkAssignSelect').value = '';
+  document.getElementById('bulkAssignBtn').disabled = true;
+  updateBulkBar();
+  renderStats();
+  renderTable();
+}
+
+function bulkChangeStatus() {
+  const newStatus = document.getElementById('bulkStatusSelect').value;
+  if (!newStatus || selectedIds.size === 0) return;
+
+  const statusLabels = {
+    'pending': 'Pending', 'in-progress': 'In Progress', 'review': 'Waiting Review',
+    'completed': 'Completed', 'overdue': 'Overdue'
+  };
+  let count = 0;
+  tasks.forEach(t => {
+    if (selectedIds.has(t.id)) {
+      t.status = newStatus;
+      count++;
+    }
+  });
+
+  showToast(`✓ Updated ${count} task${count !== 1 ? 's' : ''} to "${statusLabels[newStatus]}"`, 'info');
+
+  selectedIds.clear();
+  document.getElementById('bulkStatusSelect').value = '';
+  document.getElementById('bulkStatusBtn').disabled = true;
+  updateBulkBar();
+  renderStats();
+  renderTable();
+}
+
+// ========== FILTER ==========
+function setStatusFilter(status) {
+  activeStatusFilter = status;
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.status === status);
+  });
+  selectedIds.clear();
+  updateBulkBar();
+  renderTable();
+}
+
+function filterTasks() {
+  renderTable();
+}
+
+// ========== TOAST ==========
+function showToast(message, type) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = 'toast ' + type;
+  requestAnimationFrame(() => toast.classList.add('show'));
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// ========== INIT ==========
+renderStats();
+renderTable();
+setStatusFilter('all');
+</script>
+</body>
+</html>
