@@ -7,13 +7,13 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   :root {
-    --bg: #0b0d13;
-    --card: #12141f;
-    --card-border: #1c1f30;
-    --card-hover: #181b2a;
-    --text: #e0e0e0;
-    --text-muted: #6b7280;
-    --accent: #f97316;
+    --bg: #f5f7fa;
+    --card: #ffffff;
+    --card-border: #e2e6ef;
+    --card-hover: #f7f8fc;
+    --text: #4a5068;
+    --text-muted: #8891a5;
+    --accent: #ea580c;
   }
   body {
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -47,15 +47,17 @@
     padding: 1.5rem;
     text-decoration: none;
     color: var(--text);
-    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.2s;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
   }
   .card:hover {
     background: var(--card-hover);
     border-color: var(--accent);
     transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(234, 88, 12, 0.1);
   }
   .card .icon {
     font-size: 1.75rem;
@@ -64,7 +66,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(249, 115, 22, 0.1);
+    background: rgba(234, 88, 12, 0.08);
     border-radius: 10px;
   }
   .card .title {

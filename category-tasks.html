@@ -8,32 +8,32 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-deep: #08090e;
-    --bg: #0c0e16;
-    --bg-card: #111320;
-    --bg-card-hover: #151729;
-    --bg-elevated: #181b2d;
-    --border: #1c1f33;
-    --border-subtle: #161930;
-    --text: #c8cad0;
-    --text-muted: #5a5e72;
-    --text-bright: #eef0f4;
-    --accent: #6c7aff;
-    --accent-glow: rgba(108, 122, 255, 0.15);
-    --green: #34d399;
-    --green-bg: rgba(52, 211, 153, 0.1);
-    --red: #f87171;
-    --red-bg: rgba(248, 113, 113, 0.1);
-    --yellow: #fbbf24;
-    --yellow-bg: rgba(251, 191, 36, 0.1);
-    --blue: #60a5fa;
-    --blue-bg: rgba(96, 165, 250, 0.1);
-    --orange: #fb923c;
-    --orange-bg: rgba(251, 146, 60, 0.1);
-    --purple: #a78bfa;
-    --purple-bg: rgba(167, 139, 250, 0.1);
-    --slate: #94a3b8;
-    --slate-bg: rgba(148, 163, 184, 0.08);
+    --bg-deep: #f5f7fa;
+    --bg: #ffffff;
+    --bg-card: #ffffff;
+    --bg-card-hover: #f7f8fc;
+    --bg-elevated: #f0f2f8;
+    --border: #e2e6ef;
+    --border-subtle: #edf0f5;
+    --text: #4a5068;
+    --text-muted: #8891a5;
+    --text-bright: #1e2235;
+    --accent: #5563e8;
+    --accent-glow: rgba(85, 99, 232, 0.1);
+    --green: #16a34a;
+    --green-bg: rgba(22, 163, 74, 0.08);
+    --red: #dc2626;
+    --red-bg: rgba(220, 38, 38, 0.06);
+    --yellow: #ca8a04;
+    --yellow-bg: rgba(202, 138, 4, 0.08);
+    --blue: #2563eb;
+    --blue-bg: rgba(37, 99, 235, 0.06);
+    --orange: #ea580c;
+    --orange-bg: rgba(234, 88, 12, 0.08);
+    --purple: #7c3aed;
+    --purple-bg: rgba(124, 58, 237, 0.06);
+    --slate: #64748b;
+    --slate-bg: rgba(100, 116, 139, 0.06);
     --mono: 'JetBrains Mono', monospace;
   }
 
@@ -53,8 +53,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 16px 36px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg);
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -67,7 +67,7 @@
   .topbar-logo {
     width: 36px; height: 36px;
     border-radius: 10px;
-    background: linear-gradient(135deg, var(--accent) 0%, #a855f7 100%);
+    background: linear-gradient(135deg, #5563e8 0%, #8b3dd8 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -104,7 +104,7 @@
   .topbar-avatar {
     width: 28px; height: 28px;
     border-radius: 8px;
-    background: linear-gradient(135deg, var(--orange) 0%, #f97316 100%);
+    background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -173,7 +173,7 @@
     cursor: default;
   }
   .stat-chip:hover {
-    border-color: #2a2e48;
+    border-color: #c8cee0;
   }
   .stat-chip .stat-val {
     font-family: var(--mono);
@@ -201,7 +201,7 @@
   }
   .search-box input {
     width: 100%;
-    background: var(--bg-card);
+    background: #f5f7fa;
     border: 1px solid var(--border);
     border-radius: 9px;
     padding: 9px 14px 9px 36px;
@@ -238,7 +238,7 @@
     font-family: inherit;
   }
   .filter-btn:hover {
-    border-color: #2a2e48;
+    border-color: #c8cee0;
     color: var(--text);
   }
   .filter-btn.active {
@@ -250,14 +250,14 @@
     font-family: var(--mono);
     font-size: 10px;
     font-weight: 700;
-    background: var(--border);
+    background: #e8ebf2;
     padding: 1px 6px;
     border-radius: 5px;
-    color: var(--text);
+    color: #4a5068;
   }
   .filter-btn.active .f-count {
-    background: rgba(108, 122, 255, 0.25);
-    color: #c0ccff;
+    background: rgba(85, 99, 232, 0.15);
+    color: #5563e8;
   }
 
   /* ===== TABLE ===== */
@@ -266,6 +266,7 @@
     border: 1px solid var(--border);
     border-radius: 14px;
     overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   }
   table {
     width: 100%;
@@ -293,10 +294,10 @@
   }
   tbody tr:last-child { border-bottom: none; }
   tbody tr:hover {
-    background: rgba(108, 122, 255, 0.025);
+    background: rgba(85, 99, 232, 0.03);
   }
   tbody tr.selected {
-    background: rgba(108, 122, 255, 0.06);
+    background: rgba(85, 99, 232, 0.05);
   }
   tbody td {
     padding: 14px 16px;
@@ -312,7 +313,7 @@
   .chk {
     width: 16px; height: 16px;
     border-radius: 4px;
-    border: 2px solid #2e3250;
+    border: 2px solid #c8cee0;
     background: transparent;
     cursor: pointer;
     appearance: none;
@@ -326,7 +327,7 @@
     border-color: var(--accent);
   }
   .chk:checked::after {
-    content: '✓';
+    content: '\2713';
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
@@ -334,7 +335,7 @@
     font-size: 10px;
     font-weight: 800;
   }
-  .chk:hover { border-color: #4a4e70; }
+  .chk:hover { border-color: #9aa1b8; }
   .chk.chk-header { margin-top: 1px; }
 
   /* Campaign cell */
@@ -376,9 +377,9 @@
     padding: 3px 10px;
     border-radius: 6px;
   }
-  .tier-1 { background: rgba(251, 191, 36, 0.1); color: #fbbf24; }
-  .tier-2 { background: rgba(96, 165, 250, 0.1); color: #60a5fa; }
-  .tier-3 { background: rgba(148, 163, 184, 0.08); color: #94a3b8; }
+  .tier-1 { background: rgba(202, 138, 4, 0.08); color: #ca8a04; }
+  .tier-2 { background: rgba(37, 99, 235, 0.06); color: #2563eb; }
+  .tier-3 { background: rgba(100, 116, 139, 0.06); color: #64748b; }
 
   /* PIC cell */
   .cell-pic {
@@ -447,7 +448,7 @@
     gap: 5px;
     padding: 4px 12px;
     border-radius: 7px;
-    border: 1px dashed #2a2e48;
+    border: 1px dashed #c8cee0;
     font-size: 11px;
     color: var(--text-muted);
     cursor: default;
@@ -463,10 +464,10 @@
     align-items: center;
     gap: 16px;
     padding: 12px 20px;
-    background: #1a1d32;
-    border: 1px solid #2e3250;
+    background: #ffffff;
+    border: 1px solid #e2e6ef;
     border-radius: 14px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(108, 122, 255, 0.08);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
     z-index: 200;
     transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     backdrop-filter: blur(12px);
@@ -478,9 +479,9 @@
     font-family: var(--mono);
     font-size: 13px;
     font-weight: 700;
-    color: var(--accent);
+    color: #5563e8;
     padding: 4px 12px;
-    background: var(--accent-glow);
+    background: rgba(85, 99, 232, 0.1);
     border-radius: 8px;
     white-space: nowrap;
   }
@@ -493,13 +494,13 @@
   .bulk-bar .bulk-sep {
     width: 1px;
     height: 24px;
-    background: #2a2e48;
+    background: #e2e6ef;
   }
   .bulk-assign-select {
     appearance: none;
     -webkit-appearance: none;
-    background: var(--bg-card);
-    border: 1px solid #2a2e48;
+    background: #f5f7fa;
+    border: 1px solid #e2e6ef;
     border-radius: 9px;
     padding: 8px 32px 8px 12px;
     color: var(--text-bright);
@@ -519,7 +520,7 @@
     border-color: var(--accent);
   }
   .bulk-assign-select option {
-    background: #111320;
+    background: #ffffff;
     color: var(--text);
     padding: 8px;
   }
@@ -527,7 +528,7 @@
     padding: 8px 22px;
     border: none;
     border-radius: 9px;
-    background: linear-gradient(135deg, var(--accent) 0%, #a855f7 100%);
+    background: linear-gradient(135deg, #5563e8 0%, #8b3dd8 100%);
     color: #fff;
     font-size: 13px;
     font-weight: 700;
@@ -538,7 +539,7 @@
   }
   .bulk-assign-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 14px rgba(108, 122, 255, 0.35);
+    box-shadow: 0 4px 14px rgba(85, 99, 232, 0.35);
   }
   .bulk-assign-btn:disabled {
     opacity: 0.4;
@@ -549,8 +550,8 @@
   .bulk-status-select {
     appearance: none;
     -webkit-appearance: none;
-    background: var(--bg-card);
-    border: 1px solid #2a2e48;
+    background: #f5f7fa;
+    border: 1px solid #e2e6ef;
     border-radius: 9px;
     padding: 8px 32px 8px 12px;
     color: var(--text-bright);
@@ -570,13 +571,13 @@
     border-color: var(--accent);
   }
   .bulk-status-select option {
-    background: #111320;
+    background: #ffffff;
     color: var(--text);
   }
   .bulk-deselect {
     width: 32px; height: 32px;
     border-radius: 8px;
-    border: 1px solid #2a2e48;
+    border: 1px solid #e2e6ef;
     background: transparent;
     color: var(--text-muted);
     cursor: pointer;
@@ -605,12 +606,12 @@
     color: #fff;
     z-index: 300;
     transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
     pointer-events: none;
   }
   .toast.show { bottom: 90px; }
-  .toast.success { background: linear-gradient(135deg, #059669, #10b981); }
-  .toast.info { background: linear-gradient(135deg, #4f46e5, #6366f1); }
+  .toast.success { background: linear-gradient(135deg, #16a34a, #22c55e); }
+  .toast.info { background: linear-gradient(135deg, #4f46e5, #5563e8); }
 
   /* ===== EMPTY STATE ===== */
   .empty-state {
@@ -675,7 +676,7 @@
   <!-- Toolbar -->
   <div class="toolbar">
     <div class="search-box">
-      <span class="search-icon">⌕</span>
+      <span class="search-icon">&#x2315;</span>
       <input type="text" placeholder="Search campaigns, PIC, assignees..." id="searchInput" oninput="filterTasks()">
     </div>
     <button class="filter-btn" data-status="all" onclick="setStatusFilter('all')">
@@ -717,7 +718,7 @@
       <tbody id="taskBody"></tbody>
     </table>
     <div class="empty-state" id="emptyState" style="display:none;">
-      <div class="empty-icon">📋</div>
+      <div class="empty-icon">&#x1F4CB;</div>
       <h4>No tasks match your filter</h4>
       <p>Try adjusting your search or filter criteria</p>
     </div>
@@ -727,7 +728,7 @@
 <!-- Floating Bulk Action Bar -->
 <div class="bulk-bar" id="bulkBar">
   <span class="bulk-count" id="bulkCount">0 selected</span>
-  <span class="bulk-label">Assign to →</span>
+  <span class="bulk-label">Assign to &#x2192;</span>
   <select class="bulk-assign-select" id="bulkAssignSelect">
     <option value="">Choose team member...</option>
   </select>
@@ -743,7 +744,7 @@
   </select>
   <button class="bulk-assign-btn" onclick="bulkChangeStatus()" id="bulkStatusBtn" disabled>Apply</button>
   <div class="bulk-sep"></div>
-  <button class="bulk-deselect" onclick="deselectAll()" title="Deselect all">✕</button>
+  <button class="bulk-deselect" onclick="deselectAll()" title="Deselect all">&#x2715;</button>
 </div>
 
 <!-- Toast -->
@@ -752,26 +753,26 @@
 <script>
 // ========== TEAM MEMBERS ==========
 const TEAM = [
-  { id: 'dimas',   name: 'Dimas Prasetyo',  initials: 'DP', color: '#6c7aff' },
-  { id: 'sarah',   name: 'Sarah Putri',     initials: 'SP', color: '#a855f7' },
-  { id: 'budi',    name: 'Budi Santoso',    initials: 'BS', color: '#f97316' },
-  { id: 'anita',   name: 'Anita Wijaya',    initials: 'AW', color: '#22c55e' },
-  { id: 'ricky',   name: 'Ricky Hermawan',  initials: 'RH', color: '#ef4444' },
-  { id: 'mei',     name: 'Mei Lin Chen',    initials: 'MC', color: '#14b8a6' },
-  { id: 'fajar',   name: 'Fajar Nugroho',   initials: 'FN', color: '#eab308' },
+  { id: 'dimas',   name: 'Dimas Prasetyo',  initials: 'DP', color: '#5563e8' },
+  { id: 'sarah',   name: 'Sarah Putri',     initials: 'SP', color: '#8b3dd8' },
+  { id: 'budi',    name: 'Budi Santoso',    initials: 'BS', color: '#ea580c' },
+  { id: 'anita',   name: 'Anita Wijaya',    initials: 'AW', color: '#16a34a' },
+  { id: 'ricky',   name: 'Ricky Hermawan',  initials: 'RH', color: '#dc2626' },
+  { id: 'mei',     name: 'Mei Lin Chen',    initials: 'MC', color: '#0d9488' },
+  { id: 'fajar',   name: 'Fajar Nugroho',   initials: 'FN', color: '#ca8a04' },
 ];
 
 // ========== CATEGORY COLORS ==========
 const CAT_COLORS = {
-  'HICE': { bg: 'rgba(239, 68, 68, 0.1)',  text: '#f87171', border: 'rgba(239, 68, 68, 0.2)' },
-  'SPO':  { bg: 'rgba(34, 197, 94, 0.1)',  text: '#4ade80', border: 'rgba(34, 197, 94, 0.2)' },
-  'HTA':  { bg: 'rgba(20, 184, 166, 0.1)', text: '#2dd4bf', border: 'rgba(20, 184, 166, 0.2)' },
-  'BLM':  { bg: 'rgba(251, 191, 36, 0.1)', text: '#fbbf24', border: 'rgba(251, 191, 36, 0.2)' },
-  'KGA':  { bg: 'rgba(168, 85, 247, 0.1)', text: '#c084fc', border: 'rgba(168, 85, 247, 0.2)' },
-  'PEL':  { bg: 'rgba(6, 182, 212, 0.1)',  text: '#22d3ee', border: 'rgba(6, 182, 212, 0.2)' },
-  'KAM':  { bg: 'rgba(244, 63, 94, 0.1)',  text: '#fb7185', border: 'rgba(244, 63, 94, 0.2)' },
-  'HOM':  { bg: 'rgba(249, 115, 22, 0.1)', text: '#fb923c', border: 'rgba(249, 115, 22, 0.2)' },
-  'KKE':  { bg: 'rgba(139, 92, 246, 0.1)', text: '#a78bfa', border: 'rgba(139, 92, 246, 0.2)' },
+  'HICE': { bg: 'rgba(220, 38, 38, 0.07)',  text: '#dc2626', border: 'rgba(220, 38, 38, 0.15)' },
+  'SPO':  { bg: 'rgba(22, 163, 74, 0.07)',  text: '#16a34a', border: 'rgba(22, 163, 74, 0.15)' },
+  'HTA':  { bg: 'rgba(13, 148, 136, 0.07)', text: '#0d9488', border: 'rgba(13, 148, 136, 0.15)' },
+  'BLM':  { bg: 'rgba(202, 138, 4, 0.08)',  text: '#ca8a04', border: 'rgba(202, 138, 4, 0.15)' },
+  'KGA':  { bg: 'rgba(124, 58, 237, 0.07)', text: '#7c3aed', border: 'rgba(124, 58, 237, 0.15)' },
+  'PEL':  { bg: 'rgba(8, 145, 178, 0.07)',  text: '#0891b2', border: 'rgba(8, 145, 178, 0.15)' },
+  'KAM':  { bg: 'rgba(225, 29, 72, 0.07)',  text: '#e11d48', border: 'rgba(225, 29, 72, 0.15)' },
+  'HOM':  { bg: 'rgba(234, 88, 12, 0.07)',  text: '#ea580c', border: 'rgba(234, 88, 12, 0.15)' },
+  'KKE':  { bg: 'rgba(124, 58, 237, 0.07)', text: '#7c3aed', border: 'rgba(124, 58, 237, 0.15)' },
 };
 
 // ========== DUMMY TASKS ==========
@@ -872,11 +873,11 @@ function renderTable() {
   empty.style.display = 'none';
 
   tbody.innerHTML = filtered.map(t => {
-    const cc = CAT_COLORS[t.category] || { bg: 'rgba(108,122,255,0.1)', text: '#8b9aff', border: 'rgba(108,122,255,0.2)' };
+    const cc = CAT_COLORS[t.category] || { bg: 'rgba(85,99,232,0.07)', text: '#5563e8', border: 'rgba(85,99,232,0.15)' };
     const member = TEAM.find(m => m.id === t.assignee);
     const isSelected = selectedIds.has(t.id);
     const tierClass = 'tier-' + t.tier;
-    const tierLabel = t.tier === 1 ? '👑 Tier 1' : t.tier === 2 ? '🥈 Tier 2' : '🥉 Tier 3';
+    const tierLabel = t.tier === 1 ? '\u{1F451} Tier 1' : t.tier === 2 ? '\u{1F948} Tier 2' : '\u{1F949} Tier 3';
 
     const statusMap = {
       'pending': 'Pending',
@@ -891,7 +892,7 @@ function renderTable() {
            <div class="assignee-avatar" style="background:${member.color}">${member.initials}</div>
            <span class="assignee-name">${member.name}</span>
          </div>`
-      : `<span class="assignee-empty">— Unassigned</span>`;
+      : `<span class="assignee-empty">\u2014 Unassigned</span>`;
 
     return `
       <tr class="${isSelected ? 'selected' : ''}" onclick="toggleRow(${t.id}, event)">
@@ -986,7 +987,7 @@ function bulkAssign() {
     }
   });
 
-  showToast(`✓ Assigned ${count} task${count !== 1 ? 's' : ''} to ${member.name}`, 'success');
+  showToast(`\u2713 Assigned ${count} task${count !== 1 ? 's' : ''} to ${member.name}`, 'success');
 
   // Reset
   selectedIds.clear();
@@ -1013,7 +1014,7 @@ function bulkChangeStatus() {
     }
   });
 
-  showToast(`✓ Updated ${count} task${count !== 1 ? 's' : ''} to "${statusLabels[newStatus]}"`, 'info');
+  showToast(`\u2713 Updated ${count} task${count !== 1 ? 's' : ''} to "${statusLabels[newStatus]}"`, 'info');
 
   selectedIds.clear();
   document.getElementById('bulkStatusSelect').value = '';

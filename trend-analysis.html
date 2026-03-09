@@ -8,24 +8,24 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   :root {
-    --bg: #0b0d13;
-    --card: #12141f;
-    --card-border: #1c1f30;
-    --text: #e0e0e0;
-    --text-muted: #6b7280;
-    --text-dim: #3d4155;
-    --accent: #f97316;
-    --accent2: #6366f1;
-    --green: #22c55e;
-    --green-bg: rgba(34,197,94,0.1);
-    --red: #ef4444;
-    --red-bg: rgba(239,68,68,0.1);
-    --yellow: #fbbf24;
-    --yellow-bg: rgba(251,191,36,0.1);
-    --blue: #3b82f6;
-    --cyan: #06b6d4;
-    --pink: #ec4899;
-    --purple: #a855f7;
+    --bg: #f5f7fa;
+    --card: #ffffff;
+    --card-border: #e2e6ef;
+    --text: #4a5068;
+    --text-muted: #8891a5;
+    --text-dim: #9ba3b5;
+    --accent: #ea580c;
+    --accent2: #5563e8;
+    --green: #16a34a;
+    --green-bg: rgba(22,163,74,0.07);
+    --red: #dc2626;
+    --red-bg: rgba(220,38,38,0.07);
+    --yellow: #ca8a04;
+    --yellow-bg: rgba(202,138,4,0.07);
+    --blue: #2563eb;
+    --cyan: #0891b2;
+    --pink: #db2777;
+    --purple: #8b3dd8;
   }
   body {
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -36,7 +36,7 @@
 
   /* ===== TOP NAV ===== */
   .topnav {
-    background: #0e1019;
+    background: #ffffff;
     border-bottom: 1px solid var(--card-border);
     padding: 0 32px;
     height: 56px;
@@ -47,9 +47,10 @@
     top: 0;
     z-index: 100;
     backdrop-filter: blur(12px);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   }
   .topnav-left { display: flex; align-items: center; gap: 16px; }
-  .topnav-logo { font-size: 18px; font-weight: 800; color: #fff; }
+  .topnav-logo { font-size: 18px; font-weight: 800; color: #1e2235; }
   .topnav-logo span { color: var(--accent); }
   .topnav-sep { width: 1px; height: 24px; background: var(--card-border); }
   .topnav-page { font-size: 14px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
@@ -59,14 +60,14 @@
 
   /* ===== HERO ===== */
   .hero {
-    background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(249,115,22,0.08) 100%);
+    background: linear-gradient(135deg, rgba(85,99,232,0.06) 0%, rgba(234,88,12,0.05) 100%);
     border: 1px solid var(--card-border);
     border-radius: 16px;
     padding: 28px 32px;
     margin-bottom: 24px;
   }
   .hero-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
-  .hero h2 { font-size: 24px; font-weight: 800; color: #fff; }
+  .hero h2 { font-size: 24px; font-weight: 800; color: #1e2235; }
   .hero h2 em { font-style: normal; color: var(--accent); }
   .hero-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; max-width: 700px; }
 
@@ -77,9 +78,10 @@
     border-radius: 14px;
     padding: 24px;
     margin-bottom: 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   }
   .selector-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
-  .selector-header h3 { font-size: 16px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+  .selector-header h3 { font-size: 16px; font-weight: 700; color: #1e2235; display: flex; align-items: center; gap: 8px; }
   .current-badge {
     background: var(--green-bg);
     color: var(--green);
@@ -100,21 +102,21 @@
     gap: 10px;
     padding: 12px 16px;
     border-radius: 12px;
-    background: rgba(255,255,255,0.02);
+    background: rgba(85, 99, 232, 0.03);
     border: 1px solid var(--card-border);
     cursor: pointer;
     transition: all 0.2s;
     user-select: none;
   }
-  .campaign-chip:hover { border-color: #3a3d5e; transform: translateY(-1px); }
+  .campaign-chip:hover { border-color: #c5cad8; transform: translateY(-1px); }
   .campaign-chip.selected {
     border-color: var(--accent2);
-    background: rgba(99,102,241,0.08);
-    box-shadow: 0 0 0 1px rgba(99,102,241,0.2);
+    background: rgba(85,99,232,0.06);
+    box-shadow: 0 0 0 1px rgba(85,99,232,0.15);
   }
   .campaign-chip.current-campaign {
     border-color: var(--accent);
-    background: rgba(249,115,22,0.08);
+    background: rgba(234,88,12,0.06);
     pointer-events: none;
   }
   .chip-check {
@@ -128,10 +130,10 @@
     flex-shrink: 0;
     transition: all 0.15s;
   }
-  .campaign-chip.selected .chip-check { background: var(--accent2); border-color: var(--accent2); color: #fff; }
-  .campaign-chip.current-campaign .chip-check { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .campaign-chip.selected .chip-check { background: var(--accent2); border-color: var(--accent2); color: #ffffff; }
+  .campaign-chip.current-campaign .chip-check { background: var(--accent); border-color: var(--accent); color: #ffffff; }
   .chip-info { flex: 1; min-width: 0; }
-  .chip-name { font-size: 12px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chip-name { font-size: 12px; font-weight: 600; color: #1e2235; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .chip-period { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
   .chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
@@ -156,12 +158,12 @@
     border: 1px solid var(--card-border);
     color: var(--text-muted);
   }
-  .compare-btn-ghost:hover { border-color: #555; color: #ccc; }
+  .compare-btn-ghost:hover { border-color: #9ba3b5; color: #4a5068; }
   .selected-count { font-size: 12px; color: var(--text-muted); }
 
   /* ===== SECTION HEADERS ===== */
   .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; margin-top: 8px; }
-  .section-header h3 { font-size: 16px; font-weight: 700; color: #fff; white-space: nowrap; }
+  .section-header h3 { font-size: 16px; font-weight: 700; color: #1e2235; white-space: nowrap; }
   .section-header .sh-line { flex: 1; height: 1px; background: var(--card-border); }
 
   /* ===== CARDS ===== */
@@ -171,8 +173,9 @@
     border-radius: 14px;
     padding: 22px 24px;
     margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   }
-  .card h4 { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .card h4 { font-size: 14px; font-weight: 700; color: #1e2235; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
   .card h4 .sub { font-size: 11px; color: var(--text-muted); font-weight: 500; }
   .chart-wrapper { position: relative; }
 
@@ -195,19 +198,19 @@
   .cmp-table thead th:first-child { padding-left: 0; }
   .cmp-table tbody td {
     padding: 12px;
-    border-bottom: 1px solid #12141f08;
-    color: #ccc;
+    border-bottom: 1px solid #edf0f5;
+    color: #4a5068;
     white-space: nowrap;
     vertical-align: middle;
   }
-  .cmp-table tbody td:first-child { padding-left: 0; font-weight: 600; color: #fff; }
-  .cmp-table tbody tr:hover td { background: rgba(255,255,255,0.015); }
+  .cmp-table tbody td:first-child { padding-left: 0; font-weight: 600; color: #1e2235; }
+  .cmp-table tbody tr:hover td { background: rgba(85, 99, 232, 0.03); }
   .cmp-table tbody tr:last-child td { border-bottom: none; }
   .cmp-table .tbl-badge { padding: 2px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; }
   .tbl-up { background: var(--green-bg); color: var(--green); }
   .tbl-down { background: var(--red-bg); color: var(--red); }
   .tbl-flat { background: var(--yellow-bg); color: var(--yellow); }
-  .cmp-bar-track { width: 80px; height: 6px; background: #1a1d2e; border-radius: 3px; display: inline-block; vertical-align: middle; margin-right: 6px; overflow: hidden; }
+  .cmp-bar-track { width: 80px; height: 6px; background: #edf0f5; border-radius: 3px; display: inline-block; vertical-align: middle; margin-right: 6px; overflow: hidden; }
   .cmp-bar { height: 100%; border-radius: 3px; }
 
   /* ===== CAMPAIGN COLOR DOTS ===== */
@@ -221,7 +224,7 @@
 
   /* ===== AI ANALYSIS ===== */
   .ai-section {
-    background: linear-gradient(135deg, rgba(99,102,241,0.06) 0%, rgba(249,115,22,0.04) 100%);
+    background: linear-gradient(135deg, rgba(85,99,232,0.04) 0%, rgba(234,88,12,0.03) 100%);
     border: 1px solid var(--card-border);
     border-radius: 16px;
     padding: 28px;
@@ -246,7 +249,7 @@
     justify-content: center;
     font-size: 22px;
   }
-  .ai-header-text h3 { font-size: 16px; font-weight: 800; color: #fff; }
+  .ai-header-text h3 { font-size: 16px; font-weight: 800; color: #1e2235; }
   .ai-header-text p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
   .ai-btn-row { display: flex; gap: 8px; margin-left: auto; }
   .ai-btn {
@@ -263,8 +266,8 @@
     align-items: center;
     gap: 6px;
   }
-  .ai-btn:hover { border-color: var(--accent2); color: #fff; }
-  .ai-btn.active { border-color: var(--accent2); background: rgba(99,102,241,0.1); color: var(--accent2); }
+  .ai-btn:hover { border-color: var(--accent2); color: #1e2235; }
+  .ai-btn.active { border-color: var(--accent2); background: rgba(85,99,232,0.08); color: var(--accent2); }
   .ai-content {
     background: var(--card);
     border: 1px solid var(--card-border);
@@ -276,9 +279,9 @@
   .ai-content .ai-text {
     font-size: 14px;
     line-height: 1.9;
-    color: #d1d5db;
+    color: #4a5068;
   }
-  .ai-text strong { color: #fff; }
+  .ai-text strong { color: #1e2235; }
   .ai-text .highlight {
     padding: 1px 6px;
     border-radius: 4px;
@@ -286,13 +289,13 @@
   }
   .ai-text .hl-green { background: var(--green-bg); color: var(--green); }
   .ai-text .hl-red { background: var(--red-bg); color: var(--red); }
-  .ai-text .hl-blue { background: rgba(59,130,246,0.1); color: var(--blue); }
-  .ai-text .hl-purple { background: rgba(168,85,247,0.1); color: var(--purple); }
-  .ai-text .hl-orange { background: rgba(249,115,22,0.1); color: var(--accent); }
+  .ai-text .hl-blue { background: rgba(37,99,235,0.08); color: var(--blue); }
+  .ai-text .hl-purple { background: rgba(139,61,216,0.08); color: var(--purple); }
+  .ai-text .hl-orange { background: rgba(234,88,12,0.08); color: var(--accent); }
   .ai-section-title {
     font-size: 13px;
     font-weight: 700;
-    color: #fff;
+    color: #1e2235;
     margin: 20px 0 10px;
     display: flex;
     align-items: center;
@@ -335,7 +338,7 @@
     align-items: center;
     gap: 4px;
   }
-  .ai-footer-btn:hover { border-color: #555; color: #ccc; }
+  .ai-footer-btn:hover { border-color: #9ba3b5; color: #4a5068; }
 
   /* ===== ACHIEVEMENT HEATMAP ===== */
   .heatmap-grid {
@@ -353,7 +356,7 @@
   }
   .heatmap-cell:hover { transform: scale(1.05); z-index: 2; }
   .heatmap-header { font-weight: 700; color: var(--text-muted); background: transparent !important; font-size: 10px; text-transform: uppercase; }
-  .heatmap-label { text-align: left; color: #ccc; font-size: 11px; display: flex; align-items: center; padding-left: 0; background: transparent !important; }
+  .heatmap-label { text-align: left; color: #4a5068; font-size: 11px; display: flex; align-items: center; padding-left: 0; background: transparent !important; }
 
   /* ===== RESULTS AREA (hidden initially) ===== */
   .results-area { display: none; }
@@ -540,7 +543,7 @@ const CURRENT = {
   days: 18,
   year: 2026,
   type: 'Ramadhan',
-  color: '#f97316',
+  color: '#ea580c',
   isCurrent: true,
   kpi: {
     tpv: { target: 850e9, actual: 502e9 },
@@ -578,35 +581,35 @@ const CURRENT = {
 
 const PAST_CAMPAIGNS = [
   {
-    id: 'ramadhan2025', name: 'Ramadhan 2025', shortName: 'Ram 2025', period: 'Mar 1–18, 2025', days: 18, year: 2025, type: 'Ramadhan', color: '#6366f1',
+    id: 'ramadhan2025', name: 'Ramadhan 2025', shortName: 'Ram 2025', period: 'Mar 1–18, 2025', days: 18, year: 2025, type: 'Ramadhan', color: '#5563e8',
     kpi: { tpv:{target:720e9,actual:695e9}, customer:{target:380000,actual:362000}, txnUserCR:{target:3.9,actual:3.82}, uv:{target:15000000,actual:14800000}, pdpUV:{target:7200000,actual:6900000}, pdpUVRate:{target:48.0,actual:46.6}, orders:{target:1050000,actual:1010000}, unitSold:{target:2700000,actual:2580000}, aov:{target:685714,actual:688119}, asp:{target:266667,actual:269380}, uvCVR:{target:6.67,actual:6.55}, basketSize:{target:2.57,actual:2.55}, purchaseRate:{target:2.53,actual:2.45}, newCustomer:{target:140000,actual:128000}, arpu:{target:1894737,actual:1919890} }
   },
   {
-    id: 'ramadhan2024', name: 'Ramadhan 2024', shortName: 'Ram 2024', period: 'Mar 3–20, 2024', days: 18, year: 2024, type: 'Ramadhan', color: '#a855f7',
+    id: 'ramadhan2024', name: 'Ramadhan 2024', shortName: 'Ram 2024', period: 'Mar 3–20, 2024', days: 18, year: 2024, type: 'Ramadhan', color: '#8b3dd8',
     kpi: { tpv:{target:600e9,actual:585e9}, customer:{target:320000,actual:310000}, txnUserCR:{target:3.6,actual:3.54}, uv:{target:12500000,actual:12200000}, pdpUV:{target:5800000,actual:5500000}, pdpUVRate:{target:46.4,actual:45.1}, orders:{target:880000,actual:852000}, unitSold:{target:2200000,actual:2100000}, aov:{target:681818,actual:686620}, asp:{target:272727,actual:278571}, uvCVR:{target:6.40,actual:6.28}, basketSize:{target:2.50,actual:2.46}, purchaseRate:{target:2.56,actual:2.54}, newCustomer:{target:118000,actual:112000}, arpu:{target:1875000,actual:1887097} }
   },
   {
-    id: '1212_2025', name: '12.12 Sale 2025', shortName: '12.12 \'25', period: 'Dec 1–15, 2025', days: 15, year: 2025, type: 'Mega Sale', color: '#ec4899',
+    id: '1212_2025', name: '12.12 Sale 2025', shortName: '12.12 \'25', period: 'Dec 1–15, 2025', days: 15, year: 2025, type: 'Mega Sale', color: '#db2777',
     kpi: { tpv:{target:920e9,actual:905e9}, customer:{target:500000,actual:488000}, txnUserCR:{target:4.5,actual:4.42}, uv:{target:22000000,actual:21500000}, pdpUV:{target:10200000,actual:9800000}, pdpUVRate:{target:46.4,actual:45.6}, orders:{target:1500000,actual:1470000}, unitSold:{target:3800000,actual:3680000}, aov:{target:613333,actual:615646}, asp:{target:242105,actual:245924}, uvCVR:{target:6.82,actual:6.68}, basketSize:{target:2.53,actual:2.50}, purchaseRate:{target:2.27,actual:2.27}, newCustomer:{target:185000,actual:172000}, arpu:{target:1840000,actual:1854508} }
   },
   {
-    id: '1111_2025', name: '11.11 Sale 2025', shortName: '11.11 \'25', period: 'Nov 1–14, 2025', days: 14, year: 2025, type: 'Mega Sale', color: '#22c55e',
+    id: '1111_2025', name: '11.11 Sale 2025', shortName: '11.11 \'25', period: 'Nov 1–14, 2025', days: 14, year: 2025, type: 'Mega Sale', color: '#16a34a',
     kpi: { tpv:{target:980e9,actual:1020e9}, customer:{target:520000,actual:545000}, txnUserCR:{target:4.6,actual:4.85}, uv:{target:24000000,actual:23800000}, pdpUV:{target:11500000,actual:11200000}, pdpUVRate:{target:47.9,actual:47.1}, orders:{target:1600000,actual:1680000}, unitSold:{target:4100000,actual:4350000}, aov:{target:612500,actual:607143}, asp:{target:239024,actual:234483}, uvCVR:{target:6.67,actual:7.02}, basketSize:{target:2.56,actual:2.59}, purchaseRate:{target:2.17,actual:2.29}, newCustomer:{target:200000,actual:210000}, arpu:{target:1884615,actual:1871560} }
   },
   {
-    id: 'merdeka2025', name: 'Merdeka Day 2025', shortName: 'Merdeka \'25', period: 'Aug 1–20, 2025', days: 20, year: 2025, type: 'National', color: '#ef4444',
+    id: 'merdeka2025', name: 'Merdeka Day 2025', shortName: 'Merdeka \'25', period: 'Aug 1–20, 2025', days: 20, year: 2025, type: 'National', color: '#dc2626',
     kpi: { tpv:{target:550e9,actual:520e9}, customer:{target:280000,actual:265000}, txnUserCR:{target:3.5,actual:3.38}, uv:{target:11000000,actual:10800000}, pdpUV:{target:5000000,actual:4700000}, pdpUVRate:{target:45.5,actual:43.5}, orders:{target:750000,actual:710000}, unitSold:{target:1900000,actual:1780000}, aov:{target:733333,actual:732394}, asp:{target:289474,actual:292135}, uvCVR:{target:6.36,actual:6.12}, basketSize:{target:2.53,actual:2.51}, purchaseRate:{target:2.55,actual:2.45}, newCustomer:{target:100000,actual:92000}, arpu:{target:1964286,actual:1962264} }
   },
   {
-    id: '99_2025', name: '9.9 Sale 2025', shortName: '9.9 \'25', period: 'Sep 1–12, 2025', days: 12, year: 2025, type: 'Flash Sale', color: '#06b6d4',
+    id: '99_2025', name: '9.9 Sale 2025', shortName: '9.9 \'25', period: 'Sep 1–12, 2025', days: 12, year: 2025, type: 'Flash Sale', color: '#0891b2',
     kpi: { tpv:{target:480e9,actual:465e9}, customer:{target:250000,actual:242000}, txnUserCR:{target:3.8,actual:3.72}, uv:{target:10000000,actual:9800000}, pdpUV:{target:4500000,actual:4300000}, pdpUVRate:{target:45.0,actual:43.9}, orders:{target:680000,actual:660000}, unitSold:{target:1700000,actual:1640000}, aov:{target:705882,actual:704545}, asp:{target:282353,actual:283537}, uvCVR:{target:6.80,actual:6.58}, basketSize:{target:2.50,actual:2.48}, purchaseRate:{target:2.50,actual:2.47}, newCustomer:{target:95000,actual:88000}, arpu:{target:1920000,actual:1921488} }
   },
   {
-    id: 'midyear2025', name: 'Mid-Year Sale 2025', shortName: 'Mid \'25', period: 'Jun 1–21, 2025', days: 21, year: 2025, type: 'Flash Sale', color: '#3b82f6',
+    id: 'midyear2025', name: 'Mid-Year Sale 2025', shortName: 'Mid \'25', period: 'Jun 1–21, 2025', days: 21, year: 2025, type: 'Flash Sale', color: '#2563eb',
     kpi: { tpv:{target:420e9,actual:398e9}, customer:{target:220000,actual:208000}, txnUserCR:{target:3.4,actual:3.28}, uv:{target:9500000,actual:9200000}, pdpUV:{target:4200000,actual:3900000}, pdpUVRate:{target:44.2,actual:42.4}, orders:{target:580000,actual:552000}, unitSold:{target:1450000,actual:1380000}, aov:{target:724138,actual:721014}, asp:{target:289655,actual:288406}, uvCVR:{target:6.32,actual:6.15}, basketSize:{target:2.50,actual:2.50}, purchaseRate:{target:2.32,actual:2.26}, newCustomer:{target:82000,actual:75000}, arpu:{target:1909091,actual:1913462} }
   },
   {
-    id: 'cny2026', name: 'CNY Sale 2026', shortName: 'CNY \'26', period: 'Jan 15–Feb 5, 2026', days: 22, year: 2026, type: 'Seasonal', color: '#fbbf24',
+    id: 'cny2026', name: 'CNY Sale 2026', shortName: 'CNY \'26', period: 'Jan 15–Feb 5, 2026', days: 22, year: 2026, type: 'Seasonal', color: '#ca8a04',
     kpi: { tpv:{target:380e9,actual:372e9}, customer:{target:200000,actual:195000}, txnUserCR:{target:3.3,actual:3.25}, uv:{target:8500000,actual:8300000}, pdpUV:{target:3800000,actual:3600000}, pdpUVRate:{target:44.7,actual:43.4}, orders:{target:520000,actual:508000}, unitSold:{target:1300000,actual:1260000}, aov:{target:730769,actual:732283}, asp:{target:292308,actual:295238}, uvCVR:{target:6.12,actual:6.02}, basketSize:{target:2.50,actual:2.48}, purchaseRate:{target:2.35,actual:2.35}, newCustomer:{target:72000,actual:68000}, arpu:{target:1900000,actual:1907692} }
   },
 ];
@@ -831,7 +834,7 @@ function renderBarCharts(compared) {
     data: {
       labels,
       datasets: [
-        { label: 'Target', data: compared.map(c => c.kpi.uvCVR.target), backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 6, barPercentage: 0.4 },
+        { label: 'Target', data: compared.map(c => c.kpi.uvCVR.target), backgroundColor: 'rgba(0, 0, 0, 0.03)', borderRadius: 6, barPercentage: 0.4 },
         { label: 'Actual', data: compared.map(c => c.kpi.uvCVR.actual), backgroundColor: colors.map(c => c+'cc'), borderRadius: 6, barPercentage: 0.4 }
       ]
     },
@@ -844,7 +847,7 @@ function renderBarCharts(compared) {
     data: {
       labels,
       datasets: [
-        { label: 'Target', data: compared.map(c => c.kpi.aov.target / 1000), backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 6, barPercentage: 0.4 },
+        { label: 'Target', data: compared.map(c => c.kpi.aov.target / 1000), backgroundColor: 'rgba(0, 0, 0, 0.03)', borderRadius: 6, barPercentage: 0.4 },
         { label: 'Actual', data: compared.map(c => c.kpi.aov.actual / 1000), backgroundColor: colors.map(c => c+'cc'), borderRadius: 6, barPercentage: 0.4 }
       ]
     },
@@ -855,10 +858,10 @@ function renderBarCharts(compared) {
 function chartOptions(yLabel) {
   return {
     responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { labels: { color: '#888', font: { size: 11 } } }, tooltip: { backgroundColor: '#1a1d2e', titleColor: '#fff', bodyColor: '#ccc', borderColor: '#2a2d3e', borderWidth: 1 } },
+    plugins: { legend: { labels: { color: '#8891a5', font: { size: 11 } } }, tooltip: { backgroundColor: '#ffffff', titleColor: '#1e2235', bodyColor: '#4a5068', borderColor: '#e2e6ef', borderWidth: 1 } },
     scales: {
-      x: { grid: { color: '#1a1d2e' }, ticks: { color: '#888', font: { size: 10 } } },
-      y: { grid: { color: '#1a1d2e' }, ticks: { color: '#555', font: { size: 10 } }, title: { display: true, text: yLabel, color: '#555', font: { size: 10 } } }
+      x: { grid: { color: '#edf0f5' }, ticks: { color: '#8891a5', font: { size: 10 } } },
+      y: { grid: { color: '#edf0f5' }, ticks: { color: '#9ba3b5', font: { size: 10 } }, title: { display: true, text: yLabel, color: '#9ba3b5', font: { size: 10 } } }
     }
   };
 }
@@ -894,10 +897,10 @@ function renderOverlayChart(compared) {
     options: {
       responsive: true, maintainAspectRatio: false,
       interaction: { intersect: false, mode: 'index' },
-      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1a1d2e', titleColor: '#fff', bodyColor: '#ccc', borderColor: '#2a2d3e', borderWidth: 1, callbacks: { label: ctx => ctx.parsed.y !== null ? `${ctx.dataset.label}: Rp ${ctx.parsed.y.toFixed(1)}B` : '' } } },
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#ffffff', titleColor: '#1e2235', bodyColor: '#4a5068', borderColor: '#e2e6ef', borderWidth: 1, callbacks: { label: ctx => ctx.parsed.y !== null ? `${ctx.dataset.label}: Rp ${ctx.parsed.y.toFixed(1)}B` : '' } } },
       scales: {
-        x: { grid: { color: '#1a1d2e' }, ticks: { color: '#888', font: { size: 10 } } },
-        y: { grid: { color: '#1a1d2e' }, ticks: { color: '#555', font: { size: 10 }, callback: v => v + 'B' }, title: { display: true, text: 'Daily TPV (B Rp)', color: '#555', font: { size: 10 } } }
+        x: { grid: { color: '#edf0f5' }, ticks: { color: '#8891a5', font: { size: 10 } } },
+        y: { grid: { color: '#edf0f5' }, ticks: { color: '#9ba3b5', font: { size: 10 }, callback: v => v + 'B' }, title: { display: true, text: 'Daily TPV (B Rp)', color: '#9ba3b5', font: { size: 10 } } }
       }
     }
   });
@@ -961,11 +964,11 @@ function renderHeatmap(compared) {
     compared.forEach(c => {
       const ach = achPct(c.kpi[key].actual, c.kpi[key].target);
       let bg, fg;
-      if (ach >= 100) { bg = 'rgba(34,197,94,0.25)'; fg = '#4ade80'; }
-      else if (ach >= 95) { bg = 'rgba(34,197,94,0.12)'; fg = '#86efac'; }
-      else if (ach >= 85) { bg = 'rgba(251,191,36,0.15)'; fg = '#fbbf24'; }
-      else if (ach >= 70) { bg = 'rgba(249,115,22,0.15)'; fg = '#f97316'; }
-      else { bg = 'rgba(239,68,68,0.15)'; fg = '#f87171'; }
+      if (ach >= 100) { bg = 'rgba(22,163,74,0.12)'; fg = '#16a34a'; }
+      else if (ach >= 95) { bg = 'rgba(22,163,74,0.07)'; fg = '#16a34a'; }
+      else if (ach >= 85) { bg = 'rgba(202,138,4,0.10)'; fg = '#ca8a04'; }
+      else if (ach >= 70) { bg = 'rgba(234,88,12,0.10)'; fg = '#ea580c'; }
+      else { bg = 'rgba(220,38,38,0.10)'; fg = '#dc2626'; }
 
       grid.innerHTML += `<div class="heatmap-cell" style="background:${bg};color:${fg};">${ach.toFixed(1)}%</div>`;
     });

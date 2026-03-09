@@ -8,22 +8,22 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   :root {
-    --bg: #0b0d13;
-    --card: #12141f;
-    --card-border: #1c1f30;
-    --card-hover: #181b2a;
-    --text: #e0e0e0;
-    --text-muted: #6b7280;
-    --text-dim: #3d4155;
-    --accent: #f97316;
-    --accent2: #6366f1;
-    --green: #22c55e;
-    --green-bg: rgba(34,197,94,0.1);
-    --red: #ef4444;
-    --red-bg: rgba(239,68,68,0.1);
-    --yellow: #fbbf24;
-    --yellow-bg: rgba(251,191,36,0.1);
-    --blue: #3b82f6;
+    --bg: #f5f7fa;
+    --card: #ffffff;
+    --card-border: #e2e6ef;
+    --card-hover: #f0f2f8;
+    --text: #4a5068;
+    --text-muted: #8891a5;
+    --text-dim: #b0b7c8;
+    --accent: #ea580c;
+    --accent2: #5563e8;
+    --green: #16a34a;
+    --green-bg: rgba(22,163,74,0.07);
+    --red: #dc2626;
+    --red-bg: rgba(220,38,38,0.07);
+    --yellow: #ca8a04;
+    --yellow-bg: rgba(202,138,4,0.07);
+    --blue: #2563eb;
   }
   body {
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -35,7 +35,7 @@
 
   /* ===== TOP NAV ===== */
   .topnav {
-    background: #0e1019;
+    background: #ffffff;
     border-bottom: 1px solid var(--card-border);
     padding: 0 32px;
     height: 56px;
@@ -46,12 +46,13 @@
     top: 0;
     z-index: 100;
     backdrop-filter: blur(12px);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   }
   .topnav-left { display: flex; align-items: center; gap: 16px; }
   .topnav-logo {
     font-size: 18px;
     font-weight: 800;
-    color: #fff;
+    color: #1e2235;
     letter-spacing: -0.5px;
   }
   .topnav-logo span { color: var(--accent); }
@@ -61,7 +62,7 @@
     align-items: center;
     gap: 10px;
   }
-  .topnav-campaign-name { font-size: 14px; font-weight: 600; color: #fff; }
+  .topnav-campaign-name { font-size: 14px; font-weight: 600; color: #1e2235; }
   .topnav-badge {
     padding: 3px 10px;
     border-radius: 20px;
@@ -70,7 +71,7 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-  .badge-active { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-active { background: var(--green-bg); color: var(--green); border: 1px solid rgba(22,163,74,0.25); }
   .topnav-right { display: flex; align-items: center; gap: 16px; }
   .topnav-period {
     font-size: 12px;
@@ -103,7 +104,7 @@
 
   /* ===== HERO SECTION ===== */
   .hero {
-    background: linear-gradient(135deg, rgba(249,115,22,0.08) 0%, rgba(99,102,241,0.08) 100%);
+    background: linear-gradient(135deg, rgba(234,88,12,0.06) 0%, rgba(85,99,232,0.06) 100%);
     border: 1px solid var(--card-border);
     border-radius: 16px;
     padding: 24px 28px;
@@ -113,11 +114,12 @@
     justify-content: space-between;
     gap: 24px;
     flex-wrap: wrap;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   }
   .hero-left h2 {
     font-size: 24px;
     font-weight: 800;
-    color: #fff;
+    color: #1e2235;
     margin-bottom: 6px;
   }
   .hero-left p { font-size: 13px; color: var(--text-muted); }
@@ -133,7 +135,7 @@
   .hero-kpi .hk-val {
     font-size: 28px;
     font-weight: 800;
-    color: #fff;
+    color: #1e2235;
   }
   .hero-kpi .hk-label {
     font-size: 11px;
@@ -158,6 +160,7 @@
     border-radius: 14px;
     padding: 20px 24px;
     margin-bottom: 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   }
   .timeline-header {
     display: flex;
@@ -168,7 +171,7 @@
   .timeline-header h3 {
     font-size: 14px;
     font-weight: 700;
-    color: #fff;
+    color: #1e2235;
   }
   .timeline-days {
     font-size: 12px;
@@ -198,12 +201,12 @@
     color: #fff;
   }
   .timeline-day.today {
-    background: linear-gradient(135deg, var(--accent2), #818cf8);
+    background: linear-gradient(135deg, var(--accent2), #7c8af0);
     color: #fff;
-    box-shadow: 0 0 12px rgba(99,102,241,0.4);
+    box-shadow: 0 0 12px rgba(85,99,232,0.3);
   }
   .timeline-day.future {
-    background: #1a1d2e;
+    background: #f7f8fc;
     color: var(--text-dim);
     border: 1px solid var(--card-border);
   }
@@ -225,7 +228,7 @@
   .section-header h3 {
     font-size: 16px;
     font-weight: 700;
-    color: #fff;
+    color: #1e2235;
   }
   .section-header .sh-line {
     flex: 1;
@@ -267,8 +270,9 @@
     border-radius: 14px 14px 0 0;
   }
   .kpi-card:hover {
-    border-color: #2a2d45;
+    border-color: #cdd2e0;
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
   }
   .kpi-top {
     display: flex;
@@ -299,7 +303,7 @@
   .kpi-actual {
     font-size: 24px;
     font-weight: 800;
-    color: #fff;
+    color: #1e2235;
     line-height: 1;
   }
   .kpi-target {
@@ -313,7 +317,7 @@
   }
   .kpi-progress-bar {
     height: 6px;
-    background: #1a1d2e;
+    background: #e8ebf2;
     border-radius: 3px;
     overflow: hidden;
     position: relative;
@@ -324,7 +328,7 @@
     transition: width 1s ease;
     position: relative;
   }
-  .kpi-progress-fill.over { box-shadow: 0 0 8px rgba(34,197,94,0.4); }
+  .kpi-progress-fill.over { box-shadow: 0 0 8px rgba(22,163,74,0.3); }
   .kpi-bottom {
     display: flex;
     align-items: center;
@@ -366,7 +370,7 @@
   .chart-card h4 {
     font-size: 14px;
     font-weight: 700;
-    color: #fff;
+    color: #1e2235;
     margin-bottom: 16px;
     display: flex;
     align-items: center;
@@ -394,7 +398,7 @@
   .table-card h4 {
     font-size: 14px;
     font-weight: 700;
-    color: #fff;
+    color: #1e2235;
     margin-bottom: 16px;
   }
   .data-table {
@@ -419,12 +423,12 @@
   .data-table thead th:first-child { padding-left: 0; }
   .data-table tbody td {
     padding: 10px 12px;
-    border-bottom: 1px solid #13152008;
-    color: #ccc;
+    border-bottom: 1px solid #e8ebf2;
+    color: #4a5068;
     white-space: nowrap;
   }
-  .data-table tbody td:first-child { padding-left: 0; font-weight: 600; color: #fff; }
-  .data-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
+  .data-table tbody td:first-child { padding-left: 0; font-weight: 600; color: #1e2235; }
+  .data-table tbody tr:hover td { background: rgba(85,99,232,0.03); }
   .data-table tbody tr:last-child td { border-bottom: none; }
   .data-table .tbl-badge {
     padding: 2px 8px;
@@ -436,9 +440,9 @@
   .tbl-miss { background: var(--red-bg); color: var(--red); }
   .tbl-warn { background: var(--yellow-bg); color: var(--yellow); }
   .tbl-date-today {
-    background: rgba(99,102,241,0.1);
+    background: rgba(85,99,232,0.06);
   }
-  .tbl-date-today td { color: #fff !important; }
+  .tbl-date-today td { color: #1e2235 !important; }
 
   /* ===== BOTTOM INSIGHTS ===== */
   .insights-row {
@@ -456,7 +460,7 @@
   .insight-card h4 {
     font-size: 13px;
     font-weight: 700;
-    color: #fff;
+    color: #1e2235;
     margin-bottom: 14px;
     display: flex;
     align-items: center;
@@ -467,13 +471,13 @@
     align-items: center;
     gap: 12px;
     padding: 10px 0;
-    border-bottom: 1px solid #1a1d2e;
+    border-bottom: 1px solid #e8ebf2;
   }
   .funnel-step:last-child { border-bottom: none; }
   .funnel-bar-track {
     flex: 1;
     height: 8px;
-    background: #1a1d2e;
+    background: #e8ebf2;
     border-radius: 4px;
     overflow: hidden;
   }
@@ -483,13 +487,13 @@
   }
   .funnel-label {
     font-size: 11px;
-    color: #ccc;
+    color: #4a5068;
     min-width: 80px;
   }
   .funnel-val {
     font-size: 12px;
     font-weight: 700;
-    color: #fff;
+    color: #1e2235;
     min-width: 56px;
     text-align: right;
   }
@@ -498,7 +502,7 @@
     align-items: flex-start;
     gap: 10px;
     padding: 10px 0;
-    border-bottom: 1px solid #1a1d2e;
+    border-bottom: 1px solid #e8ebf2;
   }
   .alert-item:last-child { border-bottom: none; }
   .alert-dot {
@@ -509,20 +513,20 @@
   }
   .alert-text {
     font-size: 12px;
-    color: #ccc;
+    color: #4a5068;
     line-height: 1.5;
   }
-  .alert-text strong { color: #fff; }
+  .alert-text strong { color: #1e2235; }
 
   .target-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 10px 0;
-    border-bottom: 1px solid #1a1d2e;
+    border-bottom: 1px solid #e8ebf2;
   }
   .target-item:last-child { border-bottom: none; }
-  .target-name { font-size: 12px; color: #ccc; }
+  .target-name { font-size: 12px; color: #4a5068; }
   .target-status {
     font-size: 11px;
     font-weight: 700;
@@ -552,6 +556,7 @@
   }
   .kpi-card, .chart-card, .insight-card, .table-card {
     animation: fadeUp 0.4s ease forwards;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   }
 </style>
 </head>
@@ -665,21 +670,21 @@ const PROGRESS_PCT = (ELAPSED_DAYS / CAMPAIGN.totalDays * 100);
 
 // Target values (full campaign)
 const TARGETS = {
-  tpv:            { label: 'TPV',                    target: 850000000000,    unit: '', format: 'currency',  icon: '💰', color: '#f97316', group: 'primary' },
-  customer:       { label: 'Customer',               target: 420000,          unit: '',  format: 'number',   icon: '👥', color: '#6366f1', group: 'primary' },
-  txnUserCR:      { label: 'Transaction User CR',    target: 4.2,             unit: '%', format: 'percent',  icon: '🔄', color: '#14b8a6', group: 'primary' },
-  uv:             { label: 'User Visitor (UV)',       target: 18000000,        unit: '',  format: 'number',   icon: '👁', color: '#3b82f6', group: 'primary' },
-  pdpUV:          { label: 'PDP UV',                  target: 8500000,         unit: '',  format: 'number',   icon: '📄', color: '#a855f7', group: 'primary' },
-  pdpUVRate:      { label: 'PDP UV Rate',             target: 47.2,            unit: '%', format: 'percent',  icon: '📊', color: '#ec4899', group: 'conversion' },
-  orders:         { label: 'Orders',                  target: 1250000,         unit: '',  format: 'number',   icon: '🛒', color: '#22c55e', group: 'conversion' },
-  unitSold:       { label: 'Unit Sold',               target: 3200000,         unit: '',  format: 'number',   icon: '📦', color: '#0891b2', group: 'conversion' },
-  aov:            { label: 'AOV (TPV/Orders)',        target: 680000,          unit: '',  format: 'currency_k', icon: '💳', color: '#f59e0b', group: 'conversion' },
-  asp:            { label: 'ASP (TPV/Unit)',          target: 265625,          unit: '',  format: 'currency_k', icon: '🏷', color: '#8b5cf6', group: 'conversion' },
-  uvCVR:          { label: 'UV CVR',                  target: 6.94,            unit: '%', format: 'percent',  icon: '🎯', color: '#ef4444', group: 'conversion' },
-  basketSize:     { label: 'Basket Size',             target: 2.56,            unit: '',  format: 'decimal',  icon: '🧺', color: '#10b981', group: 'conversion' },
-  purchaseRate:   { label: 'Purchase Rate',           target: 2.33,            unit: '%', format: 'percent',  icon: '🛍', color: '#6366f1', group: 'conversion' },
-  newCustomer:    { label: 'New Customer',            target: 165000,          unit: '',  format: 'number',   icon: '🆕', color: '#f43f5e', group: 'primary' },
-  arpu:           { label: 'ARPU (TPV/Cust)',        target: 2023810,         unit: '',  format: 'currency_k', icon: '📈', color: '#d946ef', group: 'conversion' },
+  tpv:            { label: 'TPV',                    target: 850000000000,    unit: '', format: 'currency',  icon: '💰', color: '#ea580c', group: 'primary' },
+  customer:       { label: 'Customer',               target: 420000,          unit: '',  format: 'number',   icon: '👥', color: '#5563e8', group: 'primary' },
+  txnUserCR:      { label: 'Transaction User CR',    target: 4.2,             unit: '%', format: 'percent',  icon: '🔄', color: '#0d9488', group: 'primary' },
+  uv:             { label: 'User Visitor (UV)',       target: 18000000,        unit: '',  format: 'number',   icon: '👁', color: '#2563eb', group: 'primary' },
+  pdpUV:          { label: 'PDP UV',                  target: 8500000,         unit: '',  format: 'number',   icon: '📄', color: '#8b3dd8', group: 'primary' },
+  pdpUVRate:      { label: 'PDP UV Rate',             target: 47.2,            unit: '%', format: 'percent',  icon: '📊', color: '#d6336c', group: 'conversion' },
+  orders:         { label: 'Orders',                  target: 1250000,         unit: '',  format: 'number',   icon: '🛒', color: '#16a34a', group: 'conversion' },
+  unitSold:       { label: 'Unit Sold',               target: 3200000,         unit: '',  format: 'number',   icon: '📦', color: '#0e7490', group: 'conversion' },
+  aov:            { label: 'AOV (TPV/Orders)',        target: 680000,          unit: '',  format: 'currency_k', icon: '💳', color: '#d97706', group: 'conversion' },
+  asp:            { label: 'ASP (TPV/Unit)',          target: 265625,          unit: '',  format: 'currency_k', icon: '🏷', color: '#7c3aed', group: 'conversion' },
+  uvCVR:          { label: 'UV CVR',                  target: 6.94,            unit: '%', format: 'percent',  icon: '🎯', color: '#dc2626', group: 'conversion' },
+  basketSize:     { label: 'Basket Size',             target: 2.56,            unit: '',  format: 'decimal',  icon: '🧺', color: '#059669', group: 'conversion' },
+  purchaseRate:   { label: 'Purchase Rate',           target: 2.33,            unit: '%', format: 'percent',  icon: '🛍', color: '#5563e8', group: 'conversion' },
+  newCustomer:    { label: 'New Customer',            target: 165000,          unit: '',  format: 'number',   icon: '🆕', color: '#e11d48', group: 'primary' },
+  arpu:           { label: 'ARPU (TPV/Cust)',        target: 2023810,         unit: '',  format: 'currency_k', icon: '📈', color: '#c026d3', group: 'conversion' },
 };
 
 // Generate daily data up to SIM_TODAY
@@ -871,7 +876,7 @@ function renderTimeline() {
   bar.innerHTML = `
     <div class="timeline-header">
       <h3>📅 Campaign Progress</h3>
-      <div class="timeline-days">Day <strong style="color:#fff">${ELAPSED_DAYS}</strong> of ${CAMPAIGN.totalDays} · <strong style="color:var(--accent)">${PROGRESS_PCT.toFixed(0)}%</strong> complete</div>
+      <div class="timeline-days">Day <strong style="color:#1e2235">${ELAPSED_DAYS}</strong> of ${CAMPAIGN.totalDays} · <strong style="color:var(--accent)">${PROGRESS_PCT.toFixed(0)}%</strong> complete</div>
     </div>
     <div class="timeline-track">${trackHTML}</div>
     <div class="timeline-labels">
@@ -957,7 +962,7 @@ function renderCharts() {
         {
           label: 'Daily TPV',
           data: elapsed.map(d => d.daily.tpv / 1e9),
-          backgroundColor: 'rgba(249,115,22,0.7)',
+          backgroundColor: 'rgba(234,88,12,0.7)',
           borderRadius: 4,
           borderSkipped: false,
           barPercentage: 0.7,
@@ -966,7 +971,7 @@ function renderCharts() {
           label: 'Daily Target',
           data: elapsed.map(() => dailyTPVTarget / 1e9),
           type: 'line',
-          borderColor: '#ef4444',
+          borderColor: '#dc2626',
           borderDash: [6, 4],
           borderWidth: 2,
           pointRadius: 0,
@@ -976,10 +981,10 @@ function renderCharts() {
           label: 'Cumulative TPV',
           data: elapsed.map(d => d.cumul.tpv / 1e9),
           type: 'line',
-          borderColor: '#6366f1',
+          borderColor: '#5563e8',
           borderWidth: 2.5,
           pointRadius: 3,
-          pointBackgroundColor: '#6366f1',
+          pointBackgroundColor: '#5563e8',
           fill: false,
           yAxisID: 'y1',
         },
@@ -990,12 +995,12 @@ function renderCharts() {
       maintainAspectRatio: false,
       interaction: { intersect: false, mode: 'index' },
       plugins: {
-        legend: { labels: { color: '#888', font: { size: 11 } } },
+        legend: { labels: { color: '#8891a5', font: { size: 11 } } },
         tooltip: {
-          backgroundColor: '#1a1d2e',
-          titleColor: '#fff',
-          bodyColor: '#ccc',
-          borderColor: '#2a2d3e',
+          backgroundColor: '#ffffff',
+          titleColor: '#1e2235',
+          bodyColor: '#4a5068',
+          borderColor: '#e2e6ef',
           borderWidth: 1,
           callbacks: {
             label: ctx => `${ctx.dataset.label}: Rp ${ctx.parsed.y.toFixed(1)}B`
@@ -1003,9 +1008,9 @@ function renderCharts() {
         }
       },
       scales: {
-        x: { grid: { color: '#1a1d2e' }, ticks: { color: '#555', font: { size: 10 } } },
-        y: { grid: { color: '#1a1d2e' }, ticks: { color: '#555', font: { size: 10 }, callback: v => v + 'B' }, title: { display: true, text: 'Daily (B Rp)', color: '#555', font: { size: 10 } } },
-        y1: { position: 'right', grid: { display: false }, ticks: { color: '#6366f1', font: { size: 10 }, callback: v => v + 'B' }, title: { display: true, text: 'Cumulative (B Rp)', color: '#6366f1', font: { size: 10 } } },
+        x: { grid: { color: '#e8ebf2' }, ticks: { color: '#8891a5', font: { size: 10 } } },
+        y: { grid: { color: '#e8ebf2' }, ticks: { color: '#8891a5', font: { size: 10 }, callback: v => v + 'B' }, title: { display: true, text: 'Daily (B Rp)', color: '#8891a5', font: { size: 10 } } },
+        y1: { position: 'right', grid: { display: false }, ticks: { color: '#5563e8', font: { size: 10 }, callback: v => v + 'B' }, title: { display: true, text: 'Cumulative (B Rp)', color: '#5563e8', font: { size: 10 } } },
       },
     }
   });
@@ -1023,17 +1028,17 @@ function renderCharts() {
         {
           label: 'Achievement %',
           data: radarData,
-          backgroundColor: 'rgba(249,115,22,0.15)',
-          borderColor: '#f97316',
+          backgroundColor: 'rgba(234,88,12,0.12)',
+          borderColor: '#ea580c',
           borderWidth: 2,
-          pointBackgroundColor: '#f97316',
+          pointBackgroundColor: '#ea580c',
           pointRadius: 4,
         },
         {
           label: 'Prorated Pace',
           data: radarKeys.map(() => PROGRESS_PCT),
-          backgroundColor: 'rgba(99,102,241,0.08)',
-          borderColor: '#6366f1',
+          backgroundColor: 'rgba(85,99,232,0.06)',
+          borderColor: '#5563e8',
           borderDash: [4, 4],
           borderWidth: 1.5,
           pointRadius: 0,
@@ -1044,14 +1049,14 @@ function renderCharts() {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { labels: { color: '#888', font: { size: 11 } } },
+        legend: { labels: { color: '#8891a5', font: { size: 11 } } },
       },
       scales: {
         r: {
-          grid: { color: '#1a1d2e' },
-          angleLines: { color: '#1a1d2e' },
-          ticks: { color: '#555', backdropColor: 'transparent', font: { size: 9 }, stepSize: 20 },
-          pointLabels: { color: '#aaa', font: { size: 10 } },
+          grid: { color: '#e8ebf2' },
+          angleLines: { color: '#e8ebf2' },
+          ticks: { color: '#8891a5', backdropColor: 'transparent', font: { size: 9 }, stepSize: 20 },
+          pointLabels: { color: '#4a5068', font: { size: 10 } },
           min: 0, max: 120,
         }
       }
@@ -1067,8 +1072,8 @@ function renderCharts() {
         {
           label: 'Orders',
           data: elapsed.map(d => d.daily.orders),
-          borderColor: '#22c55e',
-          backgroundColor: 'rgba(34,197,94,0.1)',
+          borderColor: '#16a34a',
+          backgroundColor: 'rgba(22,163,74,0.08)',
           borderWidth: 2.5,
           fill: true,
           tension: 0.3,
@@ -1077,7 +1082,7 @@ function renderCharts() {
         {
           label: 'UV (÷100)',
           data: elapsed.map(d => d.daily.uv / 100),
-          borderColor: '#3b82f6',
+          borderColor: '#2563eb',
           borderWidth: 2,
           borderDash: [4,4],
           fill: false,
@@ -1091,11 +1096,11 @@ function renderCharts() {
       responsive: true,
       maintainAspectRatio: false,
       interaction: { intersect: false, mode: 'index' },
-      plugins: { legend: { labels: { color: '#888', font: { size: 11 } } } },
+      plugins: { legend: { labels: { color: '#8891a5', font: { size: 11 } } } },
       scales: {
-        x: { grid: { color: '#1a1d2e' }, ticks: { color: '#555', font: { size: 10 } } },
-        y: { grid: { color: '#1a1d2e' }, ticks: { color: '#22c55e', font: { size: 10 }, callback: v => fmtNumber(v) }, title: { display: true, text: 'Orders', color: '#22c55e', font: { size: 10 } } },
-        y1: { position: 'right', grid: { display: false }, ticks: { color: '#3b82f6', font: { size: 10 }, callback: v => fmtNumber(v*100) }, title: { display: true, text: 'UV', color: '#3b82f6', font: { size: 10 } } },
+        x: { grid: { color: '#e8ebf2' }, ticks: { color: '#8891a5', font: { size: 10 } } },
+        y: { grid: { color: '#e8ebf2' }, ticks: { color: '#16a34a', font: { size: 10 }, callback: v => fmtNumber(v) }, title: { display: true, text: 'Orders', color: '#16a34a', font: { size: 10 } } },
+        y1: { position: 'right', grid: { display: false }, ticks: { color: '#2563eb', font: { size: 10 }, callback: v => fmtNumber(v*100) }, title: { display: true, text: 'UV', color: '#2563eb', font: { size: 10 } } },
       }
     }
   });
@@ -1109,14 +1114,14 @@ function renderCharts() {
         {
           label: 'New Customer',
           data: elapsed.map(d => d.daily.newCustomer),
-          backgroundColor: '#f43f5e',
+          backgroundColor: '#e11d48',
           borderRadius: 4,
           barPercentage: 0.6,
         },
         {
           label: 'Returning',
           data: elapsed.map(d => d.daily.customer - d.daily.newCustomer),
-          backgroundColor: '#6366f1',
+          backgroundColor: '#5563e8',
           borderRadius: 4,
           barPercentage: 0.6,
         },
@@ -1125,10 +1130,10 @@ function renderCharts() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#888', font: { size: 11 } } } },
+      plugins: { legend: { labels: { color: '#8891a5', font: { size: 11 } } } },
       scales: {
-        x: { stacked: true, grid: { color: '#1a1d2e' }, ticks: { color: '#555', font: { size: 10 } } },
-        y: { stacked: true, grid: { color: '#1a1d2e' }, ticks: { color: '#555', font: { size: 10 }, callback: v => fmtNumber(v) } },
+        x: { stacked: true, grid: { color: '#e8ebf2' }, ticks: { color: '#8891a5', font: { size: 10 } } },
+        y: { stacked: true, grid: { color: '#e8ebf2' }, ticks: { color: '#8891a5', font: { size: 10 }, callback: v => fmtNumber(v) } },
       }
     }
   });
@@ -1188,7 +1193,7 @@ function renderFunnel() {
     { label: 'New Cust',    val: ACTUALS.newCustomer, pct: (ACTUALS.newCustomer / ACTUALS.uv * 100) },
   ];
 
-  const colors = ['#3b82f6','#6366f1','#a855f7','#ec4899','#f43f5e','#f97316'];
+  const colors = ['#2563eb','#5563e8','#8b3dd8','#d6336c','#e11d48','#ea580c'];
   container.innerHTML = steps.map((s, i) => `
     <div class="funnel-step">
       <div class="funnel-label">${s.label}</div>
